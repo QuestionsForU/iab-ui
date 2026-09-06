@@ -19,13 +19,17 @@ const IUIRolePrivilege = (props) => {
     const modules = [
         { name: "role", text: "Role" },
         { name: "user", text: "User" },
-		{ name: "company", text: "Companies" },
-        { name: "itemMaster", text: "Item Master" },
-        { name: "itemGroup", text: "Item Group" },
-        { name: "project", text: "Projects" },
-        { name: "tower", text: "Towers" },
-        { name: "floor", text: "Floors" },
-        { name: "flat", text: "Flats" },
+        { name: "supplier", text: "Supplier" },
+        { name: "productType", text: "Product Type" },
+        { name: "product", text: "Product" },
+        { name: "invoice", text: "Invoice" },
+		// { name: "company", text: "Companies" },
+        // { name: "itemMaster", text: "Item Master" },
+        // { name: "itemGroup", text: "Item Group" },
+        // { name: "project", text: "Projects" },
+        // { name: "tower", text: "Towers" },
+        // { name: "floor", text: "Floors" },
+        // { name: "flat", text: "Flats" },
     ] // TODO
 
     const modulePrivileges = modules.map((item, index) => {

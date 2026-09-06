@@ -63,7 +63,7 @@ const IUIPictureUpload = (props) => {
                         }
                         {
                             (file.length === 0) && <span className="profile-pic-upload-text">
-                                <i className="fa-solid fa-cloud-arrow-up"></i> Upload Logo
+                                <i className="fa-solid fa-cloud-arrow-up"></i> Upload
                             </span>
                         }
                     </button>

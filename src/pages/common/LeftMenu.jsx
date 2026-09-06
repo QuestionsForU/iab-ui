@@ -13,16 +13,16 @@ const LeftMenu = (props) => {
             name: "inventory", text: "Inventory", icon: "cart-shopping",
             schema: [
                 { name: "supplier", text: "Suppliers", icon: "truck-field", path: "/suppliers" },
-                { name: "category", text: "Category", icon: "sitemap", path: "/categorys" },
+                { name: "productType", text: "Product Type", icon: "sitemap", path: "/productTypes" },
                 { name: "product", text: "Product", icon: "box-open", path: "/products" },
-                { name: "supplierPurchase", text: "Supplier Purchase", icon: "truck-fast", path: "/supplierPurchases" }
+                // { name: "supplierPurchase", text: "Supplier Purchase", icon: "truck-fast", path: "/supplierPurchases" }
             ]
         },
         {
             name: "sale", text: "Sales", icon: "bag-shopping",
             schema: [
                 { name: "invoice", text: "Invoice", icon: "receipt", path: "/invoices" },
-                { name: "saleOrder", text: "Sale Order", icon: "basket-shopping", path: "/saleOrders" }
+                // { name: "saleOrder", text: "Sale Order", icon: "basket-shopping", path: "/saleOrders" }
             ]
         },
         {
@@ -31,20 +31,20 @@ const LeftMenu = (props) => {
                 { name: "customer", text: "Customer", icon: "user", path: "/customers" }
             ]
         },
-        {
-            name: "setting", text: "Settings", icon: "gear",
-            schema: [
-                { name: "dailyPrice", text: "Daily Price", icon: "money-bill-trend-up", path: "/dailyPrices" },
-                { name: "purity", text: "Purity", icon: "scale-balanced", path: "/puritys" },
-                { name: "siteSetting", text: "Site Settings", icon: "sliders", path: "/siteSettings" }
-            ]
-        },
+        // {
+        //     name: "setting", text: "Settings", icon: "gear",
+        //     schema: [
+        //         { name: "dailyPrice", text: "Daily Price", icon: "money-bill-trend-up", path: "/dailyPrices" },
+        //         { name: "purity", text: "Purity", icon: "scale-balanced", path: "/puritys" },
+        //         { name: "siteSetting", text: "Site Settings", icon: "sliders", path: "/siteSettings" }
+        //     ]
+        // },
         {
             name: "configuration", text: "Configuration", icon: "cogs",
             schema: [
                 { name: "userManagement", text: "User Management", icon: "users", path: "/users" },
-                // { name: "roleManagement", text: "Role Management", icon: "sitemap", path: "/roles" }
-                { name: "moduleManagement", text: "Modue Management", icon: "users", path: "/modules" },
+                { name: "roleManagement", text: "Role Management", icon: "sitemap", path: "/roles" }
+                //{ name: "moduleManagement", text: "Modue Management", icon: "users", path: "/modules" },
             ]
         },
         // {
