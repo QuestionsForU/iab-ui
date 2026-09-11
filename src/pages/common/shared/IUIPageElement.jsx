@@ -41,7 +41,13 @@ const IUIPageElement = (props) => {
         if (props.readonly)
             return
 
-        let newData = { ...data, [e.target.id]: e.target.value }
+        let newData = { ...data };
+        if (e?.target?.value && typeof e.target.value === 'object' && !Array.isArray(e.target.value)) {
+            newData = { ...newData, ...e.target.value };
+        } else {
+            newData = { ...newData, [e.target.id]: e.target.value }
+        }
+
         if (e.target.id === 'roles') {
             let newPrivileges = []
             if (newData?.privileges) {
@@ -129,7 +135,9 @@ const IUIPageElement = (props) => {
                                             id={fld.field}
                                             className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
                                             placeholder={fld.placeholder}
-                                            value={data[fld.field] || ""}
+                                            value={fld.field === 'total'
+                                                ? (Number(data.quantity || 0) * Number(data.price || 0)).toFixed(2)
+                                                : (data[fld.field] ?? "")}
                                             disabled={props.readonly || fld.readonly || false}
                                             onChange={handleChange} />
                                     </InputGroup>
@@ -353,6 +361,7 @@ const IUIPageElement = (props) => {
                                 <Form.Group className="position-relative">
                                     <IUIListInline
                                         value={data[fld.field]}
+                                        gstPercent={data?.gstPercent || 0}
                                         // className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
                                         id={fld.field}
                                         schema={fld.schema}
