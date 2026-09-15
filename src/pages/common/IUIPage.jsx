@@ -42,7 +42,7 @@ const IUIPage = (props) => {
 
     useEffect(() => {
         const modulePrivileges = loggedInUser?.privileges?.filter(p => p.module === module)?.map(p => p.name);
-        if(modulePrivileges){
+        if (modulePrivileges) {
             let access = {};
             modulePrivileges.forEach(p => {
                 access = { ...access, ...{ [p]: true } }
@@ -50,6 +50,10 @@ const IUIPage = (props) => {
             setPrivileges(access)
         }
     }, [loggedInUser, module]);
+
+    const canAdd = Object.keys(privileges).length === 0 || privileges?.add === true;
+    const canEdit = Object.keys(privileges).length === 0 || privileges?.edit === true;
+    const canSave = !schema?.readonly && (id ? canEdit : canAdd);
 
     useEffect(() => {
         if (dirty) {
@@ -330,46 +334,34 @@ const IUIPage = (props) => {
                                                             className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
                                                             onClick={() => navigate(`/${schema.module}s`)}> Back</Button>
                                                     }
-                                                    {!schema?.readonly &&
+                                                    {!schema?.readonly && canSave &&
                                                         <>
-                                                            {(!privileges?.add || !privileges?.edit) &&
-                                                                <>
-                                                                    <Button variant="contained"
-                                                                        className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md mr-2"
-                                                                        onClick={savePageValue}>Save </Button>
+                                                            <Button variant="contained"
+                                                                className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md mr-2"
+                                                                onClick={savePageValue}>Save </Button>
 
-                                                                    <Button variant="contained"
-                                                                        className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
-                                                                        onClick={() => navigate(-1)}> Cancel</Button>
-                                                                </>
-                                                            }
+                                                            <Button variant="contained"
+                                                                className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
+                                                                onClick={() => navigate(-1)}> Cancel</Button>
                                                         </>
                                                     }
-                                                    {schema?.adding &&
-                                                        <>
-                                                            {!privileges?.add &&
-                                                                <Button
-                                                                    variant="contained"
-                                                                    className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mr-2"
-                                                                    onClick={() => navigate(`/${schema.module}s/add`)}
-                                                                >
-                                                                    Add New
-                                                                </Button>
-                                                            }
-                                                        </>
+                                                    {schema?.adding && canAdd &&
+                                                        <Button
+                                                            variant="contained"
+                                                            className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mr-2"
+                                                            onClick={() => navigate(`/${schema.module}s/add`)}
+                                                        >
+                                                            Add New
+                                                        </Button>
                                                     }
-                                                    {schema?.editing &&
-                                                        <>
-                                                            {!privileges?.edit &&
-                                                                <Button
-                                                                    variant="contained"
-                                                                    className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mr-2"
-                                                                    onClick={() => navigate(`/${schema.module}s/${id}/edit`)}
-                                                                >
-                                                                    Edit
-                                                                </Button>
-                                                            }
-                                                        </>
+                                                    {schema?.editing && canEdit &&
+                                                        <Button
+                                                            variant="contained"
+                                                            className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mr-2"
+                                                            onClick={() => navigate(`/${schema.module}s/${id}/edit`)}
+                                                        >
+                                                            Edit
+                                                        </Button>
                                                     }
                                                     {schema?.module === 'invoice' && schema?.readonly && id !== undefined &&
                                                         <Button
@@ -420,7 +412,7 @@ const IUIPage = (props) => {
                                                 ))}
                                             </Row>
 
-                                            {(!schema?.readonly && (!privileges?.add || !privileges?.edit)) &&
+                                            {(!schema?.readonly && canSave) &&
                                                 <hr />
                                             }
                                             <Row>
@@ -430,46 +422,34 @@ const IUIPage = (props) => {
                                                             className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
                                                             onClick={() => navigate(`/${schema.module}s`)}> Back</Button>
                                                     }
-                                                    {!schema?.readonly &&
+                                                    {!schema?.readonly && canSave &&
                                                         <>
-                                                            {(!privileges?.add || !privileges?.edit) &&
-                                                                <>
-                                                                    <Button variant="contained"
-                                                                        className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md mr-2"
-                                                                        onClick={savePageValue}>Save </Button>
+                                                            <Button variant="contained"
+                                                                className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-md mr-2"
+                                                                onClick={savePageValue}>Save </Button>
 
-                                                                    <Button variant="contained"
-                                                                        className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
-                                                                        onClick={() => navigate(-1)}> Cancel</Button>
-                                                                </>
-                                                            }
+                                                            <Button variant="contained"
+                                                                className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
+                                                                onClick={() => navigate(-1)}> Cancel</Button>
                                                         </>
                                                     }
-                                                    {schema?.adding &&
-                                                        <>
-                                                            {!privileges?.add &&
-                                                                <Button
-                                                                    variant="contained"
-                                                                    className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mr-2"
-                                                                    onClick={() => navigate(`/${schema.module}s/add`)}
-                                                                >
-                                                                    Add New
-                                                                </Button>
-                                                            }
-                                                        </>
+                                                    {schema?.adding && canAdd &&
+                                                        <Button
+                                                            variant="contained"
+                                                            className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mr-2"
+                                                            onClick={() => navigate(`/${schema.module}s/add`)}
+                                                        >
+                                                            Add New
+                                                        </Button>
                                                     }
-                                                    {schema?.editing &&
-                                                        <>
-                                                            {!privileges?.edit &&
-                                                                <Button
-                                                                    variant="contained"
-                                                                    className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mr-2"
-                                                                    onClick={() => navigate(`/${schema.module}s/${id}/edit`)}
-                                                                >
-                                                                    Edit
-                                                                </Button>
-                                                            }
-                                                        </>
+                                                    {schema?.editing && canEdit &&
+                                                        <Button
+                                                            variant="contained"
+                                                            className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mr-2"
+                                                            onClick={() => navigate(`/${schema.module}s/${id}/edit`)}
+                                                        >
+                                                            Edit
+                                                        </Button>
                                                     }
                                                 </Col>
                                             </Row>

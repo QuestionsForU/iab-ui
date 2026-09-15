@@ -12,23 +12,23 @@ const LeftMenu = (props) => {
         {
             name: "inventory", text: "Inventory", icon: "cart-shopping",
             schema: [
-                { name: "supplier", text: "Suppliers", icon: "truck-field", path: "/suppliers" },
-                { name: "productType", text: "Product Type", icon: "sitemap", path: "/productTypes" },
-                { name: "product", text: "Product", icon: "box-open", path: "/products" },
+                { name: "supplier", text: "Suppliers", icon: "truck-field", path: "/suppliers", access: "supplier" },
+                { name: "productType", text: "Product Type", icon: "sitemap", path: "/productTypes", access: "productType" },
+                { name: "product", text: "Product", icon: "box-open", path: "/products", access: "product" },
                 // { name: "supplierPurchase", text: "Supplier Purchase", icon: "truck-fast", path: "/supplierPurchases" }
             ]
         },
         {
             name: "sale", text: "Sales", icon: "bag-shopping",
             schema: [
-                { name: "invoice", text: "Invoice", icon: "receipt", path: "/invoices" },
+                { name: "invoice", text: "Invoice", icon: "receipt", path: "/invoices", access: "invoice" },
                 // { name: "saleOrder", text: "Sale Order", icon: "basket-shopping", path: "/saleOrders" }
             ]
         },
         {
             name: "customer", text: "Customer", icon: "users",
             schema: [
-                { name: "customer", text: "Customer", icon: "user", path: "/customers" }
+                { name: "customer", text: "Customer", icon: "user", path: "/customers", access: "customer" }
             ]
         },
         // {
@@ -72,12 +72,18 @@ const LeftMenu = (props) => {
         // }*/
     ];
 
-    // Filter  menu schema based on privileges
+    // Filter menu schema based on privileges
     const filterMenu = (s) => {
         if (s.schema) {
             s.schema.forEach(item => {
                 item.visible = filterMenu(item);
             })
+
+            // if (s.name === 'configuration') {
+            //     const hasConfigAccess = privileges?.some(p => ['user', 'role'].includes(p.module));
+            //     return hasConfigAccess || s.schema.some(sch => sch.visible);
+            // }
+
             return s.schema.some(sch => sch.visible)
         }
 
