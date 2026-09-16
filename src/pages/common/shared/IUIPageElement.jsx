@@ -36,6 +36,18 @@ const IUIPageElement = (props) => {
             setErrors(props?.errors);
     }, [props?.errors]);
 
+    const normalizePrivileges = (items = []) => {
+        const filtered = (Array.isArray(items) ? items : []).filter(item => item && item.module && item.name);
+        const unique = [];
+        filtered.forEach(item => {
+            const key = `${item.module}|${item.name}`;
+            if (!unique.some(entry => `${entry.module}|${entry.name}` === key)) {
+                unique.push(item);
+            }
+        });
+        return unique;
+    };
+
     const handleChange = (e) => {
         e.preventDefault();
         if (props.readonly)
@@ -49,21 +61,18 @@ const IUIPageElement = (props) => {
         }
 
         if (e.target.id === 'roles') {
-            let newPrivileges = []
-            if (newData?.privileges) {
-                newPrivileges = newData?.privileges
-            }
-            if (e.target.value) {
-                newPrivileges = []
-                for (let i = 0; i < e.target.value.length; i++) {
-                    if (e.target.value[i].privileges) {
-                        newPrivileges = [...newPrivileges, ...e.target.value[i].privileges]
-                    }
+            const selectedRoles = Array.isArray(e.target.value) ? e.target.value : [];
+            const mergedPrivileges = selectedRoles.reduce((acc, role) => {
+                if (Array.isArray(role?.privileges)) {
+                    acc.push(...role.privileges);
                 }
-
-                newPrivileges = [...newPrivileges, ...[{ id: -1, name: "dummy", module: "dummy" }]]
-            }
-            newData = { ...newData, privileges: newPrivileges }
+                return acc;
+            }, []);
+            newData = {
+                ...newData,
+                roles: [...selectedRoles],
+                privileges: normalizePrivileges(mergedPrivileges)
+            };
         }
         else if (e.target.id === 'disable') {
             newData = { ...data, [e.target.id]: e.target.checked }

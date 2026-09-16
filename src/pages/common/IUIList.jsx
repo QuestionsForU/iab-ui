@@ -28,7 +28,7 @@ const IUIList = (props) => {
 
     useEffect(() => {
         const modulePrivileges = loggedInUser?.privileges?.filter(p => p.module === module)?.map(p => p.name);
-        if(modulePrivileges){
+        if (modulePrivileges) {
             let access = {};
             modulePrivileges.forEach(p => {
                 access = { ...access, ...{ [p]: true } }
@@ -36,6 +36,9 @@ const IUIList = (props) => {
             setPrivileges(access)
         }
     }, [loggedInUser, module]);
+
+    const canAdd = Object.keys(privileges).length === 0 || privileges?.add === true;
+    const canEdit = Object.keys(privileges).length === 0 || privileges?.edit === true;
 
     const pageChanges = async (e) => {
         e.preventDefault();
@@ -103,18 +106,14 @@ const IUIList = (props) => {
                                 <div className="card-body">
                                     <Row>
                                         <Col md={8} className='mb-3'>
-                                            {schema.adding &&
-                                                <>
-                                                    {!privileges.add &&
-                                                        <Button
-                                                            variant="contained"
-                                                            className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm"
-                                                            onClick={() => navigate(`/${schema.module}s/add`)}
-                                                        >
-                                                            Add New
-                                                        </Button>
-                                                    }
-                                                </>
+                                            {schema.adding && canAdd &&
+                                                <Button
+                                                    variant="contained"
+                                                    className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm"
+                                                    onClick={() => navigate(`/${schema.module}s/add`)}
+                                                >
+                                                    Add New
+                                                </Button>
                                             }
                                             <IUIModuleMessage schema={props.schema} />
                                         </Col>
@@ -183,7 +182,7 @@ const IUIList = (props) => {
                                                                     {schema?.editing &&
                                                                         <>
                                                                             <td width={10}>
-                                                                                {!privileges.edit &&
+                                                                                {canEdit &&
                                                                                     <Link to={`${item.id}/edit`}><i className="fa-solid fa-pencil"></i></Link>
                                                                                 }
                                                                             </td>

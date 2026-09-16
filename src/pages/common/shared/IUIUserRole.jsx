@@ -17,61 +17,59 @@ const IUIUserRole = (props) => {
     }, []);
 
     useEffect(() => {
-        if (props.value && props.value.length > 0) {
+        if (!props.value || !Array.isArray(props.value)) {
+            if (Array.isArray(value) && value.length > 0) {
+                setValue([])
+            }
+            return;
+        }
+
+        if (JSON.stringify(props.value) !== JSON.stringify(value)) {
             setValue(props.value)
         }
     }, [props.value])
 
     useEffect(() => {
-        if (allRoles && allRoles.length > 0) {
-            setSchema(allRoles)
+        if (!allRoles || allRoles.length === 0) {
+            return;
         }
-    }, [allRoles])
 
-    useEffect(() => {
-        const newSchema = [...schema.map(s => {
-            return {
-                ...s
-                , checked: value.findIndex(v => `${v.id}` === `${s.id}`) >= 0 || false
-            }
-        })]
-        setSchema(newSchema);
+        const nextSchema = allRoles.map(s => ({
+            ...s,
+            checked: value.some(v => `${v.id}` === `${s.id}`)
+        }));
 
-        const e = { target: { id: props.id, value: value }, preventDefault: function () { } }
-        if (props.onChange)
-            props.onChange(e);
-
-    }, [value])
+        if (JSON.stringify(schema) !== JSON.stringify(nextSchema)) {
+            setSchema(nextSchema);
+        }
+    }, [allRoles, value]);
 
     const handleChange = (e, name) => {
         e.preventDefault();
-        const oldValue = [
-            ...value.map(v => {
-                return {
-                    ...v,
-                    privileges: schema.filter(s => `${v.id}` === `${s.id}`).map(p => p.privileges)[0]
-                }
-            })
-        ]
-        if (e.target.checked) {
-            const newValue = [...oldValue
-                , {
-                id: e.target.dataset.rid,
-                name: name,
-                privileges: [...JSON.parse(e.target.dataset.privileges)]
-            }]
-
-            setValue(newValue)
+        if (props.readonly) {
+            return;
         }
-        else {
-            const index = value.findIndex(i => `${i.id}` === e.target.dataset.rid)
 
-            const newValue = [
-                ...value.slice(0, index), // everything before current post
-                ...value.slice(index + 1), // everything after current post
-            ]
+        const selectedPrivileges = e.target.dataset.privileges ? JSON.parse(e.target.dataset.privileges) : [];
+        let nextValue = [...value];
 
-            setValue(newValue)
+        if (e.target.checked) {
+            nextValue = [
+                ...nextValue.filter(item => `${item.id}` !== `${e.target.dataset.rid}`),
+                {
+                    id: e.target.dataset.rid,
+                    name: name,
+                    privileges: [...selectedPrivileges]
+                }
+            ];
+        } else {
+            nextValue = nextValue.filter(item => `${item.id}` !== `${e.target.dataset.rid}`);
+        }
+
+        setValue(nextValue);
+        const ev = { target: { id: props.id, value: nextValue }, preventDefault: function () { } };
+        if (props.onChange) {
+            props.onChange(ev);
         }
     };
 

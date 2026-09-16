@@ -3,13 +3,11 @@ import {  Col, Row, Form } from "react-bootstrap";
 
 const IUIPrivileges = (props) => {
 
-    const [value, setValue] = useState(props?.value)
+    const [value, setValue] = useState(Array.isArray(props?.value) ? props.value : [])
     const [schema, setSchema] = useState(props?.schema)
 
     useEffect(() => {
-        if (props?.value) {
-            setValue(props.value)
-        }
+        setValue(Array.isArray(props?.value) ? props.value : [])
     }, [props.value])
 
     useEffect(() => {
@@ -18,65 +16,71 @@ const IUIPrivileges = (props) => {
         }
     }, [props.schema])
 
+    const normalizeValues = (items = []) => {
+        const list = Array.isArray(items) ? items : [];
+        const unique = [];
+        list.forEach(item => {
+            if (!item || !item.module || !item.name) {
+                return;
+            }
+            const key = `${item.module}|${item.name}`;
+            if (!unique.some(entry => `${entry.module}|${entry.name}` === key)) {
+                unique.push(item);
+            }
+        });
+        return unique;
+    };
+
     const handleChange = (e) => {
         e.preventDefault();
-
-        if (e.target.checked) { // Add to value
-            const newValue = [...value, ...[{
-                id: 0
-                , name: e.target.dataset.name
-                , module: e.target.dataset.module
-            }]]
-
-            if (!props.readonly) {
-                const e = { target: { id: props.id, value: newValue }, preventDefault: function () { } }
-                if (props.onChange)
-                    props.onChange(e);
-            }
+        if (props.readonly) {
+            return;
         }
-        else { // Remove from value
-            const index = value.findIndex(v => v.module === e.target.dataset.module && v.name === e.target.dataset.name)
-            const newValue = [
-                ...value?.slice(0, index), // everything before array
-                ...value?.slice(index + 1), // everything after array
-            ]
 
-            if (!props.readonly) {
-                const e = { target: { id: props.id, value: newValue }, preventDefault: function () { } }
-                if (props.onChange)
-                    props.onChange(e);
-            }
+        const current = Array.isArray(value) ? value : [];
+        const item = {
+            id: 0,
+            name: e.target.dataset.name,
+            module: e.target.dataset.module,
+        };
+
+        let newValue;
+        if (e.target.checked) {
+            newValue = normalizeValues([...current, item]);
+        } else {
+            newValue = normalizeValues(current.filter(v => !(v.module === item.module && v.name === item.name)));
         }
+
+        setValue(newValue);
+        const event = { target: { id: props.id, value: newValue }, preventDefault: function () { } }
+        if (props.onChange)
+            props.onChange(event);
     };
 
     const handleRowChange = (e, row) => {
         e.preventDefault();
+        if (props.readonly) {
+            return;
+        }
 
+        const current = Array.isArray(value) ? value : [];
+        const rowPrivileges = Array.isArray(row?.items) ? row.items.map((item) => ({
+            id: 0,
+            name: item?.name,
+            module: row?.name,
+        })) : [];
+
+        let newValue;
         if (e.target.checked) {
-            const newValue = [...value, ...row?.items?.map((item) => ({
-                id: 0
-                , name: item?.name
-                , module: row?.name
-            }))];
-
-            if (!props.readonly) {
-                const e = { target: { id: props.id, value: newValue }, preventDefault: function () { } }
-                if (props.onChange)
-                    props.onChange(e);
-            }
-        }
-        else {
-            const newValue = [
-                ...value?.filter((v) => v.module !== row.name), // everything except current row
-            ]
-
-            if (!props.readonly) {
-                const e = { target: { id: props.id, value: newValue }, preventDefault: function () { } }
-                if (props.onChange)
-                    props.onChange(e);
-            }
+            newValue = normalizeValues([...current, ...rowPrivileges]);
+        } else {
+            newValue = normalizeValues(current.filter((v) => v.module !== row.name));
         }
 
+        setValue(newValue);
+        const event = { target: { id: props.id, value: newValue }, preventDefault: function () { } }
+        if (props.onChange)
+            props.onChange(event);
     };
 
     return (
@@ -88,7 +92,7 @@ const IUIPrivileges = (props) => {
                         disabled={props.readonly}
                         id={`${props.id}_${schema?.text}`}
                         label={schema?.text}
-                        checked={(value?.filter((v) => v.module === schema.name)?.length === schema?.items?.length) || false}
+                        checked={Array.isArray(value) && value.filter((v) => v.module === schema.name).length === schema?.items?.length}
                         onChange={(e) => handleRowChange(e, schema)}
                     />
                     {/* <Form.Label><span className="fw-bold text-capitalize"> {schema?.text} : </span></Form.Label> */}
@@ -102,7 +106,7 @@ const IUIPrivileges = (props) => {
                             data-module={schema.name}
                             data-name={item.name}
                             label={item.name || ""}
-                            checked={value.findIndex(v => v.module === schema.name && v.name === item.name) >= 0 || false}
+                            checked={Array.isArray(value) && value.some(v => v.module === schema.name && v.name === item.name)}
                             onChange={(e) => handleChange(e)}
                             disabled={props.readonly}
                         />

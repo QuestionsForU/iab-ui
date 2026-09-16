@@ -46,8 +46,9 @@ const IUIRolePrivilege = (props) => {
     }, []);
 
     useEffect(() => {
-        if (props.value && props.value.length > 0) {
-            setValue(props.value)
+        const nextValue = Array.isArray(props.value) ? props.value : [];
+        if (JSON.stringify(nextValue) !== JSON.stringify(value)) {
+            setValue(nextValue)
         }
     }, [props.value])
 
@@ -64,25 +65,31 @@ const IUIRolePrivilege = (props) => {
 
 
 
+    const normalizePrivileges = (items = []) => {
+        const filtered = (Array.isArray(items) ? items : []).filter(item => item && item.module && item.name);
+        const unique = [];
+        filtered.forEach(item => {
+            const key = `${item.module}|${item.name}`;
+            if (!unique.some(entry => `${entry.module}|${entry.name}` === key)) {
+                unique.push(item);
+            }
+        });
+        return unique;
+    };
+
     const handleChange = (e, name) => {
         e.preventDefault();
-        if (props.readonly){
+        if (props.readonly) {
             return;
         }
-        if (e?.target?.value) {
-            const newValue = [...e?.target?.value]
 
-            const distinctValue = newValue.reduce((acc, item) => {
-                if (!acc.some(i => i.module === item.module && i.name === item.name)) {
-                    acc.push(item);
-                }
-                return acc;
-            }, []);
+        const baseValue = Array.isArray(e?.target?.value) ? e.target.value : value;
+        const nextValue = normalizePrivileges(baseValue);
+        setValue(nextValue);
 
-            setValue(distinctValue)
-            const ev = { target: { id: props.id, value: distinctValue }, preventDefault: function () { } }
-            if (props.onChange)
-                props.onChange(ev);
+        const ev = { target: { id: props.id, value: nextValue }, preventDefault: function () { } };
+        if (props.onChange) {
+            props.onChange(ev);
         }
     };
 

@@ -164,7 +164,7 @@ const IUIListInline = (props) => {
                                 <td className="fw-bold text-end">{grandTotal.toFixed(2)}</td>
                             </tr>
                             <tr>
-                                <td colSpan={totalColumns - 1} className="text-end fw-bold">GST (%)</td>
+                                {/* <td colSpan={totalColumns - 1} className="text-end fw-bold">GST (%)</td>
                                 <td className="text-end">
                                     <input
                                         type="number"
@@ -187,7 +187,9 @@ const IUIListInline = (props) => {
                                         }}
                                         className="form-control form-control-sm text-end"
                                     />
-                                </td>
+                                </td> */}
+                                        <td colSpan={totalColumns - 1} className="text-end fw-bold">GST Amount</td>
+                                <td className="fw-bold text-end">{gstAmount.toFixed(2)}</td>
                             </tr>
                             <tr>
                                 <td colSpan={totalColumns - 1} className="text-end fw-bold">Actual Total</td>
