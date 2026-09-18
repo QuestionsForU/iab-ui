@@ -3,7 +3,11 @@ import IUIMenuItem from "./shared/IUIMenuItem"
 import { useSelector } from 'react-redux'
 
 const LeftMenu = (props) => {
-    const privileges = useSelector((state) => state.api.loggedInUser?.privileges)
+    const loggedInUser = useSelector((state) => state.api.loggedInUser)
+    const privileges = loggedInUser?.privileges
+    const isAdminUser = Array.isArray(loggedInUser?.roles)
+        ? loggedInUser.roles.some(role => String(role?.name || '').trim().toLowerCase() === 'admin')
+        : false;
 
     let schema = [
         {
@@ -74,15 +78,21 @@ const LeftMenu = (props) => {
 
     // Filter menu schema based on privileges
     const filterMenu = (s) => {
+        if (s.name === 'configuration') {
+            s.schema.forEach(item => {
+                item.visible = (item.name === 'userManagement' || item.name === 'roleManagement') ? isAdminUser : false;
+            })
+            return isAdminUser;
+        }
+
+        if (s.name === 'userManagement' || s.name === 'roleManagement') {
+            return isAdminUser;
+        }
+
         if (s.schema) {
             s.schema.forEach(item => {
                 item.visible = filterMenu(item);
             })
-
-            // if (s.name === 'configuration') {
-            //     const hasConfigAccess = privileges?.some(p => ['user', 'role'].includes(p.module));
-            //     return hasConfigAccess || s.schema.some(sch => sch.visible);
-            // }
 
             return s.schema.some(sch => sch.visible)
         }
