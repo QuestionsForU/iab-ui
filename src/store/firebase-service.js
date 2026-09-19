@@ -142,13 +142,14 @@ api.getData = async (action) => {
     if (!option.status) {
         option.status = status; //TODO Public Shared etc...
     }
+    if (option?.filters) {
+        option.filters = api.getFilters(option?.filters);
+    }
     if (option?.searchCondition) {
         option.search = option?.searchCondition?.value;
         option.filters = api.getFilters(option?.searchCondition);
     }
-    if (option?.filters) {
-        option.filters = api.getFilters(option?.filters);
-    }
+    
     option.sortDirection = option.sortDirection ? 'asc' : 'desc'
 
     if (!option.sortColumnName) {

@@ -74,7 +74,8 @@ const IUIListInline = (props) => {
         const total = Number(item?.total ?? ((Number(item?.quantity || 0) * Number(item?.price || 0))));
         return sum + total;
     }, 0);
-    const gstAmount = grandTotal * (gstPercent / 100);
+    const hasGst = Number(gstPercent || 0) > 0;
+    const gstAmount = hasGst ? grandTotal * (gstPercent / 100) : 0;
     const actualTotal = grandTotal + gstAmount;
 
     const handleChange = (e) => {
@@ -163,34 +164,12 @@ const IUIListInline = (props) => {
                                 <td colSpan={totalColumns - 1} className="text-end fw-bold">Grand Total</td>
                                 <td className="fw-bold text-end">{grandTotal.toFixed(2)}</td>
                             </tr>
-                            <tr>
-                                {/* <td colSpan={totalColumns - 1} className="text-end fw-bold">GST (%)</td>
-                                <td className="text-end">
-                                    <input
-                                        type="number"
-                                        min="0"
-                                        step="0.01"
-                                        value={gstPercent}
-                                        disabled={props?.readonly || false}
-                                        onChange={(e) => {
-                                            const nextValue = Number(e.target.value || 0);
-                                            setGstPercent(nextValue);
-                                            if (props.onChange) {
-                                                props.onChange({
-                                                    target: {
-                                                        id: props?.id,
-                                                        value: { items: value, gstPercent: nextValue },
-                                                    },
-                                                    preventDefault: function () { }
-                                                });
-                                            }
-                                        }}
-                                        className="form-control form-control-sm text-end"
-                                    />
-                                </td> */}
-                                        <td colSpan={totalColumns - 1} className="text-end fw-bold">GST Amount</td>
-                                <td className="fw-bold text-end">{gstAmount.toFixed(2)}</td>
-                            </tr>
+                            {hasGst && (
+                                <tr>
+                                    <td colSpan={totalColumns - 1} className="text-end fw-bold">GST Amount</td>
+                                    <td className="fw-bold text-end">{gstAmount.toFixed(2)}</td>
+                                </tr>
+                            )}
                             <tr>
                                 <td colSpan={totalColumns - 1} className="text-end fw-bold">Actual Total</td>
                                 <td className="fw-bold text-end">{actualTotal.toFixed(2)}</td>
