@@ -186,7 +186,8 @@ const IUIPage = (props) => {
             return sum + total;
         }, 0);
         const gstRate = Number(data?.gstPercent || 0);
-        const gstAmount = grandTotal * (gstRate / 100);
+        const hasGst = gstRate > 0;
+        const gstAmount = hasGst ? grandTotal * (gstRate / 100) : 0;
         const finalTotal = grandTotal + gstAmount;
 
         const printWindow = window.open('', '_blank', 'width=900,height=1100');
@@ -269,10 +270,12 @@ const IUIPage = (props) => {
                             <td>Sub Total</td>
                             <td>₹ ${grandTotal.toFixed(2)}</td>
                         </tr>
-                        <tr>
-                            <td>GST (${gstRate}%)</td>
-                            <td>₹ ${gstAmount.toFixed(2)}</td>
-                        </tr>
+                        ${hasGst ? `
+                            <tr>
+                                <td>GST (${gstRate}%)</td>
+                                <td>₹ ${gstAmount.toFixed(2)}</td>
+                            </tr>
+                        ` : ''}
                         <tr>
                             <td>Grand Total</td>
                             <td>₹ ${finalTotal.toFixed(2)}</td>

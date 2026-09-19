@@ -227,6 +227,118 @@
       ]
     },
     {
+      "collectionGroup": "invoice",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "application",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "name",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "invoice",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "application",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "name",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "invoice",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "application",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "customerName",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "invoice",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "application",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "customerName",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "invoice",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "application",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "phoneNo",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "invoice",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "application",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "phoneNo",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "invoice",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "application",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "invoiceDate",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "invoice",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "application",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "invoiceDate",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
       "collectionGroup": "invoiceItem",
       "queryScope": "COLLECTION",
       "fields": [
@@ -376,6 +488,174 @@
         },
         {
           "fieldPath": "dateCreated",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "supplier",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "application",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "name",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "supplier",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "application",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "name",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "supplier",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "application",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "gstNo",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "supplier",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "application",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "gstNo",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "supplier",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "application",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "phoneNumber",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "supplier",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "application",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "phoneNumber",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "product",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "application",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "name",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "product",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "application",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "name",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "product",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "application",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "price",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "product",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "application",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "price",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "product",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "application",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "quantity",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "product",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "application",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "quantity",
           "order": "DESCENDING"
         }
       ]
