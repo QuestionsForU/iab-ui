@@ -293,26 +293,17 @@ const IUIPage = (props) => {
 
     // Redirection after save
     useEffect(() => {
-        if (!props.readonly) {
-
-            if (saved === 'saved') {
-                if (module) {
-                    //dispatch(resetSave({ module: module }));
-                    if (data?.id) {
-                        let url = `/${module}s/${data.id}`;
-                        navigate(url);
-                    }
-                    else {
-                        let url = `/${module}s`;
-                        navigate(url);
-                    }
-                }
-                else {
-                    navigate("/");
-                }
+        if (!props.readonly && saved === 'saved') {
+            if (!module) {
+                navigate("/", { replace: true });
+                return;
             }
+
+            const recordId = id || data?.id;
+            const destination = recordId ? `/${module}s/${recordId}` : `/${module}s`;
+            navigate(destination, { replace: true });
         }
-    }, [saved])
+    }, [saved, module, id, data?.id, navigate, props.readonly])
 
     return (
         <>
