@@ -5,6 +5,11 @@ import { useSelector } from 'react-redux'
 const LeftMenu = (props) => {
     const loggedInUser = useSelector((state) => state.api.loggedInUser)
     const privileges = loggedInUser?.privileges
+    const handleMenuClick = () => {
+        if (window.innerWidth < 1250 && typeof props.onMobileMenuClose === 'function') {
+            props.onMobileMenuClose();
+        }
+    };
     const isAdminUser = Array.isArray(loggedInUser?.roles)
         ? loggedInUser.roles.some(role => String(role?.name || '').trim().toLowerCase() === 'admin')
         : false;
@@ -152,7 +157,7 @@ const LeftMenu = (props) => {
                 <div className="app-sidebar__inner">
                     <ul className="vertical-nav-menu">
                         {/* <li className="app-sidebar__heading">Project Management</li> */}
-                        <IUIMenuItem schema={schema} />
+                        <IUIMenuItem schema={schema} onMenuClick={handleMenuClick} />
                     </ul>
                 </div>
             </div>
