@@ -37,7 +37,7 @@ const ResetPassword = () => {
                             lg={7}
                         >
                             <Col className="mx-auto app-login-box" sm={12} md={8} lg={6}>
-                                <div className="app-logo"><img src={logo} alt='Rajwada_Logo' /> </div>
+                                <div className="app-logo"><img src={logo} alt='Zorya_Logo' /> </div>
                                 <h4>
                                     <span className="d-block">Forgot your Password?</span>
                                     <span>Use the form below to recover it.</span>
