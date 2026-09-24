@@ -37,7 +37,10 @@ const Layout = () => {
                 <div className={showSidebar ? `${mainClass} sidebar-mobile-open` : `${mainClass} closed-sidebar`}>
                     <Header headerToLayout={headerToLayout} />
                     <div className="app-main">
-                        <LeftMenu leftMenuState={showSidebar} />
+                        <LeftMenu
+                            leftMenuState={showSidebar}
+                            onMobileMenuClose={() => setShowSidebar(false)}
+                        />
                         <div className="app-main__outer">
                             <div className="app-main__inner">
                                 <Outlet />

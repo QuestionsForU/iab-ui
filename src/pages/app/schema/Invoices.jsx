@@ -9,13 +9,15 @@ export const ListInvoice = () => {
         module: 'invoice',
         title: 'Invoice Management',
         paging: true,
+        pageSize: 10,
+        showMoreStep: 10,
         searching: true,
         editing: true,
         adding: true,
         fields: [
             { text: 'Invoice ID', field: 'name', type: 'link', sorting: true, searching: true },
             { text: 'Customer Name', field: 'customerName', type: 'text', sorting: true, searching: true },
-            { text: 'Phone No.', field: 'phoneNo', type: 'text', sorting: true, searching: true },
+            { text: 'Phone No.', field: 'phoneNo', type: 'text', sorting: true, searching: true, hiddenOnMobile: true },
             { text: 'Invoice Date', field: 'invoiceDate', type: 'date', sorting: true, searching: true },
         ]
     }

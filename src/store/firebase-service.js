@@ -150,10 +150,11 @@ api.getData = async (action) => {
         option.filters = api.getFilters(option?.searchCondition);
     }
     
-    option.sortDirection = option.sortDirection ? 'asc' : 'desc'
-
-    if (!option.sortColumnName) {
-        option.sortColumnName = 'dateCreated';
+    if (option.sortColumnName) {
+        option.sortDirection = option.sortDirection ? 'asc' : 'desc'
+    }
+    else {
+        option.sortColumnName = option.module === 'invoice' ? 'name' : 'dateCreated';
         option.sortDirection = 'desc'
     }
 
@@ -196,10 +197,11 @@ api.getData = async (action) => {
 
 
     const filter = query(dataRef, conditions);
+    const countQuery = query(filter, orderBy(option.sortColumnName, option.sortDirection));
     const q = option.recordPerPage === 0
-        ? query(filter, orderBy(option.sortColumnName, option.sortDirection))
+        ? countQuery
         : query(filter, orderBy(option.sortColumnName, option.sortDirection), limit(option.recordPerPage));
-    const counterSnapshot = await getCountFromServer(q);
+    const counterSnapshot = await getCountFromServer(countQuery);
     const totalRecords = counterSnapshot.data().count;
     const querySnapshot = await getDocs(q);
     const newData = querySnapshot.docs

@@ -36,7 +36,7 @@ const Header = ({ headerToLayout }) => {
     return (
         <div className="app-header header-shadow">
             <div className="app-header__logo">
-                <div className="logo-src"><img src={clientLogo} alt="Rajwada" /></div>
+                <div className="logo-src"><img src={clientLogo} alt="Zorya" /></div>
                 <div className="header__pane ml-auto">
                     <div>
                         <button type="button" className="hamburger close-sidebar-btn hamburger--elastic"
@@ -73,7 +73,7 @@ const Header = ({ headerToLayout }) => {
             </div>
             <div className={showMobileHeader ? `app-header__content header-mobile-open` : `app-header__content`}>
                 <div className="app-header-center">
-                    <div className="logo-center"><img src={clientLogo} alt="Rajwada" /></div>
+                    <div className="logo-center"><img src={clientLogo} alt="Zorya" /></div>
                 </div>
                 <div className="app-header-right">
                     <div className="header-dots">
@@ -208,11 +208,11 @@ const Header = ({ headerToLayout }) => {
                                             className="p-0 btn btn-link">
                                             {
                                                 (loggedInUser?.photoUrl) && <img width="42" className="rounded-circle" src={profilePicture}
-                                                    alt="Rajwada_User_Pic" />
+                                                    alt="Zorya_User_Pic" />
                                             }
                                             {
                                                 (!loggedInUser?.photoUrl) && <img width="42" className="rounded-circle" src={defaultAvatar}
-                                                    alt="Rajwada_Default_User_Pic" />
+                                                    alt="Zorya_Default_User_Pic" />
                                             }
                                             <i className="fa fa-angle-down ml-2 opacity-8"></i>
                                         </Link>
@@ -229,11 +229,11 @@ const Header = ({ headerToLayout }) => {
                                                                 <div className="widget-content-left mr-3">
                                                                     {
                                                                         (loggedInUser?.photoUrl) && <img width="42" className="rounded-circle" src={profilePicture}
-                                                                            alt="Rajwada_User_Pic" />
+                                                                            alt="Zorya_User_Pic" />
                                                                     }
                                                                     {
                                                                         (!loggedInUser?.photoUrl) && <img width="42" className="rounded-circle" src={defaultAvatar}
-                                                                            alt="Rajwada_Default_User_Pic" />
+                                                                            alt="Zorya_Default_User_Pic" />
                                                                     }
                                                                 </div>
                                                                 <div className="widget-content-left">
