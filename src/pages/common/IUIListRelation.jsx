@@ -14,8 +14,9 @@ import IUIListPage from './IUIPageInline';
 const IUIListRelation = (props) => {
     const schema = props.schema;
     const module = `${schema.module}#${props.parentId}`;
-    const pageLength = schema.paging ? 10 : 0;
     const dataSet = useSelector((state) => state.api[module])
+    const defaultPageLength = schema.pageSize ?? 10;
+    const pageLength = schema.paging ? (dataSet?.options?.recordPerPage ?? defaultPageLength) : 0;
     const [baseFilter, setBaseFilter] = useState({})
     const [search, setSearch] = useState(useSelector((state) => state.api[module])?.options?.search);
     const dispatch = useDispatch();
@@ -31,9 +32,10 @@ const IUIListRelation = (props) => {
 
             setBaseFilter(newBaseFilter)
 
+            const persistedPageSize = dataSet?.options?.recordPerPage ?? defaultPageLength;
             const pageOptions = {
                 ...dataSet?.options
-                , recordPerPage: pageLength
+                , recordPerPage: persistedPageSize
                 , filters: newBaseFilter
             }
             dispatch(getData({ module: module, options: pageOptions }));
@@ -49,6 +51,17 @@ const IUIListRelation = (props) => {
         }
         dispatch(getData({ module: module, options: pageOptions }));
     };
+
+    const handleShowMore = async (e) => {
+        e.preventDefault();
+        const nextPageSize = (dataSet?.options?.recordPerPage ?? defaultPageLength) + (schema.showMoreStep ?? 10);
+        const pageOptions = {
+            currentPage: 1,
+            recordPerPage: nextPageSize,
+        }
+        dispatch(getData({ module: module, options: pageOptions }));
+    };
+
     const sortData = async (e, field) => {
         e.preventDefault();
         const sortOptions = {
@@ -134,7 +147,10 @@ const IUIListRelation = (props) => {
                                             <tr>
 
                                                 {schema?.fields?.map((fld, f) => (
-                                                    <th key={f}>
+                                                    <th
+                                                        key={f}
+                                                        className={fld.hiddenOnMobile ? 'd-none d-md-table-cell' : ''}
+                                                    >
                                                         {fld.sorting &&
                                                             <button
                                                                 type="submit"
@@ -170,7 +186,10 @@ const IUIListRelation = (props) => {
                                                         <tr key={i}>
 
                                                             {schema?.fields?.map((fld, f) => (
-                                                                <td key={f}>
+                                                                <td
+                                                                    key={f}
+                                                                    className={fld.hiddenOnMobile ? 'd-none d-md-table-cell' : ''}
+                                                                >
                                                                     {fld.type === 'link' &&
                                                                         <Link to={`${item.id}`}>{item[fld.field]}</Link>
                                                                     }
@@ -205,13 +224,25 @@ const IUIListRelation = (props) => {
                                             <tfoot>
                                                 <tr>
                                                     <td colSpan={schema?.fields.length}>
-                                                        <Pagination size="sm" onClick={pageChanges}>
-                                                            {[...Array(dataSet?.totalPages)].map((e, i) => {
-                                                                return <Pagination.Item key={i}
-                                                                    active={(dataSet?.options?.currentPage === i + 1)}
-                                                                >{i + 1}</Pagination.Item>
-                                                            })}
-                                                        </Pagination>
+                                                        <div className="d-flex justify-content-between align-items-center">
+                                                            <Pagination size="sm" onClick={pageChanges}>
+                                                                {[...Array(dataSet?.totalPages)].map((e, i) => {
+                                                                    return <Pagination.Item key={i}
+                                                                        active={(dataSet?.options?.currentPage === i + 1)}
+                                                                    >{i + 1}</Pagination.Item>
+                                                                })}
+                                                            </Pagination>
+
+                                                            {(dataSet?.totalRecords ?? 0) > (dataSet?.options?.recordPerPage ?? defaultPageLength) && (
+                                                                <Button
+                                                                    variant="secondary"
+                                                                    className="btn-sm"
+                                                                    onClick={handleShowMore}
+                                                                >
+                                                                    Show more
+                                                                </Button>
+                                                            )}
+                                                        </div>
                                                     </td>
                                                     {schema?.editing &&
                                                         <td>

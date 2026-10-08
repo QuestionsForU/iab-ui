@@ -3,7 +3,16 @@ import IUIMenuItem from "./shared/IUIMenuItem"
 import { useSelector } from 'react-redux'
 
 const LeftMenu = (props) => {
-    const privileges = useSelector((state) => state.api.loggedInUser?.privileges)
+    const loggedInUser = useSelector((state) => state.api.loggedInUser)
+    const privileges = loggedInUser?.privileges
+    const handleMenuClick = () => {
+        if (window.innerWidth < 1250 && typeof props.onMobileMenuClose === 'function') {
+            props.onMobileMenuClose();
+        }
+    };
+    const isAdminUser = Array.isArray(loggedInUser?.roles)
+        ? loggedInUser.roles.some(role => String(role?.name || '').trim().toLowerCase() === 'admin')
+        : false;
 
     let schema = [
         {
@@ -12,39 +21,39 @@ const LeftMenu = (props) => {
         {
             name: "inventory", text: "Inventory", icon: "cart-shopping",
             schema: [
-                { name: "supplier", text: "Suppliers", icon: "truck-field", path: "/suppliers" },
-                { name: "category", text: "Category", icon: "sitemap", path: "/categorys" },
-                { name: "product", text: "Product", icon: "box-open", path: "/products" },
-                { name: "supplierPurchase", text: "Supplier Purchase", icon: "truck-fast", path: "/supplierPurchases" }
+                { name: "supplier", text: "Suppliers", icon: "truck-field", path: "/suppliers", access: "supplier" },
+                { name: "productType", text: "Product Type", icon: "sitemap", path: "/productTypes", access: "productType" },
+                { name: "product", text: "Product", icon: "box-open", path: "/products", access: "product" },
+                // { name: "supplierPurchase", text: "Supplier Purchase", icon: "truck-fast", path: "/supplierPurchases" }
             ]
         },
         {
             name: "sale", text: "Sales", icon: "bag-shopping",
             schema: [
-                { name: "invoice", text: "Invoice", icon: "receipt", path: "/invoices" },
-                { name: "saleOrder", text: "Sale Order", icon: "basket-shopping", path: "/saleOrders" }
+                { name: "invoice", text: "Invoice", icon: "receipt", path: "/invoices", access: "invoice" },
+                // { name: "saleOrder", text: "Sale Order", icon: "basket-shopping", path: "/saleOrders" }
             ]
         },
         {
             name: "customer", text: "Customer", icon: "users",
             schema: [
-                { name: "customer", text: "Customer", icon: "user", path: "/customers" }
+                { name: "customer", text: "Customer", icon: "user", path: "/customers", access: "customer" }
             ]
         },
-        {
-            name: "setting", text: "Settings", icon: "gear",
-            schema: [
-                { name: "dailyPrice", text: "Daily Price", icon: "money-bill-trend-up", path: "/dailyPrices" },
-                { name: "purity", text: "Purity", icon: "scale-balanced", path: "/puritys" },
-                { name: "siteSetting", text: "Site Settings", icon: "sliders", path: "/siteSettings" }
-            ]
-        },
+        // {
+        //     name: "setting", text: "Settings", icon: "gear",
+        //     schema: [
+        //         { name: "dailyPrice", text: "Daily Price", icon: "money-bill-trend-up", path: "/dailyPrices" },
+        //         { name: "purity", text: "Purity", icon: "scale-balanced", path: "/puritys" },
+        //         { name: "siteSetting", text: "Site Settings", icon: "sliders", path: "/siteSettings" }
+        //     ]
+        // },
         {
             name: "configuration", text: "Configuration", icon: "cogs",
             schema: [
                 { name: "userManagement", text: "User Management", icon: "users", path: "/users" },
-                // { name: "roleManagement", text: "Role Management", icon: "sitemap", path: "/roles" }
-                { name: "moduleManagement", text: "Modue Management", icon: "users", path: "/modules" },
+                { name: "roleManagement", text: "Role Management", icon: "sitemap", path: "/roles" }
+                //{ name: "moduleManagement", text: "Modue Management", icon: "users", path: "/modules" },
             ]
         },
         // {
@@ -72,12 +81,24 @@ const LeftMenu = (props) => {
         // }*/
     ];
 
-    // Filter  menu schema based on privileges
+    // Filter menu schema based on privileges
     const filterMenu = (s) => {
+        if (s.name === 'configuration') {
+            s.schema.forEach(item => {
+                item.visible = (item.name === 'userManagement' || item.name === 'roleManagement') ? isAdminUser : false;
+            })
+            return isAdminUser;
+        }
+
+        if (s.name === 'userManagement' || s.name === 'roleManagement') {
+            return isAdminUser;
+        }
+
         if (s.schema) {
             s.schema.forEach(item => {
                 item.visible = filterMenu(item);
             })
+
             return s.schema.some(sch => sch.visible)
         }
 
@@ -136,7 +157,7 @@ const LeftMenu = (props) => {
                 <div className="app-sidebar__inner">
                     <ul className="vertical-nav-menu">
                         {/* <li className="app-sidebar__heading">Project Management</li> */}
-                        <IUIMenuItem schema={schema} />
+                        <IUIMenuItem schema={schema} onMenuClick={handleMenuClick} />
                     </ul>
                 </div>
             </div>

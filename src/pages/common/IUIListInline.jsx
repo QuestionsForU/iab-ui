@@ -9,15 +9,74 @@ import IUIPageInline from './IUIPageInline';
 
 const IUIListInline = (props) => {
     const schema = props.schema;
+    const storageKey = `inline_${schema?.module || 'items'}_${props?.id || 'default'}`;
     const [value, setValue] = useState([])
-
+    const [gstPercent, setGstPercent] = useState(Number(props?.gstPercent || 0))
 
     useEffect(() => {
-        if (props?.value) {
-            setValue(props?.value);
-        }
-    }, [props?.value]);
+        const savedValue = sessionStorage.getItem(storageKey);
+        const hasExistingItems = Array.isArray(props?.value) && props.value.length > 0;
+        const isAddMode = schema?.adding && !props?.readonly;
 
+        if (isAddMode) {
+            if (!hasExistingItems) {
+                setValue([]);
+                setGstPercent(Number(props?.gstPercent || 0));
+                sessionStorage.removeItem(storageKey);
+                return;
+            }
+
+            setValue(props.value);
+            setGstPercent(Number(props?.gstPercent || 0));
+            sessionStorage.setItem(storageKey, JSON.stringify({ items: props.value, gstPercent: Number(props?.gstPercent || 0) }));
+            return;
+        }
+
+        if (hasExistingItems) {
+            setValue(props.value);
+            setGstPercent(Number(props?.gstPercent || 0));
+            sessionStorage.setItem(storageKey, JSON.stringify({ items: props.value, gstPercent: Number(props?.gstPercent || 0) }));
+            return;
+        }
+
+        if (savedValue) {
+            try {
+                const parsed = JSON.parse(savedValue);
+                if (Array.isArray(parsed)) {
+                    setValue(parsed);
+                    setGstPercent(Number(props?.gstPercent || 0));
+                } else if (parsed && Array.isArray(parsed.items)) {
+                    setValue(parsed.items);
+                    setGstPercent(Number(parsed.gstPercent || 0));
+                }
+            } catch (error) {
+                console.error('Invalid inline item cache', error);
+            }
+        }
+    }, [props?.value, props?.readonly, props?.gstPercent, schema?.adding, storageKey]);
+
+    useEffect(() => {
+        setGstPercent(Number(props?.gstPercent || 0));
+    }, [props?.gstPercent]);
+
+    const persistValue = (items) => {
+        setValue(items);
+        const nextGstPercent = Number(gstPercent || 0);
+        sessionStorage.setItem(storageKey, JSON.stringify({ items, gstPercent: nextGstPercent }));
+        const event = { target: { id: props?.id, value: { items, gstPercent: nextGstPercent } }, preventDefault: function () { } }
+        if (props.onChange) {
+            props.onChange(event);
+        }
+    };
+
+    const totalColumns = (schema?.fields || []).filter((fld) => fld.type !== 'hidden-filter').length;
+    const grandTotal = (value || []).reduce((sum, item) => {
+        const total = Number(item?.total ?? ((Number(item?.quantity || 0) * Number(item?.price || 0))));
+        return sum + total;
+    }, 0);
+    const hasGst = Number(gstPercent || 0) > 0;
+    const gstAmount = hasGst ? grandTotal * (gstPercent / 100) : 0;
+    const actualTotal = grandTotal + gstAmount;
 
     const handleChange = (e) => {
         e.preventDefault();
@@ -31,12 +90,7 @@ const IUIListInline = (props) => {
                         ...value?.slice(0, index), // everything before array
                         ...value?.slice(index + 1), // everything after array
                     ]
-                    setValue(items)
-
-                    const event = { target: { id: props?.id, value: items }, preventDefault: function () { } }
-                    if (props.onChange) {
-                        props.onChange(event);
-                    }
+                    persistValue(items)
                 } else {// Edit 
                     const items = [
                         ...value?.slice(0, index), // everything before array
@@ -46,22 +100,12 @@ const IUIListInline = (props) => {
                         },
                         ...value?.slice(index + 1), // everything after array
                     ]
-                    setValue(items)
-
-                    const event = { target: { id: props?.id, value: items }, preventDefault: function () { } }
-                    if (props.onChange) {
-                        props.onChange(event);
-                    }
+                    persistValue(items)
                 }
 
             } else { // Add
-
                 const items = [...value, ...[item]]
-                setValue(items)
-                const event = { target: { id: props?.id, value: items }, preventDefault: function () { } }
-                if (props.onChange) {
-                    props.onChange(event);
-                }
+                persistValue(items)
             }
         }
     };
@@ -89,11 +133,6 @@ const IUIListInline = (props) => {
                                     </React.Fragment>
 
                                 ))}
-                                {
-                                    <th width={90}>
-                                        <button type="submit" className="btn btn-link text-white">#</button>
-                                    </th>
-                                }
                             </tr>
                         </thead>
                         <tbody>
@@ -105,22 +144,36 @@ const IUIListInline = (props) => {
                                             schema={schema}
                                             value={item}
                                             onChange={handleChange}
-                                            readonly={true}
+                                            readonly={props?.readonly}
                                         />
 
                                     </tr>
                                 ))
                             }
-                            {schema.adding &&
+                            {schema.adding && !props?.readonly &&
                                 <tr>
                                     <IUIPageInline
                                         id={value ? value.length + 1 : 1}
                                         schema={schema}
-                                        value={{ id: value ? value.length + 1 : 1, mode: 'add' }}
+                                        value={{ id: value ? value.length + 1 : 1, mode: 'add', name: '', quantity: '', price: '', total: 0 }}
                                         onChange={handleChange}
                                     />
                                 </tr>
                             }
+                            <tr>
+                                <td colSpan={totalColumns - 1} className="text-end fw-bold">Grand Total</td>
+                                <td className="fw-bold text-end">{grandTotal.toFixed(2)}</td>
+                            </tr>
+                            {hasGst && (
+                                <tr>
+                                    <td colSpan={totalColumns - 1} className="text-end fw-bold">GST Amount</td>
+                                    <td className="fw-bold text-end">{gstAmount.toFixed(2)}</td>
+                                </tr>
+                            )}
+                            <tr>
+                                <td colSpan={totalColumns - 1} className="text-end fw-bold">Actual Total</td>
+                                <td className="fw-bold text-end">{actualTotal.toFixed(2)}</td>
+                            </tr>
                         </tbody>
                     </Table>
                 </Col>

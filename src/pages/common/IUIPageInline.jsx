@@ -17,7 +17,14 @@ const IUIPageInline = (props) => {
 
     useEffect(() => {
         if (props?.value) {
-            const item = { ...props?.value, ...{ readonly: props?.value?.mode !== 'add' } }
+            const item = {
+                ...props?.value,
+                name: props?.value?.name ?? '',
+                quantity: props?.value?.quantity ?? '',
+                price: props?.value?.price ?? '',
+                total: props?.value?.total ?? 0,
+                readonly: props?.value?.mode !== 'add'
+            }
             setValue(item);
         }
     }, [props?.value]);
@@ -25,7 +32,10 @@ const IUIPageInline = (props) => {
 
     const handleChange = (e) => {
         e.preventDefault();
-        const item = { ...value, ...e.target.value }
+        const item = { ...value, ...e.target.value };
+        const quantity = Number(item.quantity || 0);
+        const price = Number(item.price || 0);
+        item.total = quantity * price;
         setValue(item)
     };
 
@@ -65,7 +75,12 @@ const IUIPageInline = (props) => {
             if (!value)
                 return
 
-            const item = { ...value, mode: null, readonly: null }
+            const item = {
+                ...value,
+                total: Number(value.quantity || 0) * Number(value.price || 0),
+                mode: null,
+                readonly: null
+            }
             const event = { target: { id: props?.id, value: item }, preventDefault: function () { } }
             if (props.onChange) {
                 props.onChange(event);
@@ -129,46 +144,45 @@ const IUIPageInline = (props) => {
 
                 </React.Fragment>
             ))}
-            {<td>
-                {schema?.editing &&
-
+            {schema?.editing && !props?.readonly && (
+                <td>
                     <div className="input-group">
                         {!value?.mode &&
                             <>
-                                < button className="btn btn-outline-primary" onClick={e => setMode(e, 'edit')}><i className="fa-solid fa-edit" title='Edit'></i></button>
-                                < button className="btn btn-outline-danger" onClick={deletePageValue}><i className="fa-solid fa-trash" title='Delete'></i></button>
+                                <button className="btn btn-outline-primary" onClick={e => setMode(e, 'edit')}><i className="fa-solid fa-edit" title='Edit'></i></button>
+                                <button className="btn btn-outline-danger" onClick={deletePageValue}><i className="fa-solid fa-trash" title='Delete'></i></button>
                             </>
                         }
                         {value?.mode === 'add' &&
                             <>
-                                < button className="btn btn-outline-primary" onClick={savePageValue}><i className="fa-solid fa-save" title='Save'></i></button>
+                                <button className="btn btn-outline-primary" onClick={savePageValue}><i className="fa-solid fa-save" title='Save'></i></button>
                             </>
                         }
                         {value?.mode === 'edit' &&
                             <>
-                                < button className="btn btn-outline-primary" onClick={savePageValue}><i className="fa-solid fa-save" title='Save'></i></button>
-                                < button className="btn btn-outline-secondary" onClick={cancelPageValue}><i className="fa-solid fa-cancel" title='Cancel'></i></button>
+                                <button className="btn btn-outline-primary" onClick={savePageValue}><i className="fa-solid fa-save" title='Save'></i></button>
+                                <button className="btn btn-outline-secondary" onClick={cancelPageValue}><i className="fa-solid fa-cancel" title='Cancel'></i></button>
                             </>
                         }
                     </div>
-                }
-                {
-                    schema?.fields?.map((fld, f) => (
-                        <React.Fragment key={f}>
-                            {fld.type === 'hidden-filter' &&
-                                <IUIPageElement
-                                    id={`${value?.id}`}
-                                    schema={[fld]}
-                                    value={value}
-                                    errors={errors}
-                                    onChange={handleChange}
-                                    readonly={value?.readonly}
-                                />
-                            }
-                        </React.Fragment>
-                    ))
-                }
-            </td >}
+                    {
+                        schema?.fields?.map((fld, f) => (
+                            <React.Fragment key={f}>
+                                {fld.type === 'hidden-filter' &&
+                                    <IUIPageElement
+                                        id={`${value?.id}`}
+                                        schema={[fld]}
+                                        value={value}
+                                        errors={errors}
+                                        onChange={handleChange}
+                                        readonly={value?.readonly}
+                                    />
+                                }
+                            </React.Fragment>
+                        ))
+                    }
+                </td>
+            )}
         </React.Fragment >
     )
 }

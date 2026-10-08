@@ -5,6 +5,11 @@ import { useState } from "react";
 const IUIMenuItem = (props) => {
 
     const [value, setValue] = useState(props.schema);
+    const handleLinkClick = () => {
+        if (typeof props.onMenuClick === 'function') {
+            props.onMenuClick();
+        }
+    };
 
     const expandMenu = (e, index) => {
 
@@ -28,13 +33,13 @@ const IUIMenuItem = (props) => {
                             {!item.schema &&
                                 <>
                                     {item.name === 'home' &&
-                                        <Link to={item.path}>
+                                        <Link to={item.path} onClick={handleLinkClick}>
                                             <i className={`metismenu-icon fa-solid fa-${(item.icon || "asterisk")}`}></i>{item.text}
                                         </Link>
                                     }
                                     {item.name !== 'home' &&
                                         item.visible &&
-                                        <Link to={item.path}>
+                                        <Link to={item.path} onClick={handleLinkClick}>
                                             <i className={`pr-2 fa-solid fa-${(item.icon || "asterisk")}`}></i>{item.text}
                                         </Link>
                                     }
@@ -50,7 +55,7 @@ const IUIMenuItem = (props) => {
                                         </Link>
                                     }
                                     <ul className={item.expanded ? "mm-show" : "mm-collapse"}>
-                                        <IUIMenuItem schema={item.schema} />
+                                        <IUIMenuItem schema={item.schema} onMenuClick={props.onMenuClick} />
                                     </ul>
                                 </>
                             }

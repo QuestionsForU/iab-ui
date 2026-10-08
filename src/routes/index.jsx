@@ -8,7 +8,7 @@ import Dashboard from "../pages/app/Dashboard";
 import Home from "../pages/Home"
 import Signup from "../pages/Signup";
 import { ListSupplier, ViewSupplier, EditSupplier, AddSupplier } from "../pages/app/schema/Suppliers";
-import { ListCategory, ViewCategory, EditCategory, AddCategory } from "../pages/app/schema/Categorys";
+import { ListProductType, ViewProductType, EditProductType, AddProductType } from "../pages/app/schema/ProductTypes";
 import { ListProduct, ViewProduct, EditProduct, AddProduct } from "../pages/app/schema/Products";
 import { ListSupplierPurchase, ViewSupplierPurchase, EditSupplierPurchase, AddSupplierPurchase } from "../pages/app/schema/SupplierPurchases";
 import { ListInvoice, ViewInvoice, EditInvoice, AddInvoice } from "../pages/app/schema/Invoices";
@@ -101,20 +101,20 @@ const Routes = () => {
                     element: <EditSupplier />
                 },
                 {
-                    path: "/categorys",
-                    element: <ListCategory />
+                    path: "/productTypes",
+                    element: <ListProductType />
                 },
                 {
-                    path: "/categorys/:id",
-                    element: <ViewCategory />
+                    path: "/productTypes/:id",
+                    element: <ViewProductType />
                 },
                 {
-                    path: "/categorys/add",
-                    element: <AddCategory />
+                    path: "/productTypes/add",
+                    element: <AddProductType />
                 },
                 {
-                    path: "/categorys/:id/edit",
-                    element: <EditCategory />
+                    path: "/productTypes/:id/edit",
+                    element: <EditProductType />
                 },
                 {
                     path: "/products",

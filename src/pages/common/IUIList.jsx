@@ -13,8 +13,9 @@ import IUILookUp from '../common/shared/IUILookUp'
 const IUIList = (props) => {
     const schema = props.schema;
     const module = schema.module;
-    const pageLength = schema.paging ? 10 : 0;
     const dataSet = useSelector((state) => state.api[module])
+    const defaultPageLength = schema.pageSize ?? 10;
+    const pageLength = schema.paging ? (dataSet?.options?.recordPerPage ?? defaultPageLength) : 0;
     const [search, setSearch] = useState(useSelector((state) => state.api[module])?.options?.search);
     const loggedInUser = useSelector((state) => state.api.loggedInUser)
     const [privileges, setPrivileges] = useState({});
@@ -22,13 +23,14 @@ const IUIList = (props) => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const pageOptions = { ...dataSet?.options, recordPerPage: pageLength }
+        const persistedPageSize = dataSet?.options?.recordPerPage ?? defaultPageLength;
+        const pageOptions = { ...dataSet?.options, recordPerPage: persistedPageSize }
         dispatch(getData({ module: module, options: pageOptions }));
     }, []);
 
     useEffect(() => {
         const modulePrivileges = loggedInUser?.privileges?.filter(p => p.module === module)?.map(p => p.name);
-        if(modulePrivileges){
+        if (modulePrivileges) {
             let access = {};
             modulePrivileges.forEach(p => {
                 access = { ...access, ...{ [p]: true } }
@@ -37,6 +39,9 @@ const IUIList = (props) => {
         }
     }, [loggedInUser, module]);
 
+    const canAdd = Object.keys(privileges).length === 0 || privileges?.add === true;
+    const canEdit = Object.keys(privileges).length === 0 || privileges?.edit === true;
+
     const pageChanges = async (e) => {
         e.preventDefault();
         const pageOptions = {
@@ -44,6 +49,17 @@ const IUIList = (props) => {
         }
         dispatch(getData({ module: module, options: pageOptions }));
     };
+
+    const handleShowMore = async (e) => {
+        e.preventDefault();
+        const nextPageSize = (dataSet?.options?.recordPerPage ?? defaultPageLength) + (schema.showMoreStep ?? 10);
+        const pageOptions = {
+            currentPage: 1,
+            recordPerPage: nextPageSize,
+        }
+        dispatch(getData({ module: module, options: pageOptions }));
+    };
+
     const sortData = async (e, field) => {
         e.preventDefault();
         const sortOptions = {
@@ -103,18 +119,14 @@ const IUIList = (props) => {
                                 <div className="card-body">
                                     <Row>
                                         <Col md={8} className='mb-3'>
-                                            {schema.adding &&
-                                                <>
-                                                    {!privileges.add &&
-                                                        <Button
-                                                            variant="contained"
-                                                            className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm"
-                                                            onClick={() => navigate(`/${schema.module}s/add`)}
-                                                        >
-                                                            Add New
-                                                        </Button>
-                                                    }
-                                                </>
+                                            {schema.adding && canAdd &&
+                                                <Button
+                                                    variant="contained"
+                                                    className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm"
+                                                    onClick={() => navigate(`/${schema.module}s/add`)}
+                                                >
+                                                    Add New
+                                                </Button>
                                             }
                                             <IUIModuleMessage schema={props.schema} />
                                         </Col>
@@ -152,7 +164,10 @@ const IUIList = (props) => {
                                                             </th>
                                                         }
                                                         {schema?.fields?.map((fld, f) => (
-                                                            <th key={f}>
+                                                            <th
+                                                                key={f}
+                                                                className={fld.hiddenOnMobile ? 'd-none d-md-table-cell' : ''}
+                                                            >
                                                                 {fld.sorting &&
                                                                     <button
                                                                         type="submit"
@@ -183,14 +198,17 @@ const IUIList = (props) => {
                                                                     {schema?.editing &&
                                                                         <>
                                                                             <td width={10}>
-                                                                                {!privileges.edit &&
+                                                                                {canEdit &&
                                                                                     <Link to={`${item.id}/edit`}><i className="fa-solid fa-pencil"></i></Link>
                                                                                 }
                                                                             </td>
                                                                         </>
                                                                     }
                                                                     {schema?.fields?.map((fld, f) => (
-                                                                        <td key={f}>
+                                                                        <td
+                                                                            key={f}
+                                                                            className={fld.hiddenOnMobile ? 'd-none d-md-table-cell' : ''}
+                                                                        >
                                                                             {fld.type === 'link' &&
                                                                                 <Link to={`${item.id}`}>{item[fld.field]}</Link>
                                                                             }
@@ -215,14 +233,26 @@ const IUIList = (props) => {
                                                     <tfoot>
                                                         <tr>
                                                             <td colSpan={schema?.fields.length}>
-                                                                <Pagination size="sm" onClick={pageChanges}>
-                                                                    {[...Array(dataSet?.totalPages)].map((e, i) => {
-                                                                        return <Pagination.Item key={i}
-                                                                            className="paginate_button"
-                                                                            active={(`${dataSet?.options?.currentPage}` === `${i + 1}`)}
-                                                                        >{i + 1}</Pagination.Item>
-                                                                    })}
-                                                                </Pagination>
+                                                                <div className="d-flex justify-content-between align-items-center">
+                                                                    <Pagination size="sm" onClick={pageChanges}>
+                                                                        {[...Array(dataSet?.totalPages)].map((e, i) => {
+                                                                            return <Pagination.Item key={i}
+                                                                                className="paginate_button"
+                                                                                active={(`${dataSet?.options?.currentPage}` === `${i + 1}`)}
+                                                                            >{i + 1}</Pagination.Item>
+                                                                        })}
+                                                                    </Pagination>
+
+                                                                    {(dataSet?.totalRecords ?? 0) > (dataSet?.options?.recordPerPage ?? defaultPageLength) && (
+                                                                        <Button
+                                                                            variant="secondary"
+                                                                            className="btn-sm"
+                                                                            onClick={handleShowMore}
+                                                                        >
+                                                                            Show more
+                                                                        </Button>
+                                                                    )}
+                                                                </div>
                                                             </td>
                                                             {schema?.editing &&
                                                                 <td>

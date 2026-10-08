@@ -142,17 +142,19 @@ api.getData = async (action) => {
     if (!option.status) {
         option.status = status; //TODO Public Shared etc...
     }
+    if (option?.filters) {
+        option.filters = api.getFilters(option?.filters);
+    }
     if (option?.searchCondition) {
         option.search = option?.searchCondition?.value;
         option.filters = api.getFilters(option?.searchCondition);
     }
-    if (option?.filters) {
-        option.filters = api.getFilters(option?.filters);
+    
+    if (option.sortColumnName) {
+        option.sortDirection = option.sortDirection ? 'asc' : 'desc'
     }
-    option.sortDirection = option.sortDirection ? 'asc' : 'desc'
-
-    if (!option.sortColumnName) {
-        option.sortColumnName = 'dateCreated';
+    else {
+        option.sortColumnName = option.module === 'invoice' ? 'name' : 'dateCreated';
         option.sortDirection = 'desc'
     }
 
@@ -195,10 +197,11 @@ api.getData = async (action) => {
 
 
     const filter = query(dataRef, conditions);
+    const countQuery = query(filter, orderBy(option.sortColumnName, option.sortDirection));
     const q = option.recordPerPage === 0
-        ? query(filter, orderBy(option.sortColumnName, option.sortDirection))
+        ? countQuery
         : query(filter, orderBy(option.sortColumnName, option.sortDirection), limit(option.recordPerPage));
-    const counterSnapshot = await getCountFromServer(q);
+    const counterSnapshot = await getCountFromServer(countQuery);
     const totalRecords = counterSnapshot.data().count;
     const querySnapshot = await getDocs(q);
     const newData = querySnapshot.docs

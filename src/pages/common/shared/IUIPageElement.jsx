@@ -36,28 +36,43 @@ const IUIPageElement = (props) => {
             setErrors(props?.errors);
     }, [props?.errors]);
 
+    const normalizePrivileges = (items = []) => {
+        const filtered = (Array.isArray(items) ? items : []).filter(item => item && item.module && item.name);
+        const unique = [];
+        filtered.forEach(item => {
+            const key = `${item.module}|${item.name}`;
+            if (!unique.some(entry => `${entry.module}|${entry.name}` === key)) {
+                unique.push(item);
+            }
+        });
+        return unique;
+    };
+
     const handleChange = (e) => {
         e.preventDefault();
         if (props.readonly)
             return
 
-        let newData = { ...data, [e.target.id]: e.target.value }
-        if (e.target.id === 'roles') {
-            let newPrivileges = []
-            if (newData?.privileges) {
-                newPrivileges = newData?.privileges
-            }
-            if (e.target.value) {
-                newPrivileges = []
-                for (let i = 0; i < e.target.value.length; i++) {
-                    if (e.target.value[i].privileges) {
-                        newPrivileges = [...newPrivileges, ...e.target.value[i].privileges]
-                    }
-                }
+        let newData = { ...data };
+        if (e?.target?.value && typeof e.target.value === 'object' && !Array.isArray(e.target.value)) {
+            newData = { ...newData, ...e.target.value };
+        } else {
+            newData = { ...newData, [e.target.id]: e.target.value }
+        }
 
-                newPrivileges = [...newPrivileges, ...[{ id: -1, name: "dummy", module: "dummy" }]]
-            }
-            newData = { ...newData, privileges: newPrivileges }
+        if (e.target.id === 'roles') {
+            const selectedRoles = Array.isArray(e.target.value) ? e.target.value : [];
+            const mergedPrivileges = selectedRoles.reduce((acc, role) => {
+                if (Array.isArray(role?.privileges)) {
+                    acc.push(...role.privileges);
+                }
+                return acc;
+            }, []);
+            newData = {
+                ...newData,
+                roles: [...selectedRoles],
+                privileges: normalizePrivileges(mergedPrivileges)
+            };
         }
         else if (e.target.id === 'disable') {
             newData = { ...data, [e.target.id]: e.target.checked }
@@ -129,7 +144,9 @@ const IUIPageElement = (props) => {
                                             id={fld.field}
                                             className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
                                             placeholder={fld.placeholder}
-                                            value={data[fld.field] || ""}
+                                            value={fld.field === 'total'
+                                                ? (Number(data.quantity || 0) * Number(data.price || 0)).toFixed(2)
+                                                : (data[fld.field] ?? "")}
                                             disabled={props.readonly || fld.readonly || false}
                                             onChange={handleChange} />
                                     </InputGroup>
@@ -353,6 +370,7 @@ const IUIPageElement = (props) => {
                                 <Form.Group className="position-relative">
                                     <IUIListInline
                                         value={data[fld.field]}
+                                        gstPercent={data?.gstPercent || 0}
                                         // className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
                                         id={fld.field}
                                         schema={fld.schema}
