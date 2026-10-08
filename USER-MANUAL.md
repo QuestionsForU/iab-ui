@@ -8,6 +8,7 @@ This manual explains how to sign in and use the iLab UI business management appl
 - [Navigate the application](#navigate-the-application)
 - [Use management lists](#use-management-lists)
 - [Add or edit a record](#add-or-edit-a-record)
+- [Developer guide: creating a module](#developer-guide-creating-a-module)
 - [Work with invoices](#work-with-invoices)
 - [Profile and account](#profile-and-account)
 - [Troubleshooting](#troubleshooting)
@@ -29,11 +30,12 @@ Use the left-hand navigation menu to open a section. The menu may be collapsed o
 | Menu section | Available screens |
 | --- | --- |
 | Dashboard | Dashboard |
-| Inventory | Suppliers, Category, Product, Supplier Purchase |
-| Sales | Invoice, Sale Order |
+| Inventory | Suppliers, Product Type, Product |
+| Sales | Invoice |
 | Customer | Customer |
-| Settings | Daily Price, Purity, Site Settings |
-| Configuration | User Management, Module Management |
+| Configuration | User Management, Role Management (administrator accounts) |
+
+Menu items can be hidden if your account lacks the required module privilege. The Configuration section is shown only to users with an `admin` role. Other screens may still have routes in the application without appearing in the current menu.
 
 Select your name/profile area in the top-right corner to access **Change Password**, **View Profile**, and **Logout**. Use **Logout** when finished, especially on a shared computer.
 
@@ -45,7 +47,7 @@ Most management sections open a list of existing records.
 - **Edit a record:** Select the pencil icon on its row, or open the record and select **Edit** if available.
 - **Search:** Enter a search term in the Search box and select **Search**. Searchable fields vary by section.
 - **Sort:** Select a sortable column heading to change the sort order.
-- **Change pages:** Use the page controls at the bottom of a paginated list, when present.
+- **Change pages or show more:** Use the page controls or **Show more** at the bottom of a paginated list, when present.
 - **Add:** Select **Add New** if the button is available and your account permits it.
 
 Not every section supports all of these actions. For example, the current Customer list does not show an Add New action, and some records may only be viewable or editable. The application does not currently provide a general delete action in these lists.
@@ -58,20 +60,19 @@ Not every section supports all of these actions. For example, the current Custom
 4. Review the information and select **Save**.
 5. If you do not want to keep your changes, select **Cancel**.
 
-If the application marks a field as required or displays a validation message, correct the field before saving. You may need to maintain related records first—for example, a product may refer to a purity and category, and a flat may refer to a project, tower, or floor.
+If the application marks a field as required or displays a validation message, correct the field before saving. You may need to maintain related records first—for example, a product refers to a product type, and invoice items refer to products.
 
 ### Examples of information requested
 
-- **Product:** Name, weight, type, purity, unit, category, HSN code, tax rates, and product ownership/type.
+- **Product:** Product type, name, price, quantity, and optional product image.
 - **Supplier:** Name, email, GST number, phone number, address, and optional profile picture.
 - **Customer:** Name, phone number, PAN number, and address when editing an existing record.
-- **Daily Price:** Price date, material/purity information, and price.
 
 The exact fields and required values depend on the section and may change as the application is updated.
 
 ## Developer guide: creating a module
 
-A module in this application is more than a form. To add one, connect its Firestore collection and reusable page schemas to the router and navigation menu, then provide any required Firestore indexes and access configuration. The Invoice module is an example: its page components are in `src/pages/app/schema/Invoices.jsx`, its routes are registered in `src/routes/index.jsx`, its menu entry is in `src/pages/common/LeftMenu.jsx`, and its collection index is in `firestore.indexes.json`.
+A module in this application is more than a form. To add one, connect its Firestore collection and reusable page schemas to the router and navigation menu, then provide any required Firestore indexes and access configuration. The Invoice module is an example: its page components are in `src/pages/app/schema/Invoices.jsx`, its routes are registered in `src/routes/index.jsx`, its menu entry is in `src/pages/common/LeftMenu.jsx`, and its collection indexes are in `firestore.indexes.json`.
 
 ### 1. Choose the module and route names
 
@@ -86,7 +87,7 @@ The module name is passed to the shared data components as `schema.module`; it m
 
 ### 2. Create the module page schemas
 
-Create `src/pages/app/schema/<ModuleName>.jsx` (for example, `Invoices.jsx`). A typical module exports separate list, view, add, and edit components and reuses `IUIList` and `IUIPage`. Here is a minimal complete example; replace `example`, labels, and fields with the new module's values:
+Create `src/pages/app/schema/<ModuleName>.jsx` (for example, `Invoices.jsx`). A module exports its own screen components, conventionally named `<Module>List`, `<Module>View`, `<Module>Add`, and `<Module>Edit`. These screen components use the shared list and form components. For example, a module named `Example` can export `ExampleList`, `ExampleView`, `ExampleAdd`, and `ExampleEdit`. The current Invoice file uses the older `ListInvoice`, `ViewInvoice`, `AddInvoice`, and `EditInvoice` naming; either convention works as long as the exports, imports, and route references match. Replace `example`, labels, and fields below with the new module's values:
 
 ```jsx
 import IUIList from "../../common/IUIList";
@@ -107,7 +108,7 @@ const formFields = [
   },
 ];
 
-export const ListExample = () => (
+export const ExampleList = () => (
   <IUIList
     schema={{
       ...moduleSchema,
@@ -123,7 +124,7 @@ export const ListExample = () => (
   />
 );
 
-export const ViewExample = () => (
+export const ExampleView = () => (
   <IUIPage
     schema={{
       ...moduleSchema,
@@ -136,7 +137,7 @@ export const ViewExample = () => (
   />
 );
 
-export const AddExample = () => (
+export const ExampleAdd = () => (
   <IUIPage
     schema={{
       ...moduleSchema,
@@ -146,7 +147,7 @@ export const AddExample = () => (
   />
 );
 
-export const EditExample = () => (
+export const ExampleEdit = () => (
   <IUIPage
     schema={{
       ...moduleSchema,
@@ -157,7 +158,7 @@ export const EditExample = () => (
 );
 ```
 
-`IUIList` renders the collection list; a field with `type: "link"` opens the view route. `IUIPage` uses the current route's `:id` parameter to load or update an existing document, and creates a document when the add route has no `id`. For a view schema, set `readonly: true`; `editing: true` displays the **Edit** action, while `adding: true` displays **Add New** where appropriate. Add and edit forms are writable schemas without `readonly`.
+In the code above, `ExampleList`, `ExampleView`, `ExampleAdd`, and `ExampleEdit` are the module's route-level screens. They are built with the shared `IUIList` list renderer and `IUIPage` form renderer used elsewhere in the project. A list field with `type: "link"` opens the view route. The form renderer uses the route's `:id` parameter to load or update an existing document, and creates a document when the add route has no `id`. For a view schema, set `readonly: true`; `editing: true` displays the **Edit** action. Add and edit forms are writable schemas without `readonly`.
 
 Use separate schema objects when form fields or read-only/action settings differ, as the Invoice screens do. Form fields are described in `fields`; common properties include `text`, `field`, `type`, `required`, and `width`. Use existing schemas for field types, lookups, and inline relations. For linked lookup values, specify the related collection in the field's `schema.module`; for fixed choices, provide `schema.items`.
 
@@ -167,13 +168,13 @@ In `src/routes/index.jsx`:
 
 1. Import each exported component from the new schema file.
 2. Add its paths inside the authenticated route's `children`.
-3. Register list, view, add, and edit screens, typically:
+3. Register the module's list, view, add, and edit screens, typically:
 
 ```jsx
-{ path: "/examples", element: <ListExample /> },
-{ path: "/examples/:id", element: <ViewExample /> },
-{ path: "/examples/add", element: <AddExample /> },
-{ path: "/examples/:id/edit", element: <EditExample /> },
+{ path: "/examples", element: <ExampleList /> },
+{ path: "/examples/:id", element: <ExampleView /> },
+{ path: "/examples/add", element: <ExampleAdd /> },
+{ path: "/examples/:id/edit", element: <ExampleEdit /> },
 ```
 
 Follow the actual Invoice route declarations in this file. Add and edit routes are separate from list/view routes; defining a page component alone does not make it reachable.
@@ -183,14 +184,14 @@ Follow the actual Invoice route declarations in this file. Add and edit routes a
 In `src/pages/common/LeftMenu.jsx`, add a menu item under the appropriate section. For example:
 
 ```jsx
-{ name: "example", text: "Example", icon: "box-open", path: "/examples" }
+{ name: "example", text: "Example", icon: "box-open", path: "/examples", access: "example" }
 ```
 
-The menu item path must match the list route. The menu and router are separate registrations, so update both. Review the application's privilege handling and user/role setup for the intended access; a menu entry by itself does not secure a route or Firestore data.
+The menu item path must match the list route. The menu and router are separate registrations, so update both. When using `access`, its value must match the privilege module name (`example`). Add the new module to the fixed `modules` array in `src/pages/common/shared/IUIRolePrivilege.jsx`; otherwise Role Management will not offer privileges for it. Then grant the intended `list`, `view`, `add`, `edit`, or `delete` privileges through Role Management and assign the role to users. The menu checks for a privilege matching the module, while page actions use these privilege names. This is UI behavior only: a menu entry, route, or role setting does not secure Firestore data; enforce access in Firestore rules too.
 
 ### 5. Add Firestore indexes when needed
 
-The shared list query in `src/store/firebase-service.js` filters on `application` and, by default, sorts by `dateCreated` descending. Add an index for the new collection in `firestore.indexes.json` when its queries require one. The common pattern is:
+The shared list query in `src/store/firebase-service.js` filters on `application`. Unless a screen supplies another sort, it sorts most collections by `dateCreated` descending; invoices currently default to `name` descending. The list schema can also expose sort actions for other fields, and search adds field filters. Add indexes to `firestore.indexes.json` for the actual collection, filters, and sort combinations used by the new module. A common default index pattern for a collection sorted by `dateCreated` descending is:
 
 ```json
 {
@@ -203,7 +204,7 @@ The shared list query in `src/store/firebase-service.js` filters on `application
 }
 ```
 
-Use the singular Firestore module/collection name for `collectionGroup`. Add or adjust indexes for other filters and sort orders required by the new screens. If Firestore reports a missing index, review its suggested definition, add it to the checked-in file, and deploy it to the intended Firebase project:
+Use the Firestore module/collection name for `collectionGroup` (for example, `invoice`). For other sort fields, create matching ascending/descending index entries as required by the queries. If Firestore reports a missing index, review its suggested definition, add it to the checked-in file, and deploy it to the intended Firebase project:
 
 ```powershell
 firebase deploy --project <project-id> --only firestore:indexes
@@ -215,7 +216,22 @@ firebase deploy --project <project-id> --only firestore:indexes
 
 If a screen uses child/related records, study `module-relation-inline` in the Invoice schemas and the shared relation component before copying the pattern. Confirm how the relation is stored and queried, and ensure the related collection, lookup fields, routes (if needed), and indexes are all in place.
 
-### 7. Verify the complete user flow
+### 7. Review every registration point
+
+For a new module, check the relevant files as a set:
+
+| Concern | File |
+| --- | --- |
+| List, view, add, and edit screen schemas | `src/pages/app/schema/<ModuleName>.jsx` |
+| Route imports and route paths | `src/routes/index.jsx` |
+| Menu section, path, and module access key | `src/pages/common/LeftMenu.jsx` |
+| Available role privilege modules/actions | `src/pages/common/shared/IUIRolePrivilege.jsx` |
+| Firestore indexes for the collection's queries | `firestore.indexes.json` |
+| Firestore authorization for collection reads/writes | `firestore.rules` |
+
+Not every module requires edits to every file: add indexes when the queries need them, and add related-record handling only when the module has relationships. But confirm each concern has been addressed before considering the module complete.
+
+### 8. Verify the complete user flow
 
 - Confirm the menu entry opens the list route.
 - Test list loading, search, sorting, and pagination if enabled.
@@ -228,11 +244,11 @@ If a screen uses child/related records, study `module-relation-inline` in the In
 
 1. Open **Sales → Invoice**.
 2. Select **Add New** if available.
-3. Enter the invoice number, date, customer details, payment mode, discount, and address requested by the form.
-4. Add the invoice item information requested, such as product, quantity, weight, rate, HSN code, taxes, and charges.
+3. Enter the invoice date, customer name, email, phone number, and address. PAN/GST number and GST percentage are optional in the current form. The invoice number is displayed as a read-only field.
+4. Add invoice items using the product lookup, then enter quantity and price. The item total is read-only.
 5. Review the invoice and select **Save**.
 
-When viewing an existing invoice, use **Edit** if you need to make a permitted correction. Confirm customer and item details before saving. If an expected action is not available, ask your administrator to check your permissions or the application's current configuration.
+The invoice list displays invoice ID, customer name, phone number, and invoice date. Use its search, column sorting, page controls, or **Show more** as needed. When viewing an existing invoice, use **Edit** if you need to make a permitted correction. Confirm customer and item details before saving. If an expected action is not available, ask your administrator to check your permissions or the application's current configuration.
 
 ## Profile and account
 
