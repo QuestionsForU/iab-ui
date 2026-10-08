@@ -86,30 +86,80 @@ The module name is passed to the shared data components as `schema.module`; it m
 
 ### 2. Create the module page schemas
 
-Create `src/pages/app/schema/<ModuleName>.jsx` (for example, `Invoices.jsx`). Most modules export separate list, view, add, and edit components and reuse `IUIList` and `IUIPage`:
+Create `src/pages/app/schema/<ModuleName>.jsx` (for example, `Invoices.jsx`). A typical module exports separate list, view, add, and edit components and reuses `IUIList` and `IUIPage`. Here is a minimal complete example; replace `example`, labels, and fields with the new module's values:
 
 ```jsx
 import IUIList from "../../common/IUIList";
 import IUIPage from "../../common/IUIPage";
 
+const moduleSchema = {
+  module: "example",
+  title: "Example Management",
+};
+
+const formFields = [
+  {
+    type: "area",
+    fields: [
+      { text: "Name", field: "name", type: "text", required: true, width: 6 },
+      { text: "Description", field: "description", type: "textarea", required: false, width: 12 },
+    ],
+  },
+];
+
 export const ListExample = () => (
   <IUIList
     schema={{
-      module: "example",
-      title: "Example Management",
+      ...moduleSchema,
       paging: true,
       searching: true,
       editing: true,
       adding: true,
       fields: [
         { text: "Name", field: "name", type: "link", sorting: true, searching: true },
+        { text: "Description", field: "description", type: "text", sorting: false, searching: false },
       ],
+    }}
+  />
+);
+
+export const ViewExample = () => (
+  <IUIPage
+    schema={{
+      ...moduleSchema,
+      editing: true,
+      adding: false,
+      back: true,
+      readonly: true,
+      fields: formFields,
+    }}
+  />
+);
+
+export const AddExample = () => (
+  <IUIPage
+    schema={{
+      ...moduleSchema,
+      back: false,
+      fields: formFields,
+    }}
+  />
+);
+
+export const EditExample = () => (
+  <IUIPage
+    schema={{
+      ...moduleSchema,
+      back: false,
+      fields: formFields,
     }}
   />
 );
 ```
 
-Use a schema object for each page, as the Invoice screens do, when the form fields or read-only/action settings differ. Form fields are described in `fields`; common properties include `text`, `field`, `type`, `required`, and `width`. Use existing schemas for field types, lookups, and inline relations. For linked lookup values, specify the related collection in the field's `schema.module`; for fixed choices, provide `schema.items`.
+`IUIList` renders the collection list; a field with `type: "link"` opens the view route. `IUIPage` uses the current route's `:id` parameter to load or update an existing document, and creates a document when the add route has no `id`. For a view schema, set `readonly: true`; `editing: true` displays the **Edit** action, while `adding: true` displays **Add New** where appropriate. Add and edit forms are writable schemas without `readonly`.
+
+Use separate schema objects when form fields or read-only/action settings differ, as the Invoice screens do. Form fields are described in `fields`; common properties include `text`, `field`, `type`, `required`, and `width`. Use existing schemas for field types, lookups, and inline relations. For linked lookup values, specify the related collection in the field's `schema.module`; for fixed choices, provide `schema.items`.
 
 ### 3. Register the routes
 
@@ -117,7 +167,7 @@ In `src/routes/index.jsx`:
 
 1. Import each exported component from the new schema file.
 2. Add its paths inside the authenticated route's `children`.
-3. Register the screens needed by the module, typically:
+3. Register list, view, add, and edit screens, typically:
 
 ```jsx
 { path: "/examples", element: <ListExample /> },
