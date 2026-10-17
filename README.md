@@ -1,71 +1,111 @@
-# Getting Started with Create React App
+# iLab UI Developer Guide
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This guide is for developers setting up, maintaining, and extending the iLab UI web application.
 
-## Available Scripts
+## What this application does
 
-In the project directory, you can run:
+iLab UI is a React single-page application for business administration. It includes authentication and management screens for areas such as products, categories, suppliers, purchases, invoices, sale orders, customers, users, roles, and project/building records. The application uses Firebase Authentication and Cloud Firestore for its backend.
 
-### `npm start`
+## Technology
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- React 18, created with Create React App (`react-scripts`)
+- React Router 6 for client-side routing
+- Redux Toolkit and `redux-persist` for application state
+- Firebase JavaScript SDK for Authentication, Firestore, and Analytics
+- React Bootstrap and Bootstrap for UI components and styling
+- Firebase Hosting for static web deployment
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Get the project running
 
-### `npm test`
+Prerequisites:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- Node.js and npm compatible with the versions used by the project dependencies
+- Access to the correct Firebase project for local development
+- Git
 
-### `npm run build`
+From the repository root:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```powershell
+npm ci
+npm start
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Open `http://localhost:3000`. The development server reloads after source changes. Stop it with `Ctrl+C`.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+The current `build` npm script uses POSIX environment-variable syntax (`CI=false react-scripts build`), which fails on Windows Command Prompt and PowerShell. To build on Windows without changing `package.json`, run:
 
-### `npm run eject`
+```powershell
+npx react-scripts build
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+On shells that support the existing npm script syntax, use:
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```bash
+npm run build
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+The production bundle is generated in `build/`. `npm test` starts the Create React App test runner; use `npx react-scripts test --watchAll=false` for a non-watch run.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## Project layout
 
-## Learn More
+```text
+src/
+  App.js                       Auth provider and route entry point
+  index.js                     React root, Redux provider, persisted store
+  Layout.jsx                   Authenticated application shell
+  routes/
+    index.jsx                  Public, authentication, and protected routes
+    ProtectedRoute.jsx         Authentication gate for the app shell
+  provider/
+    authProvider.jsx           Authentication context and browser storage
+  store/
+    firebase.js                Firebase app, Auth, Firestore, Analytics setup
+    firebase-service.js        Firestore/Auth operations used by Redux
+    api-db.js                  Redux thunks, slice, and API state
+    index.js                   Redux store and session persistence
+  configuration/
+    modules.jsx                Module configuration screens/examples
+  pages/
+    app/schema/                Domain list, view, add, and edit screens
+    common/                    Shared layout, list, form, and UI components
+  assets/                      Stylesheets, images, and fonts
+public/                         Static files copied into the build
+firebase.json                  Firebase Hosting and Firestore config paths
+.firebaserc                    Firebase CLI project alias
+firestore.rules                Firestore access rules
+firestore.indexes.json         Firestore composite index definitions
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Application flow and extension points
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Startup, routing, and authentication
 
-### Code Splitting
+`src/index.js` mounts the React app with the Redux provider and waits for persisted Redux state to rehydrate. `src/App.js` provides the authentication context and renders the route configuration.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Routes are declared in `src/routes/index.jsx`. Public/authentication paths include `/login`, `/signup`, `/forgot-password`, `/reset-password`, and `/refresh`. Most business screens are nested under the protected route and rendered inside `Layout.jsx`. `ProtectedRoute.jsx` redirects unauthenticated users to login (or token refresh when a refresh token exists).
 
-### Analyzing the Bundle Size
+Authentication state is implemented in `src/provider/authProvider.jsx`. It stores the session token in `sessionStorage` and a refresh token in `localStorage`. When changing login or logout behavior, check the auth provider, protected route, and the login/refresh/logout pages together.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### State and Firebase data access
 
-### Making a Progressive Web App
+The UI dispatches Redux Toolkit thunks from `src/store/api-db.js`. These call the Firebase operations in `src/store/firebase-service.js`, which uses the Firestore instance exported by `src/store/firebase.js`. The Redux store is in `src/store/index.js`; its persisted state uses session storage.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+Common data thunks include `getData`, `getSingleData`, `addData`, `editData`, and `deleteData`. Identity-related thunks include login, registration, profile update, and password reset/change actions. Follow these existing paths when adding data operations so loading, success, and error state remains consistent.
 
-### Advanced Configuration
+The generic screens in `src/pages/common/IUIList.jsx` and `src/pages/common/IUIPage.jsx` take a schema describing the Firestore collection and form/list fields. Domain-specific examples and their collection names live in `src/pages/app/schema/`. For a new domain screen:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+1. Define its schema and collection name using an existing domain page as a pattern.
+2. Reuse the shared list/form components where their behavior fits.
+3. Add the page route in `src/routes/index.jsx`.
+4. Add or update navigation and any related lookup schemas.
+5. Review Firestore indexes and rules for the new collection and queries.
+6. Exercise listing, search/sort, create, view, edit, and access behavior.
 
-### Deployment
+Check the details of the shared components before assuming all pages have the same capabilities; some add routes or actions are intentionally absent from the current router.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## Firebase setup and deployment
 
-### `npm run build` fails to minify
+Firebase is initialized in `src/store/firebase.js`. The Firebase client configuration identifies a Firebase project; do not treat it as an authorization boundary. Data access must be secured by Firestore rules, and Firebase Auth/provider settings must be configured in the Firebase Console.
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
 

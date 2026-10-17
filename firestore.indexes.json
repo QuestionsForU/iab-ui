@@ -660,7 +660,66 @@
         }
       ]
     },
-    
+    {
+      "collectionGroup": "employee",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "application",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "dateCreated",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "employee",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "application",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "name",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "employee",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "application",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "name",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "employee",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "application",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "name",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "dateCreated",
+          "order": "DESCENDING"
+        }
+      ]
+    },
     {
       "collectionGroup": "module",
       "queryScope": "COLLECTION",
