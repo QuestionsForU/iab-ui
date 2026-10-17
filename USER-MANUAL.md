@@ -201,12 +201,13 @@ The shared list query in `src/store/firebase-service.js` filters on `application
   "queryScope": "COLLECTION",
   "fields": [
     { "fieldPath": "application", "order": "ASCENDING" },
-    { "fieldPath": "dateCreated", "order": "DESCENDING" }
+    { "fieldPath": "dateCreated", "order": "DESCENDING" },
+    { "fieldPath": "__name__", "order": "DESCENDING" }
   ]
 }
 ```
 
-Use the Firestore module/collection name for `collectionGroup` (for example, `invoice`). For other sort fields, create matching ascending/descending index entries as required by the queries. If Firestore reports a missing index, review its suggested definition, add it to the checked-in file, and deploy it to the intended Firebase project:
+Use the Firestore module/collection name for `collectionGroup` (for example, `invoice`). Firestore uses `__name__` as a document-ID tie-breaker for ordered queries; when the Firebase Console's missing-index link lists `__name__`, include that field with the exact direction shown. For other sort fields, create matching ascending/descending index entries as required by the queries. If Firestore reports a missing index, review its suggested definition, add it to the checked-in file, and deploy it to the intended Firebase project:
 
 ```powershell
 firebase deploy --project <project-id> --only firestore:indexes
