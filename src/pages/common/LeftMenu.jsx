@@ -40,6 +40,7 @@ const LeftMenu = (props) => {
                 { name: "customer", text: "Customer", icon: "user", path: "/customers", access: "customer" }
             ]
         },
+        { name: "employee", text: "Employees", icon: "users", path: "/employees", access: "employee" },
         // {
         //     name: "setting", text: "Settings", icon: "gear",
         //     schema: [

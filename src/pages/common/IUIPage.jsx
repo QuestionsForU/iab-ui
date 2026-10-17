@@ -15,8 +15,8 @@ const IUIPage = (props) => {
     const { id } = useParams();
 
     // Global State
-    const saved = useSelector((state) => state.api[module].saved)
-    const items = useSelector((state) => state.api[module].items)
+    const saved = useSelector((state) => state.api[module]?.saved)
+    const items = useSelector((state) => state.api[module]?.items)
     const loggedInUser = useSelector((state) => state.api.loggedInUser)
     const [dirty, setDirty] = useState(false)
     // Local State

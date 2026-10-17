@@ -33,6 +33,7 @@ Use the left-hand navigation menu to open a section. The menu may be collapsed o
 | Inventory | Suppliers, Product Type, Product |
 | Sales | Invoice |
 | Customer | Customer |
+| Employees | Employee records |
 | Configuration | User Management, Role Management (administrator accounts) |
 
 Menu items can be hidden if your account lacks the required module privilege. The Configuration section is shown only to users with an `admin` role. Other screens may still have routes in the application without appearing in the current menu.
@@ -65,6 +66,7 @@ If the application marks a field as required or displays a validation message, c
 ### Examples of information requested
 
 - **Product:** Product type, name, price, quantity, and optional product image.
+- **Employee:** Name, age, gender, salary, and designation.
 - **Supplier:** Name, email, GST number, phone number, address, and optional profile picture.
 - **Customer:** Name, phone number, PAN number, and address when editing an existing record.
 

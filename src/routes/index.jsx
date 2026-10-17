@@ -14,6 +14,7 @@ import { ListSupplierPurchase, ViewSupplierPurchase, EditSupplierPurchase, AddSu
 import { ListInvoice, ViewInvoice, EditInvoice, AddInvoice } from "../pages/app/schema/Invoices";
 import { ListSaleOrder, ViewSaleOrder, EditSaleOrder, AddSaleOrder } from "../pages/app/schema/SaleOrders";
 import { ListCustomer, ViewCustomer, EditCustomer } from "../pages/app/schema/Customers";
+import { EmployeeList, EmployeeView, EmployeeEdit, EmployeeAdd } from "../pages/app/schema/Employees";
 import { ListDailyPrice, ViewDailyPrice, EditDailyPrice, AddDailyPrice } from "../pages/app/schema/DailyPrices";
 import { ListPurity, ViewPurity, EditPurity, AddPurity } from "../pages/app/schema/Puritys";
 import { ListSiteSetting, ViewSiteSetting, EditSiteSetting } from "../pages/app/schema/SiteSettings";
@@ -195,6 +196,22 @@ const Routes = () => {
                 {
                     path: "/customers/:id/edit",
                     element: <EditCustomer />
+                },
+                {
+                    path: "/employees",
+                    element: <EmployeeList />
+                },
+                {
+                    path: "/employees/:id",
+                    element: <EmployeeView />
+                },
+                {
+                    path: "/employees/add",
+                    element: <EmployeeAdd />
+                },
+                {
+                    path: "/employees/:id/edit",
+                    element: <EmployeeEdit />
                 },
                 {
                     path: "/dailyPrices",

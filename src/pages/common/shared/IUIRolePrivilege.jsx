@@ -23,6 +23,7 @@ const IUIRolePrivilege = (props) => {
         { name: "productType", text: "Product Type" },
         { name: "product", text: "Product" },
         { name: "invoice", text: "Invoice" },
+        { name: "employee", text: "Employee" },
 		// { name: "company", text: "Companies" },
         // { name: "itemMaster", text: "Item Master" },
         // { name: "itemGroup", text: "Item Group" },
