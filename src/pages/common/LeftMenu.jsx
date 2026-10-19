@@ -21,9 +21,6 @@ const LeftMenu = (props) => {
         : false;
 
     let schema = [
-        {
-            name: "home", text: "Dashboard", icon: "home", path: "/home"
-        },
         ...lisModuleMenu,
         // {
         //     name: "setting", text: "Settings", icon: "gear",
