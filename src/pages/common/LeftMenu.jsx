@@ -19,22 +19,6 @@ const LeftMenu = (props) => {
         {
             name: "home", text: "Dashboard", icon: "home", path: "/home"
         },
-        {
-            name: "inventory", text: "Inventory", icon: "cart-shopping",
-            schema: [
-                { name: "supplier", text: "Suppliers", icon: "truck-field", path: "/suppliers", access: "supplier" },
-                { name: "productType", text: "Product Type", icon: "sitemap", path: "/productTypes", access: "productType" },
-                { name: "product", text: "Product", icon: "box-open", path: "/products", access: "product" },
-                // { name: "supplierPurchase", text: "Supplier Purchase", icon: "truck-fast", path: "/supplierPurchases" }
-            ]
-        },
-        {
-            name: "patientsAndCustomers", text: "People", icon: "users",
-            schema: [
-                { name: "customer", text: "Customers", icon: "user", path: "/customers", access: "customer" },
-                { name: "employee", text: "Employees", icon: "users", path: "/employees", access: "employee" },
-            ]
-        },
         ...lisModuleMenu,
         // {
         //     name: "setting", text: "Settings", icon: "gear",
@@ -44,14 +28,6 @@ const LeftMenu = (props) => {
         //         { name: "siteSetting", text: "Site Settings", icon: "sliders", path: "/siteSettings" }
         //     ]
         // },
-        {
-            name: "configuration", text: "Configuration", icon: "cogs",
-            schema: [
-                { name: "userManagement", text: "User Management", icon: "users", path: "/users" },
-                { name: "roleManagement", text: "Role Management", icon: "sitemap", path: "/roles" }
-                //{ name: "moduleManagement", text: "Modue Management", icon: "users", path: "/modules" },
-            ]
-        },
         // {
         //     name: "masterDataManagement", text: "Master Management", icon: "arrows-to-eye",
         //     schema: [
@@ -79,15 +55,11 @@ const LeftMenu = (props) => {
 
     // Filter menu schema based on privileges
     const filterMenu = (s) => {
-        if (s.name === 'configuration') {
+        if (s.name === 'account') {
             s.schema.forEach(item => {
-                item.visible = (item.name === 'userManagement' || item.name === 'roleManagement') ? isAdminUser : false;
-            })
-            return isAdminUser;
-        }
-
-        if (s.name === 'userManagement' || s.name === 'roleManagement') {
-            return isAdminUser;
+                item.visible = item.name === 'changePassword' || isAdminUser;
+            });
+            return true;
         }
 
         if (s.schema) {
