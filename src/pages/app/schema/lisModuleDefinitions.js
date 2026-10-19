@@ -1,6 +1,7 @@
 const text = (field, label, required = false) => ({ field, text: label, type: "text", required });
 const number = (field, label, required = false) => ({ field, text: label, type: "number", required });
 const date = (field, label, required = false) => ({ field, text: label, type: "date", required });
+const dateTime = (field, label, required = false) => ({ field, text: label, type: "datetime", required });
 const longText = (field, label, required = false) => ({ field, text: label, type: "textarea", required });
 const choice = (field, label, values, required = false) => ({
     field,
@@ -9,15 +10,134 @@ const choice = (field, label, values, required = false) => ({
     required,
     schema: { items: values.map(name => ({ name })) },
 });
-const relation = (field, label, module, displayField, required = false) => ({
+const relation = (field, label, module, displayField, required = false, valueField = "id") => ({
     field,
     text: label,
     type: "lookup",
     required,
-    schema: { module, displayField, valueField: "id" },
+    schema: { module, displayField, valueField },
 });
 
 export const lisModuleDefinitions = [
+    {
+        module: "sample",
+        title: "Samples",
+        displayField: "sampleNo",
+        fields: [
+            text("sampleNo", "Sample No", true),
+            relation("testRequestId", "Test Request", "testRequest", "sampleNo"),
+            relation("patientId", "Patient", "patient", "name", true),
+            relation("specimenId", "Specimen", "specimen", "specimenName"),
+            text("barcode", "Barcode"),
+            dateTime("sampleCollectionDate", "Collection Date and Time"),
+            text("collectedBy", "Collected By"),
+            choice("collectionStatus", "Collection Status", ["Pending", "Collected", "Rejected"]),
+            dateTime("sampleReceivedDate", "Received Date and Time"),
+            text("receivedBy", "Received By"),
+            choice("receivingStatus", "Receiving Status", ["Pending", "Received", "Rejected"]),
+            relation("rejectionReasonId", "Rejection Reason", "lookupMaster", "name"),
+            choice("status", "Sample Status", ["Pending", "Collected", "Received", "Rejected", "Processing", "Completed"]),
+        ],
+        listFields: ["sampleNo", "patientId", "specimenId", "status"],
+    },
+    {
+        module: "specimen",
+        title: "Specimens",
+        displayField: "specimenName",
+        fields: [
+            text("specimenCode", "Specimen Code", true),
+            text("specimenName", "Specimen Name", true),
+            choice("isActive", "Active", ["Yes", "No"]),
+        ],
+        listFields: ["specimenName", "specimenCode", "isActive"],
+    },
+    {
+        module: "lisTest",
+        title: "LIS Test Master",
+        displayField: "name",
+        fields: [
+            text("testCode", "Test Code", true),
+            text("name", "Test Name", true),
+            longText("description", "Description"),
+            relation("specimenId", "Specimen", "specimen", "specimenName"),
+            relation("departmentCode", "Department", "department", "departmentName", false, "departmentCode"),
+            choice("isActive", "Active", ["Yes", "No"]),
+        ],
+        listFields: ["name", "testCode", "specimenId", "isActive"],
+    },
+    {
+        module: "testParameter",
+        title: "Test Parameters",
+        displayField: "parameterName",
+        fields: [
+            text("parameterCode", "Parameter Code", true),
+            text("parameterName", "Parameter Name", true),
+            relation("lisTestId", "LIS Test", "lisTest", "name", true),
+            text("unit", "Unit"),
+            relation("parameterRangeId", "Parameter Range", "parameterRange", "rangeCode"),
+            choice("isActive", "Active", ["Yes", "No"]),
+        ],
+        listFields: ["parameterName", "parameterCode", "lisTestId", "unit"],
+    },
+    {
+        module: "testRate",
+        title: "Test Rates",
+        displayField: "rateName",
+        fields: [
+            text("rateName", "Rate Name", true),
+            relation("lisTestId", "LIS Test", "lisTest", "name"),
+            relation("testProfileId", "Test Profile", "testProfile", "name"),
+            number("rate", "Rate", true),
+            date("effectiveFrom", "Effective From"),
+            date("effectiveTo", "Effective To"),
+            relation("hospitalId", "Hospital / Facility", "hospital", "hospitalName"),
+            choice("isActive", "Active", ["Yes", "No"]),
+        ],
+        listFields: ["rateName", "lisTestId", "rate", "effectiveFrom"],
+    },
+    {
+        module: "hospital",
+        title: "Hospitals and Facilities",
+        displayField: "hospitalName",
+        fields: [
+            text("hospitalCode", "Hospital / Facility Code", true),
+            text("hospitalName", "Hospital / Facility Name", true),
+            text("corporateName", "Corporate Name"),
+            text("phoneNumber", "Phone Number"),
+            text("email", "Email"),
+            longText("address", "Address"),
+            choice("isActive", "Active", ["Yes", "No"]),
+        ],
+        listFields: ["hospitalName", "hospitalCode", "corporateName", "isActive"],
+    },
+    {
+        module: "lookupMaster",
+        title: "Lookup Masters",
+        displayField: "name",
+        fields: [
+            choice("lookupType", "Lookup Type", ["Sample Type", "Test Category", "Test Group", "Method", "Unit", "Container", "Sample Rejection Reason", "Corporate", "Facility"], true),
+            text("code", "Code"),
+            text("name", "Name", true),
+            longText("description", "Description"),
+            choice("isActive", "Active", ["Yes", "No"]),
+        ],
+        listFields: ["name", "lookupType", "code", "isActive"],
+    },
+    {
+        module: "externalApi",
+        title: "External API Configurations",
+        displayField: "name",
+        fields: [
+            text("name", "Configuration Name", true),
+            text("system", "External System", true),
+            text("baseUrl", "Base URL", true),
+            choice("authenticationType", "Authentication Type", ["OAuth 2.0", "API Key", "Basic", "None"]),
+            text("credentialReference", "Credential Reference"),
+            choice("direction", "Integration Direction", ["Import", "Export", "Bidirectional"]),
+            choice("isActive", "Active", ["Yes", "No"]),
+        ],
+        listFields: ["name", "system", "direction", "isActive"],
+    },
     {
         module: "patientVisit",
         title: "Patient Visits",
@@ -25,7 +145,7 @@ export const lisModuleDefinitions = [
         fields: [
             relation("patientId", "Patient", "patient", "name", true),
             text("visitId", "Visit ID", true),
-            date("visitDateTime", "Visit Date and Time", true),
+            dateTime("visitDateTime", "Visit Date and Time", true),
             relation("saleInvoiceId", "Invoice", "saleInvoice", "invoiceNo"),
             choice("visitStatus", "Visit Status", ["Scheduled", "In Progress", "Completed", "Cancelled"]),
             choice("isActive", "Active", ["Yes", "No"]),
@@ -45,8 +165,8 @@ export const lisModuleDefinitions = [
             text("hisTestName", "HIS Test Name"),
             text("specimenCode", "Specimen Code"),
             text("specimenName", "Specimen Name"),
-            date("sampleCollectionDate", "Sample Collection Date"),
-            date("sampleReceivedDate", "Sample Received Date"),
+            dateTime("sampleCollectionDate", "Sample Collection Date"),
+            dateTime("sampleReceivedDate", "Sample Received Date"),
             relation("departmentId", "Department", "department", "departmentName"),
             relation("referralDoctorId", "Referral Doctor", "referralDoctor", "doctorName"),
             text("department", "Department Name"),
@@ -70,12 +190,12 @@ export const lisModuleDefinitions = [
             text("lisTestCode", "LIS Test Code"),
             text("specimenCode", "Specimen Code"),
             text("specimenName", "Specimen Name"),
-            date("resultDate", "Result Date"),
-            date("sampleCollectionDate", "Sample Collection Date"),
-            date("sampleReceivedDate", "Sample Received Date"),
-            date("authorizationDate", "Authorization Date"),
+            dateTime("resultDate", "Result Date"),
+            dateTime("sampleCollectionDate", "Sample Collection Date"),
+            dateTime("sampleReceivedDate", "Sample Received Date"),
+            dateTime("authorizationDate", "Authorization Date"),
             text("authorizedBy", "Authorized By"),
-            date("reviewDate", "Review Date"),
+            dateTime("reviewDate", "Review Date"),
             text("reviewedBy", "Reviewed By"),
             longText("technicianNote", "Technician Note"),
             longText("doctorNote", "Doctor Note"),
@@ -137,7 +257,7 @@ export const lisModuleDefinitions = [
             text("hisTestCodeDescription", "HIS Test Description", true),
             text("hisSpecimenCode", "HIS Specimen Code"),
             text("hisSpecimenName", "HIS Specimen Name"),
-            relation("departmentCode", "Department", "department", "departmentName"),
+            relation("departmentCode", "Department", "department", "departmentName", false, "departmentCode"),
             choice("isActive", "Active", ["Yes", "No"]),
         ],
         listFields: ["hisTestCodeDescription", "hisTestCode", "hisSpecimenName", "departmentCode"],
@@ -194,7 +314,7 @@ export const lisModuleDefinitions = [
         displayField: "lastHeartBeatTime",
         fields: [
             relation("equipmentId", "Equipment", "equipment", "name", true),
-            date("lastHeartBeatTime", "Last Heartbeat Time", true),
+            dateTime("lastHeartBeatTime", "Last Heartbeat Time", true),
             choice("isOnline", "Online", ["Yes", "No"]),
             longText("lastErrorMessage", "Last Error Message"),
             date("recordedOn", "Recorded On"),
@@ -219,7 +339,7 @@ export const lisModuleDefinitions = [
         displayField: "testName",
         fields: [
             relation("profileId", "Profile", "testProfile", "name", true),
-            relation("testCode", "HIS Test", "hisTest", "hisTestCodeDescription", true),
+            relation("testCode", "HIS Test", "hisTest", "hisTestCodeDescription", true, "hisTestCode"),
             text("testName", "Test Name"),
             number("sequence", "Sequence"),
         ],
@@ -258,8 +378,8 @@ export const lisModuleDefinitions = [
             relation("patientId", "Patient", "patient", "name", true),
             text("requestNo", "Request No", true),
             text("examType", "Exam Type", true),
-            date("requestDateTime", "Request Date and Time"),
-            date("examDateTime", "Exam Date and Time"),
+            dateTime("requestDateTime", "Request Date and Time"),
+            dateTime("examDateTime", "Exam Date and Time"),
             longText("comments", "Comments"),
             choice("status", "Status", ["Pending", "Scheduled", "Completed", "Cancelled"]),
         ],
@@ -273,7 +393,7 @@ export const lisModuleDefinitions = [
             relation("radiologyRequestId", "Radiology Request", "radiologyRequest", "requestNo", true),
             longText("findings", "Findings"),
             longText("impression", "Impression"),
-            date("reportDateTime", "Report Date and Time"),
+            dateTime("reportDateTime", "Report Date and Time"),
             text("reportedBy", "Reported By"),
             choice("status", "Status", ["Draft", "Finalized", "Cancelled"]),
         ],
@@ -384,51 +504,61 @@ const menuItem = definition => ({
 
 export const lisModuleMenu = [
     {
-        name: "lisPatientCare",
-        text: "Patient Care",
+        name: "lisSampleManagement",
+        text: "Sample Management",
         icon: "hospital",
         schema: lisModuleDefinitions
-            .filter(({ module }) => ["patientVisit", "testRequest"].includes(module))
-            .map(menuItem),
+            .filter(({ module }) => ["sample", "patientVisit", "testRequest"].includes(module))
+            .map(menuItem)
+            .concat([
+                { name: "patient", text: "Patients", icon: "hospital-user", path: "/patients", access: "patient" },
+            ]),
     },
     {
-        name: "lisResults",
-        text: "Results",
-        icon: "flask",
+        name: "lisOrganization",
+        text: "Organization",
+        icon: "building",
         schema: lisModuleDefinitions
-            .filter(({ module }) => ["testResult", "testResultDetail"].includes(module))
-            .map(menuItem),
-    },
-    {
-        name: "lisBilling",
-        text: "Billing",
-        icon: "file-invoice-dollar",
-        schema: lisModuleDefinitions
-            .filter(({ module }) => ["saleInvoice", "saleInvoiceDetail"].includes(module))
+            .filter(({ module }) => ["department", "hospital"].includes(module))
             .map(menuItem),
     },
     {
         name: "lisTestCatalog",
-        text: "Test Catalog",
+        text: "Test Catalog & Masters",
         icon: "book-medical",
         schema: lisModuleDefinitions
-            .filter(({ module }) => ["department", "referralDoctor", "hisTest", "hisParameter", "testMapping", "testProfile", "testProfileDetail"].includes(module))
+            .filter(({ module }) => ["specimen", "referralDoctor", "lookupMaster", "lisTest", "hisTest", "hisParameter", "testParameter", "testProfile", "testProfileDetail"].includes(module))
+            .map(menuItem)
+            .concat([
+                { name: "parameterRange", text: "Parameter Ranges", icon: "sliders", path: "/parameterRanges", access: "parameterRange" },
+            ]),
+    },
+    {
+        name: "lisResults",
+        text: "Results & Radiology",
+        icon: "flask",
+        schema: lisModuleDefinitions
+            .filter(({ module }) => ["testResult", "testResultDetail", "radiologyRequest", "radiologyResult"].includes(module))
             .map(menuItem),
+    },
+    {
+        name: "lisBilling",
+        text: "Billing & Rates",
+        icon: "file-invoice-dollar",
+        schema: lisModuleDefinitions
+            .filter(({ module }) => ["saleInvoice", "saleInvoiceDetail"].includes(module))
+            .map(menuItem)
+            .concat([
+                menuItem(lisModuleDefinitions.find(({ module }) => module === "testRate")),
+                { name: "legacyInvoice", text: "Invoice", icon: "receipt", path: "/invoices", access: "invoice" },
+            ]),
     },
     {
         name: "lisEquipment",
         text: "Equipment",
         icon: "microscope",
         schema: lisModuleDefinitions
-            .filter(({ module }) => ["equipment", "equipmentHeartbeat"].includes(module))
-            .map(menuItem),
-    },
-    {
-        name: "lisRadiology",
-        text: "Radiology",
-        icon: "x-ray",
-        schema: lisModuleDefinitions
-            .filter(({ module }) => ["radiologyRequest", "radiologyResult"].includes(module))
+            .filter(({ module }) => ["equipment", "equipmentHeartbeat", "testMapping"].includes(module))
             .map(menuItem),
     },
     {
@@ -448,11 +578,11 @@ export const lisModuleMenu = [
             .map(menuItem),
     },
     {
-        name: "lisNotifications",
-        text: "Notifications",
-        icon: "bell",
+        name: "lisIntegrations",
+        text: "Integrations & Notifications",
+        icon: "plug",
         schema: lisModuleDefinitions
-            .filter(({ module }) => ["notificationConfiguration", "notificationTemplate"].includes(module))
+            .filter(({ module }) => ["externalApi", "notificationConfiguration", "notificationTemplate"].includes(module))
             .map(menuItem),
     },
 ];

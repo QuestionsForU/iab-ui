@@ -214,6 +214,7 @@ const IUIList = (props) => {
                                                                             }
                                                                             {(!fld.type || fld.type === 'text') && item[fld.field]}
                                                                             {fld.type === 'date' && item[fld.field]?.substring(0, 10)}
+                                                                            {fld.type === 'datetime' && item[fld.field]?.substring(0, 16)?.replace('T', ' ')}
                                                                             {(fld.type === 'lookup') &&
                                                                                 <IUILookUp
                                                                                     value={item[fld.field]}

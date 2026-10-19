@@ -31,20 +31,16 @@ Use the left-hand navigation menu to open a section. The menu may be collapsed o
 | --- | --- |
 | Dashboard | Dashboard |
 | Inventory | Suppliers, Product Type, Product |
-| Sales | Invoice |
-| Customer | Customer |
-| Patient | Patient records |
-| Parameter Range | Laboratory parameter reference ranges |
-| Employees | Employee records |
-| Patient Care | Patient Visits, Test Requests |
-| Results | Test Results, Test Result Details |
-| Billing | Sale Invoices, Sale Invoice Details |
-| Test Catalog | Departments, Referral Doctors, HIS Test/Parameter Masters, Test Mappings, Test Profiles and Details |
-| Equipment | Equipment Master, Equipment Heartbeats |
-| Radiology | Radiology Requests and Results |
+| People | Customers, Employees |
+| Sample Management | Patients, Patient Visits, Test Requests, Samples (collection and receiving status) |
+| Organization | Departments, Hospitals, and Facilities |
+| Test Catalog & Masters | Specimens, Referral Doctors, Lookup Masters, LIS/HIS Tests and Parameters, Parameter Ranges, and Test Profiles |
+| Results & Radiology | Test Results, Test Result Details, Radiology Requests, and Radiology Results |
+| Billing & Rates | Sale Invoices, Invoice Details, Test Rates, and existing Invoice |
+| Equipment | Equipment Master, Heartbeat records, and Test Mappings |
 | Quality Control | Control Results and Details |
 | Reporting | Report Templates, Versions, Layout Configurations |
-| Notifications | Notification Configurations and Templates |
+| Integrations & Notifications | External API configurations, Notification Configurations, and Templates |
 | Configuration | User Management, Role Management (administrator accounts) |
 
 Menu items can be hidden if your account lacks the required module privilege. The Configuration section is shown only to users with an `admin` role. Other screens may still have routes in the application without appearing in the current menu.
@@ -80,7 +76,7 @@ If the application marks a field as required or displays a validation message, c
 - **Employee:** Name, age, gender, salary, and designation.
 - **Patient:** Patient and MR numbers are generated automatically. Enter the patient's name, phone number, salutation, and gender; date of birth, age, address, and Visit ID are optional.
 - **Parameter Range:** The range code is generated automatically. Select a gender and parameter; optionally enter range text, age bounds and age unit, and minimum/maximum values.
-- **LIS modules:** The Patient Care, Results, Billing, Test Catalog, Equipment, Radiology, Quality Control, Reporting, and Notifications sections provide list, view, add, and edit pages based on the LIS entity model. Related records are selected through lookup fields; create master records (such as departments, patients, tests, and equipment) before records that refer to them.
+- **LIS modules:** The grouped LIS sections provide list, view, add, and edit pages for sample tracking, test catalogs, results, billing, equipment, quality control, report configuration, and integration/notification configuration. Related records are selected through lookup fields; create master records (such as departments, facilities, specimens, patients, tests, and equipment) before records that refer to them.
 - **Supplier:** Name, email, GST number, phone number, address, and optional profile picture.
 - **Customer:** Name, phone number, PAN number, and address when editing an existing record.
 
@@ -99,7 +95,9 @@ Decide on:
 - A display label and the menu group where users should find it.
 - The fields, relationships, and allowed actions (list, search, add, view, edit).
 
-The module name is passed to the shared data components as `schema.module`; it must match the Firestore collection name. Existing routes usually use a plural path, but the shared page component constructs some navigation paths by appending `s` to the module name. Keep module and route naming consistent, and inspect the resulting add/view/edit/back URLs—especially for irregular plurals or names with multiple words. Parameter Range uses the `parameterRange` collection and `/parameterRanges` route. The LIS entity pages are driven by `src/pages/app/schema/lisModuleDefinitions.js`; add each entity's fields and relationship lookup there, and `LISModules.jsx` creates the list/view/add/edit screens and routes from those definitions. The ERD diagram includes Referral Doctor without a detailed field list, so the minimal doctor fields in its module are inferred.
+The module name is passed to the shared data components as `schema.module`; it must match the Firestore collection name. Existing routes usually use a plural path, but the shared page component constructs some navigation paths by appending `s` to the module name. Keep module and route naming consistent, and inspect the resulting add/view/edit/back URLs—especially for irregular plurals or names with multiple words. Parameter Range uses the `parameterRange` collection and `/parameterRanges` route. The LIS entity pages are driven by `src/pages/app/schema/lisModuleDefinitions.js`; add each entity's fields and relationship lookup there, and `LISModules.jsx` creates the list/view/add/edit screens and routes from those definitions. The ERD diagram includes Referral Doctor without a detailed field list, so its minimal doctor fields in its module are inferred.
+
+The functionality specification also describes specialized processing not implemented by generic CRUD forms: sample collection/receiving actions, barcode generation/printing/scanning, equipment TCP/IP and heartbeat ingestion, HIS synchronization, result authorization/rejection and automatic reference-range evaluation, report generation/download/export, dashboards/analytics, and notification delivery. The current screens provide data-entry/configuration fields for related records (including sample statuses, result authorization metadata, report templates, integration settings, and notification templates); they do not perform those external integrations, calculations, workflow transitions, printing, or delivery. Implement those workflows with the relevant service/API and authorization before treating this UI as a complete LIS.
 
 ### 2. Create the module page schemas
 

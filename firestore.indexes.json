@@ -904,6 +904,78 @@
       ]
     },
     {
+      "collectionGroup": "sample",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "application", "order": "ASCENDING" },
+        { "fieldPath": "dateCreated", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "specimen",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "application", "order": "ASCENDING" },
+        { "fieldPath": "dateCreated", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "lisTest",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "application", "order": "ASCENDING" },
+        { "fieldPath": "dateCreated", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "testParameter",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "application", "order": "ASCENDING" },
+        { "fieldPath": "dateCreated", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "testRate",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "application", "order": "ASCENDING" },
+        { "fieldPath": "dateCreated", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "hospital",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "application", "order": "ASCENDING" },
+        { "fieldPath": "dateCreated", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "lookupMaster",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "application", "order": "ASCENDING" },
+        { "fieldPath": "dateCreated", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "externalApi",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "application", "order": "ASCENDING" },
+        { "fieldPath": "dateCreated", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "patientVisit",
       "queryScope": "COLLECTION",
       "fields": [
