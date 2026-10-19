@@ -17,7 +17,7 @@ This manual explains how to sign in and use the iLab UI business management appl
 
 1. Open the application URL provided by your organization.
 2. Enter your registered email address and password on the sign-in page.
-3. Select **Login**. If sign-in succeeds, the dashboard opens.
+3. Select **Sign in**. If sign-in succeeds, the dashboard opens.
 
 Access requires an account created or authorized by your system administrator. If you do not have an account or cannot sign in, contact the administrator. The **Recover Password** link currently directs users to contact the administrator; password recovery is not self-service.
 
@@ -30,14 +30,15 @@ Use the left-hand navigation menu to open a section. The menu may be collapsed o
 | Menu section | Available screens |
 | --- | --- |
 | Dashboard | Dashboard |
-| Working Board | Samples, patient visits, test requests, test results, radiology requests/results, quality control, and patients |
-| Setup | Departments, facilities, lookup masters, equipment/heartbeat, notification configuration/templates, report layout, API settings, and other application settings |
-| Master | Specimens, referral doctors, LIS/HIS tests and parameters, parameter ranges, mappings, profiles, rates, suppliers, products, and employees |
-| Transaction | Sale invoices, invoice details, existing invoices, and customers |
-| Reports | Report templates and template versions |
+| Working Board | Recent samples, sample collection and receiving, radiology report entry and approvals, technician/doctor approvals, test result editing, approved/rejected samples, quality controls, patient visits, test requests, test results, and patients |
+| Setup | Departments, units, methods, equipment/heartbeat, notification settings, report layout/template configuration and designer, client applications, API settings, and application settings |
+| Master | Test master, test profiles, specimens, referral doctors and sample collectors, commission rates, corporates, test groups/categories, sample types, containers, parameters, mappings, parameter ranges, suppliers, products, and employees |
+| Transaction | Patient details, sale invoices, invoice details, existing invoices, and customers |
+| Reports | Invoice/test registers, diagnostic and radiology reports, collection/receiving/rejection reports, turnaround, radiology statistics, and commission reports |
+| Commission | Commission payout |
 | Account | Change Password; Users and Roles are available to administrator accounts |
 
-Menu items can be hidden if your account lacks the required module privilege. Users and Roles are shown only to accounts with an `admin` role. Other screens may still have routes in the application without appearing in the current menu.
+Menu items can be hidden if your account lacks the required module privilege. Administrator accounts can access the full application menu; Users and Roles are restricted to administrators. Some detail/editor URLs are opened from their corresponding lists rather than shown as separate menu items.
 
 Select your name/profile area in the top-right corner to access **Change Password**, **View Profile**, and **Logout**. Use **Logout** when finished, especially on a shared computer.
 
@@ -75,6 +76,10 @@ If the application marks a field as required or displays a validation message, c
 - **Customer:** Name, phone number, PAN number, and address when editing an existing record.
 
 The exact fields and required values depend on the section and may change as the application is updated.
+
+### LIS workflow and report pages
+
+The Working Board workflow pages display existing Firestore records and link to their record details. They are currently read-only: collecting or receiving samples, editing results, submitting or authorizing reports, and other workflow transitions need the Angular application's service APIs and are not performed by these screens. Report pages reproduce the corresponding filter and result-column layouts, and diagnostic/radiology pages include print-preview layouts; report search, generated results, and exports are not connected. Commission provides payout, history, and memo layouts, but payout calculation, confirmation, and memo data/printing are not connected.
 
 ## Developer guide: creating a module
 

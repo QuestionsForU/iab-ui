@@ -1,4 +1,4 @@
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import { Navigate, RouterProvider, createBrowserRouter } from "react-router-dom";
 import { useAuth } from "../provider/authProvider";
 import { ProtectedRoute } from "./ProtectedRoute";
 import Login from "../pages/Login";
@@ -17,7 +17,10 @@ import { ListCustomer, ViewCustomer, EditCustomer } from "../pages/app/schema/Cu
 import { PatientList, PatientView, PatientEdit, PatientAdd } from "../pages/app/schema/Patients";
 import { EmployeeList, EmployeeView, EmployeeEdit, EmployeeAdd } from "../pages/app/schema/Employees";
 import { ParameterRangeList, ParameterRangeView, ParameterRangeEdit, ParameterRangeAdd } from "../pages/app/schema/ParameterRanges";
-import { LISModuleRoutes } from "../pages/app/schema/LISModules";
+import { LISModuleForm, LISModuleRoutes } from "../pages/app/schema/LISModules";
+import { LISWorkflowRoutes } from "../pages/app/LISWorkflowPages";
+import { LISSetupRoutes } from "../pages/app/LISSetupPages";
+import { LISReportingRoutes } from "../pages/app/LISReportingPages";
 import { ListDailyPrice, ViewDailyPrice, EditDailyPrice, AddDailyPrice } from "../pages/app/schema/DailyPrices";
 import { ListPurity, ViewPurity, EditPurity, AddPurity } from "../pages/app/schema/Puritys";
 import { ListSiteSetting, ViewSiteSetting, EditSiteSetting } from "../pages/app/schema/SiteSettings";
@@ -52,6 +55,18 @@ const Routes = () => {
             path: "/about-us",
             element: <div>About Us</div>,
         },
+        {
+            path: "/contact-us",
+            element: <div>Contact Us</div>,
+        },
+        {
+            path: "/terms",
+            element: <div>Terms and Conditions</div>,
+        },
+        {
+            path: "/help",
+            element: <div className="container body-content"><section className="widget has-divider"><h3 className="title">About us !</h3></section></div>,
+        },
     ];
 
     // Define routes accessible only to authenticated users
@@ -79,6 +94,14 @@ const Routes = () => {
                 {
                     path: "/view-profile",
                     element: <ViewProfile />
+                },
+                {
+                    path: "/profile",
+                    element: <ViewProfile />
+                },
+                {
+                    path: "/profile/edit",
+                    element: <EditProfile />
                 },
                 {
                     path: "/edit-profile",
@@ -217,6 +240,18 @@ const Routes = () => {
                     element: <PatientEdit />
                 },
                 {
+                    path: "/patient-master",
+                    element: <PatientList />
+                },
+                {
+                    path: "/patient-master/create",
+                    element: <PatientAdd />
+                },
+                {
+                    path: "/patient-master/:id",
+                    element: <PatientView />
+                },
+                {
                     path: "/employees",
                     element: <EmployeeList />
                 },
@@ -233,6 +268,29 @@ const Routes = () => {
                     element: <EmployeeEdit />
                 },
                 ...LISModuleRoutes,
+                ...LISWorkflowRoutes,
+                ...LISSetupRoutes,
+                ...LISReportingRoutes,
+                {
+                    path: "/lab-result-entry",
+                    element: <Navigate to="/samples" replace />
+                },
+                {
+                    path: "/lab-result-entry/:id",
+                    element: <LISModuleForm module="testResult" page="edit" />
+                },
+                {
+                    path: "/analyzer-parameter-mappings",
+                    element: <Navigate to="/test-mappings" replace />
+                },
+                {
+                    path: "/parameters/:id",
+                    element: <LISModuleForm module="testMapping" page="view" />
+                },
+                {
+                    path: "/sale-invoices/print/:id",
+                    element: <LISModuleForm module="saleInvoice" page="view" />
+                },
                 {
                     path: "/parameterRanges",
                     element: <ParameterRangeList />
@@ -247,6 +305,22 @@ const Routes = () => {
                 },
                 {
                     path: "/parameterRanges/:id/edit",
+                    element: <ParameterRangeEdit />
+                },
+                {
+                    path: "/his-parameter-ranges",
+                    element: <ParameterRangeList />
+                },
+                {
+                    path: "/his-parameter-ranges/create",
+                    element: <ParameterRangeAdd />
+                },
+                {
+                    path: "/his-parameter-ranges/:id",
+                    element: <ParameterRangeView />
+                },
+                {
+                    path: "/his-parameter-ranges/:id/edit",
                     element: <ParameterRangeEdit />
                 },
                 {
@@ -326,6 +400,14 @@ const Routes = () => {
                     element: <AddRole />
                 },
                 {
+                    path: "/roles/create",
+                    element: <AddRole />
+                },
+                {
+                    path: "/roles/edit/:id",
+                    element: <EditRole />
+                },
+                {
                     path: "/roles/:id/edit",
                     element: <EditRole />
                 },
@@ -344,6 +426,14 @@ const Routes = () => {
                 {
                     path: "/users/add",
                     element: <AddUser />
+                },
+                {
+                    path: "/users/create",
+                    element: <AddUser />
+                },
+                {
+                    path: "/users/edit/:id",
+                    element: <EditUser />
                 },
                 {
                     path: "/itemgroups",
@@ -486,6 +576,10 @@ const Routes = () => {
         {
             path: "/login",
             element: <Login />,
+        },
+        {
+            path: "/register",
+            element: <Signup />,
         },
         {
             path: "/refresh",

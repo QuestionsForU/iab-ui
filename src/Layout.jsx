@@ -40,6 +40,7 @@ const Layout = () => {
                         <LeftMenu
                             leftMenuState={showSidebar}
                             onMobileMenuClose={() => setShowSidebar(false)}
+                            onSidebarToggle={() => setShowSidebar(current => !current)}
                         />
                         <div className="app-main__outer">
                             <div className="app-main__inner">

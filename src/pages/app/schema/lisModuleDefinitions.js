@@ -20,9 +20,166 @@ const relation = (field, label, module, displayField, required = false, valueFie
 
 export const lisModuleDefinitions = [
     {
+        module: "unit",
+        title: "Units",
+        displayField: "name",
+        routePaths: ["/units"],
+        fields: [
+            text("code", "Code", true),
+            text("name", "Name", true),
+            choice("isActive", "Active", ["Yes", "No"]),
+        ],
+        listFields: ["name", "code", "isActive"],
+    },
+    {
+        module: "method",
+        title: "Methods",
+        displayField: "name",
+        routePaths: ["/methods"],
+        fields: [
+            text("code", "Code", true),
+            text("name", "Method Name", true),
+            choice("isActive", "Active", ["Yes", "No"]),
+        ],
+        listFields: ["name", "code", "isActive"],
+    },
+    {
+        module: "sampleCollector",
+        title: "Sample Collectors",
+        displayField: "name",
+        routePaths: ["/sample-collectors"],
+        fields: [
+            text("code", "Code", true),
+            text("name", "Name", true),
+            text("phone", "Phone"),
+            choice("isActive", "Active", ["Yes", "No"]),
+        ],
+        listFields: ["name", "code", "phone", "isActive"],
+    },
+    {
+        module: "doctorCommissionRate",
+        title: "Doctor Commission Rates",
+        displayField: "commissionPercent",
+        routePaths: ["/doctor-commission-rates"],
+        fields: [
+            relation("referralDoctorId", "Referral Doctor", "referralDoctor", "doctorName", true),
+            number("commissionPercent", "Commission %", true),
+            date("effectiveFrom", "Effective From", true),
+            date("effectiveTo", "Effective To"),
+            choice("isActive", "Active", ["Yes", "No"]),
+        ],
+        listFields: ["referralDoctorId", "commissionPercent", "effectiveFrom", "isActive"],
+    },
+    {
+        module: "collectorCommissionRate",
+        title: "Collector Commission Rates",
+        displayField: "commissionPercent",
+        routePaths: ["/collector-commission-rates"],
+        fields: [
+            relation("collectorId", "Sample Collector", "sampleCollector", "name", true),
+            number("commissionPercent", "Commission %", true),
+            date("effectiveFrom", "Effective From", true),
+            date("effectiveTo", "Effective To"),
+            choice("isActive", "Active", ["Yes", "No"]),
+        ],
+        listFields: ["collectorId", "commissionPercent", "effectiveFrom", "isActive"],
+    },
+    {
+        module: "corporate",
+        title: "Corporates",
+        displayField: "name",
+        routePaths: ["/corporates"],
+        fields: [
+            text("code", "Code", true),
+            text("name", "Name", true),
+            number("defaultDiscountPercent", "Default Discount %"),
+            choice("isActive", "Active", ["Yes", "No"]),
+        ],
+        listFields: ["name", "code", "defaultDiscountPercent", "isActive"],
+    },
+    {
+        module: "testGroup",
+        title: "Test Groups",
+        displayField: "name",
+        routePaths: ["/test-groups"],
+        fields: [
+            text("code", "Code", true),
+            text("name", "Name", true),
+            text("specimenTag", "Specimen Tag"),
+            choice("isActive", "Active", ["Yes", "No"]),
+        ],
+        listFields: ["name", "code", "specimenTag", "isActive"],
+    },
+    {
+        module: "testCategory",
+        title: "Test Categories",
+        displayField: "name",
+        routePaths: ["/test-categories"],
+        fields: [
+            text("code", "Code", true),
+            text("name", "Name", true),
+            choice("isActive", "Active", ["Yes", "No"]),
+        ],
+        listFields: ["name", "code", "isActive"],
+    },
+    {
+        module: "sampleType",
+        title: "Sample Types",
+        displayField: "name",
+        routePaths: ["/sample-types"],
+        fields: [
+            text("code", "Code", true),
+            text("name", "Name", true),
+            choice("isActive", "Active", ["Yes", "No"]),
+        ],
+        listFields: ["name", "code", "isActive"],
+    },
+    {
+        module: "container",
+        title: "Containers",
+        displayField: "name",
+        routePaths: ["/containers"],
+        fields: [
+            text("code", "Code", true),
+            text("name", "Name", true),
+            text("color", "Color"),
+            choice("isActive", "Active", ["Yes", "No"]),
+        ],
+        listFields: ["name", "code", "color", "isActive"],
+    },
+    {
+        module: "reportTemplateConfiguration",
+        title: "Report Template Configuration",
+        displayField: "templateName",
+        routePaths: ["/report-template-configuration"],
+        fields: [
+            text("templateName", "Template Name", true),
+            text("templateType", "Template Type"),
+            longText("templateContent", "Template Content"),
+            choice("isActive", "Active", ["Yes", "No"]),
+        ],
+        listFields: ["templateName", "templateType", "isActive"],
+    },
+    {
+        module: "clientApplication",
+        title: "Client Applications",
+        displayField: "name",
+        routePaths: ["/client-application"],
+        fields: [
+            text("name", "Application Name", true),
+            text("code", "Application Code"),
+            longText("description", "Description"),
+            text("baseUrl", "Base URL"),
+            choice("isActive", "Active", ["Yes", "No"]),
+        ],
+        listFields: ["name", "code", "baseUrl", "isActive"],
+    },
+    {
         module: "sample",
         title: "Samples",
+        menuTitle: "Recent Samples",
         displayField: "sampleNo",
+        routePaths: ["/samples"],
         fields: [
             text("sampleNo", "Sample No", true),
             relation("testRequestId", "Test Request", "testRequest", "sampleNo"),
@@ -44,6 +201,7 @@ export const lisModuleDefinitions = [
         module: "specimen",
         title: "Specimens",
         displayField: "specimenName",
+        routePaths: ["/specimens"],
         fields: [
             text("specimenCode", "Specimen Code", true),
             text("specimenName", "Specimen Name", true),
@@ -55,6 +213,7 @@ export const lisModuleDefinitions = [
         module: "lisTest",
         title: "LIS Test Master",
         displayField: "name",
+        routePaths: ["/lisTests"],
         fields: [
             text("testCode", "Test Code", true),
             text("name", "Test Name", true),
@@ -69,6 +228,7 @@ export const lisModuleDefinitions = [
         module: "testParameter",
         title: "Test Parameters",
         displayField: "parameterName",
+        routePaths: ["/test-parameters"],
         fields: [
             text("parameterCode", "Parameter Code", true),
             text("parameterName", "Parameter Name", true),
@@ -83,6 +243,7 @@ export const lisModuleDefinitions = [
         module: "testRate",
         title: "Test Rates",
         displayField: "rateName",
+        routePaths: ["/test-rates"],
         fields: [
             text("rateName", "Rate Name", true),
             relation("lisTestId", "LIS Test", "lisTest", "name"),
@@ -142,6 +303,7 @@ export const lisModuleDefinitions = [
         module: "patientVisit",
         title: "Patient Visits",
         displayField: "visitId",
+        routePaths: ["/patientVisits"],
         fields: [
             relation("patientId", "Patient", "patient", "name", true),
             text("visitId", "Visit ID", true),
@@ -221,7 +383,9 @@ export const lisModuleDefinitions = [
     {
         module: "saleInvoice",
         title: "Sale Invoices",
+        menuTitle: "Sale Invoice",
         displayField: "invoiceNo",
+        routePaths: ["/sale-invoices", "/saleInvoices"],
         fields: [
             text("invoiceNo", "Invoice No", true),
             date("invoiceDate", "Invoice Date", true),
@@ -251,7 +415,9 @@ export const lisModuleDefinitions = [
     {
         module: "hisTest",
         title: "HIS Test Master",
+        menuTitle: "Test Master",
         displayField: "hisTestCodeDescription",
+        routePaths: ["/test-master"],
         fields: [
             text("hisTestCode", "HIS Test Code", true),
             text("hisTestCodeDescription", "HIS Test Description", true),
@@ -265,7 +431,9 @@ export const lisModuleDefinitions = [
     {
         module: "hisParameter",
         title: "HIS Parameter Master",
+        menuTitle: "Parameter Master",
         displayField: "hisParamDescription",
+        routePaths: ["/his-parameters"],
         fields: [
             text("hisParamCode", "HIS Parameter Code", true),
             text("hisParamDescription", "HIS Parameter Description", true),
@@ -283,6 +451,7 @@ export const lisModuleDefinitions = [
         module: "testMapping",
         title: "Test Mapping Master",
         displayField: "lisTestCodeDescription",
+        routePaths: ["/test-mappings"],
         fields: [
             relation("equipmentId", "Equipment", "equipment", "name", true),
             text("hisParamCode", "HIS Parameter Code"),
@@ -300,6 +469,7 @@ export const lisModuleDefinitions = [
         module: "equipment",
         title: "Equipment Master",
         displayField: "name",
+        routePaths: ["/equipments"],
         fields: [
             text("name", "Equipment Name", true),
             text("model", "Model"),
@@ -312,6 +482,7 @@ export const lisModuleDefinitions = [
         module: "equipmentHeartbeat",
         title: "Equipment Heartbeats",
         displayField: "lastHeartBeatTime",
+        routePaths: ["/equipment-heartbeat"],
         fields: [
             relation("equipmentId", "Equipment", "equipment", "name", true),
             dateTime("lastHeartBeatTime", "Last Heartbeat Time", true),
@@ -325,6 +496,7 @@ export const lisModuleDefinitions = [
         module: "testProfile",
         title: "Test Profile Master",
         displayField: "name",
+        routePaths: ["/test-profiles"],
         fields: [
             text("code", "Profile Code", true),
             text("name", "Profile Name", true),
@@ -349,6 +521,7 @@ export const lisModuleDefinitions = [
         module: "department",
         title: "Departments",
         displayField: "departmentName",
+        routePaths: ["/departments"],
         fields: [
             text("departmentCode", "Department Code", true),
             text("departmentName", "Department Name", true),
@@ -360,6 +533,7 @@ export const lisModuleDefinitions = [
         module: "referralDoctor",
         title: "Referral Doctor Master",
         displayField: "doctorName",
+        routePaths: ["/referral-doctors"],
         fields: [
             text("doctorCode", "Doctor Code", true),
             text("doctorName", "Doctor Name", true),
@@ -374,6 +548,7 @@ export const lisModuleDefinitions = [
         module: "radiologyRequest",
         title: "Radiology Requests",
         displayField: "requestNo",
+        routePaths: ["/radiologyRequests"],
         fields: [
             relation("patientId", "Patient", "patient", "name", true),
             text("requestNo", "Request No", true),
@@ -389,6 +564,7 @@ export const lisModuleDefinitions = [
         module: "radiologyResult",
         title: "Radiology Results",
         displayField: "impression",
+        routePaths: ["/radiologyResults"],
         fields: [
             relation("radiologyRequestId", "Radiology Request", "radiologyRequest", "requestNo", true),
             longText("findings", "Findings"),
@@ -403,6 +579,7 @@ export const lisModuleDefinitions = [
         module: "controlResult",
         title: "Control Results",
         displayField: "controlNo",
+        routePaths: ["/controlResults"],
         fields: [
             text("controlNo", "Control No", true),
             text("testName", "Test Name", true),
@@ -416,6 +593,7 @@ export const lisModuleDefinitions = [
         module: "controlResultDetail",
         title: "Control Result Details",
         displayField: "parameterName",
+        routePaths: ["/controlResultDetails"],
         fields: [
             relation("controlResultId", "Control Result", "controlResult", "controlNo", true),
             text("parameterName", "Parameter Name", true),
@@ -431,6 +609,7 @@ export const lisModuleDefinitions = [
         module: "reportTemplate",
         title: "Report Templates",
         displayField: "templateName",
+        routePaths: ["/reportTemplates"],
         fields: [
             text("templateName", "Template Name", true),
             text("templateCode", "Template Code", true),
@@ -444,6 +623,7 @@ export const lisModuleDefinitions = [
         module: "reportTemplateVersion",
         title: "Report Template Versions",
         displayField: "versionNumber",
+        routePaths: ["/reportTemplateVersions"],
         fields: [
             relation("templateId", "Report Template", "reportTemplate", "templateName", true),
             number("versionNumber", "Version Number", true),
@@ -456,6 +636,7 @@ export const lisModuleDefinitions = [
         module: "reportLayoutConfiguration",
         title: "Report Layout Configurations",
         displayField: "fontFamily",
+        routePaths: ["/report-layout-configuration"],
         fields: [
             relation("templateId", "Report Template", "reportTemplate", "templateName", true),
             text("headerImage", "Header Image"),
@@ -470,6 +651,7 @@ export const lisModuleDefinitions = [
         module: "notificationConfiguration",
         title: "Notification Configurations",
         displayField: "notificationName",
+        routePaths: ["/notification-configuration"],
         fields: [
             text("notificationName", "Notification Name", true),
             text("eventType", "Event Type", true),
@@ -483,6 +665,7 @@ export const lisModuleDefinitions = [
         module: "notificationTemplate",
         title: "Notification Templates",
         displayField: "templateName",
+        routePaths: ["/notificationTemplates"],
         fields: [
             relation("notificationConfigurationId", "Notification Configuration", "notificationConfiguration", "notificationName", true),
             text("templateName", "Template Name", true),
@@ -496,9 +679,9 @@ export const lisModuleDefinitions = [
 
 const menuItem = definition => ({
     name: definition.module,
-    text: definition.title,
+    text: definition.menuTitle || definition.title,
     icon: "list",
-    path: `/${definition.module}s`,
+    path: definition.routePaths?.[0] || `/${definition.module}s`,
     access: definition.module,
 });
 
@@ -522,6 +705,17 @@ export const lisModuleMenu = [
             .map(menuItem)
             .concat([
                 { name: "patient", text: "Patients", icon: "hospital-user", path: "/patients", access: "patient" },
+                { name: "sampleCollection", text: "Sample Collection", icon: "vial", path: "/sample-collection", access: "sample" },
+                { name: "sampleReceiving", text: "Sample Receiving", icon: "flask", path: "/sample-receiving", access: "sample" },
+                { name: "radiologyEntry", text: "Radiology Report Entry", icon: "file-medical", path: "/radiology-report-entry", access: "radiologyResult" },
+                { name: "radiologyApproval", text: "Radiology Doctor Approval", icon: "user-doctor", path: "/radiology-doctor-approvals", access: "radiologyResult" },
+                { name: "radiologyApproved", text: "Approved Radiology Reports", icon: "circle-check", path: "/radiology-approved-reports", access: "radiologyResult" },
+                { name: "technicianApproval", text: "Technician's Approval", icon: "user-check", path: "/technicianapprovals", access: "testResult" },
+                { name: "testResultEdit", text: "Test Result Edit", icon: "pen-to-square", path: "/edit-test-results", access: "testResult" },
+                { name: "doctorApproval", text: "Doctor's Approval", icon: "user-doctor", path: "/doctorapprovals", access: "testResult" },
+                { name: "approvedSamples", text: "Approved Samples", icon: "thumbs-up", path: "/approvedsamples", access: "testResult" },
+                { name: "rejectedSamples", text: "Rejected Samples", icon: "thumbs-down", path: "/rejectedsamples", access: "sample" },
+                { name: "qualityControls", text: "Quality Controls", icon: "scale-balanced", path: "/quality-controls", access: "controlResult" },
             ]),
     },
     {
@@ -531,14 +725,18 @@ export const lisModuleMenu = [
         schema: lisModuleDefinitions
             .filter(({ module }) => [
                 "department",
+                "unit",
+                "method",
                 "hospital",
                 "lookupMaster",
                 "equipment",
                 "equipmentHeartbeat",
                 "notificationConfiguration",
+                "reportTemplateConfiguration",
                 "notificationTemplate",
                 "reportLayoutConfiguration",
                 "externalApi",
+                "clientApplication",
             ].includes(module))
             .map(menuItem)
             .concat([
@@ -555,6 +753,14 @@ export const lisModuleMenu = [
             .filter(({ module }) => [
                 "specimen",
                 "referralDoctor",
+                "sampleCollector",
+                "doctorCommissionRate",
+                "collectorCommissionRate",
+                "corporate",
+                "testGroup",
+                "testCategory",
+                "sampleType",
+                "container",
                 "lisTest",
                 "hisTest",
                 "hisParameter",
@@ -566,7 +772,7 @@ export const lisModuleMenu = [
             ].includes(module))
             .map(menuItem)
             .concat([
-                { name: "parameterRange", text: "Parameter Ranges", icon: "sliders", path: "/parameterRanges", access: "parameterRange" },
+                { name: "parameterRange", text: "Parameter Range", icon: "sliders", path: "/his-parameter-ranges", access: "parameterRange" },
                 { name: "supplier", text: "Suppliers", icon: "truck-field", path: "/suppliers", access: "supplier" },
                 { name: "productType", text: "Product Type", icon: "sitemap", path: "/productTypes", access: "productType" },
                 { name: "product", text: "Product", icon: "box-open", path: "/products", access: "product" },
@@ -581,6 +787,7 @@ export const lisModuleMenu = [
             .filter(({ module }) => ["saleInvoice", "saleInvoiceDetail"].includes(module))
             .map(menuItem)
             .concat([
+                { name: "patientMaster", text: "Patient Details", icon: "hospital-user", path: "/patient-master", access: "patient" },
                 { name: "legacyInvoice", text: "Invoice", icon: "receipt", path: "/invoices", access: "invoice" },
                 { name: "customer", text: "Customers", icon: "user", path: "/customers", access: "customer" },
             ]),
@@ -591,7 +798,34 @@ export const lisModuleMenu = [
         icon: "file-lines",
         schema: lisModuleDefinitions
             .filter(({ module }) => ["reportTemplate", "reportTemplateVersion"].includes(module))
-            .map(menuItem),
+            .map(menuItem)
+            .concat([
+                { name: "saleInvoiceRegister", text: "Sale Invoice Register", icon: "file-lines", path: "/reports/sale-invoice-register", access: "reportTemplate" },
+                { name: "testBookingRegister", text: "Test Booking Register", icon: "book-medical", path: "/reports/test-booking-register", access: "reportTemplate" },
+                { name: "diagnosticReport", text: "Diagnostic Report", icon: "print", path: "/reports/test-report", access: "reportTemplate" },
+                { name: "radiologyReportPrint", text: "Radiology Report Print", icon: "print", path: "/reports/radiology-report", access: "reportTemplate" },
+                { name: "collectionSummary", text: "Collection Summary", icon: "vial", path: "/reports/collection-summary", access: "reportTemplate" },
+                { name: "collectorWiseReport", text: "Collector Wise Report", icon: "users", path: "/reports/collector-wise", access: "reportTemplate" },
+                { name: "pendingCollection", text: "Pending Collection", icon: "clock", path: "/reports/pending-collection", access: "reportTemplate" },
+                { name: "recollectionReport", text: "Recollection Report", icon: "arrow-repeat", path: "/reports/recollection", access: "reportTemplate" },
+                { name: "receivedSamplesReport", text: "Received Samples", icon: "check-circle", path: "/reports/received-samples", access: "reportTemplate" },
+                { name: "rejectedSamplesReport", text: "Rejected Samples", icon: "x-circle", path: "/reports/rejected-samples", access: "reportTemplate" },
+                { name: "turnaroundReport", text: "Turnaround Time", icon: "speedometer", path: "/reports/sample-turnaround", access: "reportTemplate" },
+                { name: "pendingRadiology", text: "Pending Radiology Cases", icon: "image", path: "/reports/radiology/pending", access: "reportTemplate" },
+                { name: "authorizedRadiology", text: "Authorized Radiology", icon: "check2-circle", path: "/reports/radiology/authorized", access: "reportTemplate" },
+                { name: "radiologyModalityStats", text: "Modality Statistics", icon: "bar-chart", path: "/reports/radiology/modality-stats", access: "reportTemplate" },
+                { name: "radiologistProductivity", text: "Radiologist Productivity", icon: "graph-up", path: "/reports/radiology/productivity", access: "reportTemplate" },
+                { name: "doctorCommissionReport", text: "Doctor Commission", icon: "file-lines", path: "/reports/doctor-commission", access: "reportTemplate" },
+                { name: "collectorCommissionReport", text: "Collector Commission", icon: "file-lines", path: "/reports/collector-commission", access: "reportTemplate" },
+            ]),
+    },
+    {
+        name: "commission",
+        text: "Commission",
+        icon: "briefcase",
+        schema: [
+            { name: "commissionPayout", text: "Commission Payout", icon: "file-invoice-dollar", path: "/commission-payouts", access: "commissionPayout" },
+        ],
     },
     {
         name: "account",

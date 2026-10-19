@@ -77,6 +77,8 @@ const Header = ({ headerToLayout }) => {
                 </div>
                 <div className="app-header-right">
                     <div className="header-dots">
+                        <Link className="nav-link" to="/home">LMS Home</Link>
+                        <Link className="nav-link" to="/help">Help</Link>
                         {/* <div className="dropdown">
                             <button type="button" aria-haspopup="true" aria-expanded="false" data-bs-toggle="dropdown"
                                 className="p-0 mr-2 btn btn-link">

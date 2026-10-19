@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Col, Row, Form } from "react-bootstrap";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { getSingleData, getData, editData, addData, selectModuleItem } from '../../store/api-db'
 import { useDispatch, useSelector } from 'react-redux'
 import IUIPageElement from './shared/IUIPageElement';
@@ -10,6 +10,7 @@ const IUIPage = (props) => {
     // Properties
     const schema = props?.schema;
     const module = schema?.module;
+    const modulePath = schema?.routePath || `/${module}s`;
 
     // Parameter
     const { id } = useParams();
@@ -348,10 +349,10 @@ const IUIPage = (props) => {
             }
 
             const recordId = id || data?.id;
-            const destination = recordId ? `/${module}s/${recordId}` : `/${module}s`;
+            const destination = recordId ? `${modulePath}/${recordId}` : modulePath;
             navigate(destination, { replace: true });
         }
-    }, [saved, module, id, data?.id, navigate, props.readonly])
+    }, [saved, module, modulePath, id, data?.id, navigate, props.readonly])
 
     return (
         <>
@@ -371,7 +372,7 @@ const IUIPage = (props) => {
                                                     {schema?.back &&
                                                         <Button variant="contained"
                                                             className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
-                                                            onClick={() => navigate(`/${schema.module}s`)}> Back</Button>
+                                                            onClick={() => navigate(modulePath)}> Back</Button>
                                                     }
                                                     {!schema?.readonly && canSave &&
                                                         <>
@@ -388,7 +389,7 @@ const IUIPage = (props) => {
                                                         <Button
                                                             variant="contained"
                                                             className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mr-2"
-                                                            onClick={() => navigate(`/${schema.module}s/add`)}
+                                                            onClick={() => navigate(`${modulePath}/add`)}
                                                         >
                                                             Add New
                                                         </Button>
@@ -397,9 +398,20 @@ const IUIPage = (props) => {
                                                         <Button
                                                             variant="contained"
                                                             className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mr-2"
-                                                            onClick={() => navigate(`/${schema.module}s/${id}/edit`)}
+                                                            onClick={() => navigate(`${modulePath}/${id}/edit`)}
                                                         >
                                                             Edit
+                                                        </Button>
+                                                    }
+                                                    {schema?.module === "reportTemplateConfiguration" && id &&
+                                                        <Button
+                                                            as={Link}
+                                                            to={`/report-template-configuration/design/${id}`}
+                                                            variant="outline-primary"
+                                                            size="sm"
+                                                            className="mr-2"
+                                                        >
+                                                            Design Template
                                                         </Button>
                                                     }
                                                     {schema?.module === 'invoice' && schema?.readonly && id !== undefined &&
@@ -459,7 +471,7 @@ const IUIPage = (props) => {
                                                     {schema?.back &&
                                                         <Button variant="contained"
                                                             className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-secondary btn-md mr-2"
-                                                            onClick={() => navigate(`/${schema.module}s`)}> Back</Button>
+                                                            onClick={() => navigate(modulePath)}> Back</Button>
                                                     }
                                                     {!schema?.readonly && canSave &&
                                                         <>
@@ -476,7 +488,7 @@ const IUIPage = (props) => {
                                                         <Button
                                                             variant="contained"
                                                             className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mr-2"
-                                                            onClick={() => navigate(`/${schema.module}s/add`)}
+                                                            onClick={() => navigate(`${modulePath}/add`)}
                                                         >
                                                             Add New
                                                         </Button>
@@ -485,9 +497,20 @@ const IUIPage = (props) => {
                                                         <Button
                                                             variant="contained"
                                                             className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm mr-2"
-                                                            onClick={() => navigate(`/${schema.module}s/${id}/edit`)}
+                                                            onClick={() => navigate(`${modulePath}/${id}/edit`)}
                                                         >
                                                             Edit
+                                                        </Button>
+                                                    }
+                                                    {schema?.module === "reportTemplateConfiguration" && id &&
+                                                        <Button
+                                                            as={Link}
+                                                            to={`/report-template-configuration/design/${id}`}
+                                                            variant="outline-primary"
+                                                            size="sm"
+                                                            className="mr-2"
+                                                        >
+                                                            Design Template
                                                         </Button>
                                                     }
                                                 </Col>

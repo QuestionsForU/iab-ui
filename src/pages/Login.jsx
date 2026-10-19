@@ -2,8 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../provider/authProvider";
 import { useState, useEffect } from "react";
 import { loginUser } from "../store/api-db";
-import { Alert, Button, Col, Form, Row } from 'react-bootstrap';
-import ICarousel from "./common/ICarousel";
+import { Alert, Button, Form, InputGroup } from "react-bootstrap";
 import { useDispatch, useSelector } from 'react-redux';
 import logo from '../assets/images/logo.png';
 
@@ -15,6 +14,7 @@ const Login = () => {
     const [password, setPassword] = useState("");
     const [notice, setNotice] = useState("");
     const [dirty, setDirty] = useState(false)
+    const [showPassword, setShowPassword] = useState(false);
     const { setToken } = useAuth();
     const [formErrors, setFormErrors] = useState({});
     const dispatch = useDispatch();
@@ -66,89 +66,81 @@ const Login = () => {
             }
         }
 
-    }, [loggedInUser]);
+    }, [loggedInUser, dirty, navigate, setToken]);
 
 
     return (
-        <div className="app-login app-theme-white body-tabs-shadow">
-            <div className="app-container">
-                <div className="h-100">
-                    <Row className="h-100 no-gutters">
-                        <Col className="d-none d-lg-block" lg={5}>
-                            <ICarousel />
-                        </Col>
-                        <Col
-                            className="h-100 d-flex bg-white justify-content-center align-items-center"
-                            md={12} lg={7} >
-                            <Col className="mx-auto app-login-box" sm={12} md={10} lg={9}>
-                                <div className="app-logo"><img src={logo} alt='logo' /> </div>
-                                <h4 className="mb-0">
-                                    <span className="d-block">Welcome back,</span>
-                                    <span>Please sign in to your account.</span>
-                                </h4>
-                                {/* <h6 className="mt-3 mb-3">No account? <Link to={'/signup'} className="text-primary">Sign up now</Link></h6> */}
-                                <div className="divider row"></div>
-                                <div>
-                                    <Form onSubmit={(e) => loginWithUsernameAndPassword(e)}>
-                                        <Row>
-                                            <Col md={6}>
-                                                <Form.Group className="position-relative">
-                                                    <Form.Label htmlFor='email'>Email<span className="text-danger">*</span></Form.Label>
-                                                    <Form.Control type="email"
-                                                        name="email"
-                                                        id="email"
-                                                        placeholder="Email here..."
-                                                        value={email}
-                                                        className={dirty ? (formErrors.email ? "is-invalid" : "is-valid") : ""}
-                                                        onChange={(e) => setEmail(e.target.value)} />
-                                                    <p className="text-danger">{formErrors.email}</p>
-                                                </Form.Group>
-                                            </Col>
-
-                                            <Col md={6}>
-                                                <Form.Group className="position-relative">
-                                                    <Form.Label htmlFor='password'>Password<span className="text-danger">*</span></Form.Label>
-                                                    <Form.Control type="password"
-                                                        name="password"
-                                                        id="password"
-                                                        placeholder="Password here..."
-                                                        className={dirty ? (formErrors.password ? "is-invalid" : "is-valid") : ""}
-                                                        value={password}
-                                                        onChange={(e) => setPassword(e.target.value)} />
-                                                    <p className="text-danger">{formErrors.password}</p>
-                                                </Form.Group>
-                                            </Col>
-                                        </Row>
-                                        {/* <div className="position-relative form-check mt-3 mb-3">
-                                            <input name="check" id="exampleCheck" type="checkbox" className="form-check-input" />
-                                            <label htmlFor="exampleCheck" className="form-check-label">Keep me logged in</label>
-                                        </div> */}
-                                        {"" !== notice &&
-                                            <Alert variant="warning">
-                                                {notice}
-                                            </Alert>
-                                        }
-                                        <div className="divider row"></div>
-                                        <div className="mt-4 d-flex align-items-center">
-                                            <div className="ml-auto">
-                                                <Link to={'/forgot-password'} className="btn-lg btn btn-link">Recover Password</Link>
-
-                                                <Button
-                                                    variant="contained"
-                                                    className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-lg"
-                                                    type="submit"
-                                                >
-                                                    Login
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    </Form>
-                                </div>
-                            </Col>
-                        </Col>
-                    </Row>
+        <div className="avilis-auth-page">
+            <header className="avilis-auth-header">
+                <Link to="/login" aria-label="ZoryaLMS sign in">
+                    <img src={logo} alt="ZoryaLMS" />
+                </Link>
+            </header>
+            <main className="avilis-auth-main">
+                <h1>Sign in to ZoryaLMS</h1>
+                <div className="avilis-auth-card">
+                    <h2>Use your account to log in</h2>
+                    <p className="text-muted">Secure access to samples, results, and laboratory workflows.</p>
+                    <hr />
+                    <Form onSubmit={loginWithUsernameAndPassword}>
+                        <Form.Group className="mb-3" controlId="email">
+                            <Form.Label>Email</Form.Label>
+                            <InputGroup>
+                                <InputGroup.Text aria-hidden="true"><i className="fa-solid fa-user" /></InputGroup.Text>
+                                <Form.Control
+                                    type="email"
+                                    name="email"
+                                    autoComplete="username"
+                                    placeholder="Email"
+                                    value={email}
+                                    isInvalid={dirty && Boolean(formErrors.email)}
+                                    onChange={event => setEmail(event.target.value)}
+                                />
+                            </InputGroup>
+                            <Form.Control.Feedback type="invalid">{formErrors.email}</Form.Control.Feedback>
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="password">
+                            <Form.Label>Password</Form.Label>
+                            <InputGroup>
+                                <InputGroup.Text aria-hidden="true"><i className="fa-solid fa-lock" /></InputGroup.Text>
+                                <Form.Control
+                                    type={showPassword ? "text" : "password"}
+                                    name="password"
+                                    autoComplete="current-password"
+                                    placeholder="Password"
+                                    value={password}
+                                    isInvalid={dirty && Boolean(formErrors.password)}
+                                    onChange={event => setPassword(event.target.value)}
+                                />
+                                <Button
+                                    type="button"
+                                    variant="outline-secondary"
+                                    aria-label={showPassword ? "Hide password" : "Show password"}
+                                    title={showPassword ? "Hide password" : "Show password"}
+                                    onClick={() => setShowPassword(current => !current)}
+                                >
+                                    <i className={`fa-solid ${showPassword ? "fa-eye-slash" : "fa-eye"}`} aria-hidden="true" />
+                                </Button>
+                            </InputGroup>
+                            <Form.Control.Feedback type="invalid">{formErrors.password}</Form.Control.Feedback>
+                        </Form.Group>
+                        {notice &&
+                            <Alert variant="warning" role="alert">{notice}</Alert>
+                        }
+                        <Button type="submit" className="w-100 avilis-auth-submit">
+                            Sign in
+                        </Button>
+                        <div className="text-end mt-3">
+                            <Link to="/forgot-password">Forgot your password?</Link>
+                        </div>
+                    </Form>
                 </div>
-            </div>
+            </main>
+            <footer className="avilis-auth-footer">
+                <span>ZoryaLMS — Zorya Laboratory Management System · © {new Date().getFullYear()}</span>
+                <a href="https://www.zorya.co.in/" target="_blank" rel="noopener noreferrer">ZoryaLMS</a>
+                <span>All rights reserved</span>
+            </footer>
         </div>
     )
 };

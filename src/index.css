@@ -12,3 +12,112 @@ html, body, #root {
 #root {
   min-height: 100vh;
 }
+
+.sidebar-equipment-status {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 16;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  background: #fff;
+  color: #495057;
+  font-size: 12px;
+}
+
+.sidebar-equipment-status a {
+  color: inherit;
+  opacity: 0.8;
+}
+
+.sidebar-equipment-status a:hover {
+  opacity: 1;
+}
+
+.closed-sidebar .sidebar-equipment-status {
+  display: none;
+}
+
+.avilis-auth-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f5f7fa;
+  color: #263238;
+}
+
+.avilis-auth-header {
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  padding: 10px max(24px, calc((100vw - 1140px) / 2));
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(18, 38, 63, 0.08);
+}
+
+.avilis-auth-header img {
+  display: block;
+  max-width: 190px;
+  max-height: 44px;
+  object-fit: contain;
+}
+
+.avilis-auth-main {
+  width: min(100% - 32px, 540px);
+  margin: auto;
+  padding: 48px 0;
+}
+
+.avilis-auth-main > h1 {
+  margin: 0 0 22px;
+  font-size: 28px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.avilis-auth-card {
+  padding: 32px;
+  background: #fff;
+  border: 1px solid #e3e8ef;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(18, 38, 63, 0.08);
+}
+
+.avilis-auth-card h2 {
+  margin: 0 0 8px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.avilis-auth-card .form-label {
+  font-weight: 600;
+}
+
+.avilis-auth-submit {
+  min-height: 44px;
+  margin-top: 8px;
+}
+
+.avilis-auth-footer {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  padding: 18px 16px;
+  color: #697586;
+  font-size: 13px;
+}
+
+@media (max-width: 575px) {
+  .avilis-auth-header {
+    justify-content: center;
+  }
+
+  .avilis-auth-card {
+    padding: 24px 18px;
+  }
+}
