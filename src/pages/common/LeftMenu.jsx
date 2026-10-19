@@ -41,6 +41,7 @@ const LeftMenu = (props) => {
             ]
         },
         { name: "patient", text: "Patient", icon: "hospital-user", path: "/patients", access: "patient" },
+        { name: "parameterRange", text: "Parameter Range", icon: "sliders", path: "/parameterRanges", access: "parameterRange" },
         { name: "employee", text: "Employees", icon: "users", path: "/employees", access: "employee" },
         // {
         //     name: "setting", text: "Settings", icon: "gear",

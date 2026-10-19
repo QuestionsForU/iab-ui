@@ -859,6 +859,51 @@
       ]
     },
     {
+      "collectionGroup": "parameterRange",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "application", "order": "ASCENDING" },
+        { "fieldPath": "dateCreated", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "parameterRange",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "application", "order": "ASCENDING" },
+        { "fieldPath": "rangeCode", "order": "ASCENDING" },
+        { "fieldPath": "__name__", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "parameterRange",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "application", "order": "ASCENDING" },
+        { "fieldPath": "rangeCode", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "parameterRange",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "application", "order": "ASCENDING" },
+        { "fieldPath": "parameter", "order": "ASCENDING" },
+        { "fieldPath": "__name__", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "parameterRange",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "application", "order": "ASCENDING" },
+        { "fieldPath": "parameter", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "module",
       "queryScope": "COLLECTION",
       "fields": [

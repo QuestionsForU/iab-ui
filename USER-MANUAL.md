@@ -34,6 +34,7 @@ Use the left-hand navigation menu to open a section. The menu may be collapsed o
 | Sales | Invoice |
 | Customer | Customer |
 | Patient | Patient records |
+| Parameter Range | Laboratory parameter reference ranges |
 | Employees | Employee records |
 | Configuration | User Management, Role Management (administrator accounts) |
 
@@ -69,6 +70,7 @@ If the application marks a field as required or displays a validation message, c
 - **Product:** Product type, name, price, quantity, and optional product image.
 - **Employee:** Name, age, gender, salary, and designation.
 - **Patient:** Patient and MR numbers are generated automatically. Enter the patient's name, phone number, salutation, and gender; date of birth, age, address, and Visit ID are optional.
+- **Parameter Range:** The range code is generated automatically. Select a gender and parameter; optionally enter range text, age bounds and age unit, and minimum/maximum values.
 - **Supplier:** Name, email, GST number, phone number, address, and optional profile picture.
 - **Customer:** Name, phone number, PAN number, and address when editing an existing record.
 
@@ -87,7 +89,7 @@ Decide on:
 - A display label and the menu group where users should find it.
 - The fields, relationships, and allowed actions (list, search, add, view, edit).
 
-The module name is passed to the shared data components as `schema.module`; it must match the Firestore collection name. Existing routes usually use a plural path, but the shared page component constructs some navigation paths by appending `s` to the module name. Keep module and route naming consistent, and inspect the resulting add/view/edit/back URLs—especially for irregular plurals or names with multiple words.
+The module name is passed to the shared data components as `schema.module`; it must match the Firestore collection name. Existing routes usually use a plural path, but the shared page component constructs some navigation paths by appending `s` to the module name. Keep module and route naming consistent, and inspect the resulting add/view/edit/back URLs—especially for irregular plurals or names with multiple words. Parameter Range uses the `parameterRange` collection and `/parameterRanges` route.
 
 ### 2. Create the module page schemas
 

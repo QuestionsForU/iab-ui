@@ -16,6 +16,7 @@ import { ListSaleOrder, ViewSaleOrder, EditSaleOrder, AddSaleOrder } from "../pa
 import { ListCustomer, ViewCustomer, EditCustomer } from "../pages/app/schema/Customers";
 import { PatientList, PatientView, PatientEdit, PatientAdd } from "../pages/app/schema/Patients";
 import { EmployeeList, EmployeeView, EmployeeEdit, EmployeeAdd } from "../pages/app/schema/Employees";
+import { ParameterRangeList, ParameterRangeView, ParameterRangeEdit, ParameterRangeAdd } from "../pages/app/schema/ParameterRanges";
 import { ListDailyPrice, ViewDailyPrice, EditDailyPrice, AddDailyPrice } from "../pages/app/schema/DailyPrices";
 import { ListPurity, ViewPurity, EditPurity, AddPurity } from "../pages/app/schema/Puritys";
 import { ListSiteSetting, ViewSiteSetting, EditSiteSetting } from "../pages/app/schema/SiteSettings";
@@ -229,6 +230,22 @@ const Routes = () => {
                 {
                     path: "/employees/:id/edit",
                     element: <EmployeeEdit />
+                },
+                {
+                    path: "/parameterRanges",
+                    element: <ParameterRangeList />
+                },
+                {
+                    path: "/parameterRanges/:id",
+                    element: <ParameterRangeView />
+                },
+                {
+                    path: "/parameterRanges/add",
+                    element: <ParameterRangeAdd />
+                },
+                {
+                    path: "/parameterRanges/:id/edit",
+                    element: <ParameterRangeEdit />
                 },
                 {
                     path: "/dailyPrices",

@@ -25,6 +25,7 @@ const IUIRolePrivilege = (props) => {
         { name: "invoice", text: "Invoice" },
         { name: "employee", text: "Employee" },
         { name: "patient", text: "Patient" },
+        { name: "parameterRange", text: "Parameter Range" },
 		// { name: "company", text: "Companies" },
         // { name: "itemMaster", text: "Item Master" },
         // { name: "itemGroup", text: "Item Group" },
