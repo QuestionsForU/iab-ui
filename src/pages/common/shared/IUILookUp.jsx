@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux'
 import Form from 'react-bootstrap/Form';
 import { getData } from '../../../store/api-db';
@@ -6,11 +6,11 @@ import { getData } from '../../../store/api-db';
 const IUILookUp = (props) => {
     const schema = props?.schema;
     const dispatch = useDispatch();
-    const getLookupValue = (nextValue) => {
+    const getLookupValue = useCallback((nextValue) => {
         if (typeof nextValue === 'string') return nextValue;
-        if (nextValue && typeof nextValue === 'object') return nextValue.name || "";
+        if (nextValue && typeof nextValue === 'object') return nextValue[schema?.displayField || 'name'] || nextValue.name || "";
         return "";
-    };
+    }, [schema?.displayField]);
 
     const [value, setValue] = useState(getLookupValue(props?.value))
     const [text, setText] = useState(getLookupValue(props?.value))
@@ -28,7 +28,7 @@ const IUILookUp = (props) => {
 
         setValue(nextValue);
         setText(nextValue);
-    }, [props?.value]);
+    }, [getLookupValue, props?.value]);
 
     useEffect(() => {
         if (schema?.module) {
@@ -37,9 +37,15 @@ const IUILookUp = (props) => {
     }, [dispatch, schema?.module]);
 
     useEffect(() => {
-        const lookupValue = dataSet?.items?.find(item => `${item.id}` === `${value}` || item.name === value)?.name || value;
+        const displayField = schema?.displayField || 'name';
+        const valueField = schema?.valueField || displayField;
+        const lookupValue = dataSet?.items?.find(item =>
+            `${item?.[valueField]}` === `${value}` || item?.[displayField] === value || item?.name === value
+        )?.[displayField] || dataSet?.items?.find(item =>
+            `${item?.[valueField]}` === `${value}` || item?.[displayField] === value || item?.name === value
+        )?.name || value;
         setText(lookupValue);
-    }, [dataSet?.items, value]);
+    }, [dataSet?.items, schema?.displayField, schema?.valueField, value]);
 
     const handleChange = (e) => {
         e.preventDefault();
@@ -48,17 +54,24 @@ const IUILookUp = (props) => {
         }
 
         const nextValue = e.target.value;
+        const displayField = schema?.displayField || 'name';
+        const valueField = schema?.valueField || displayField;
         const selectedItem = schema?.module
-            ? dataSet?.items?.find(item => `${item.id}` === `${nextValue}` || item.name === nextValue)
+            ? dataSet?.items?.find(item =>
+                `${item?.[valueField]}` === `${nextValue}` ||
+                item?.[displayField] === nextValue ||
+                item?.name === nextValue
+            )
             : null;
 
-        const displayValue = selectedItem?.name || nextValue || "";
+        const displayValue = selectedItem?.[displayField] || selectedItem?.name || nextValue || "";
+        const storedValue = selectedItem && schema?.valueField ? selectedItem[schema.valueField] : displayValue;
 
         if (nextValue === "") {
             setValue("");
             setText("");
         } else {
-            setValue(displayValue);
+            setValue(storedValue);
             setText(displayValue);
         }
 
@@ -83,7 +96,7 @@ const IUILookUp = (props) => {
         }
 
         props.onChange({
-            target: { id: props.id, value: displayValue },
+            target: { id: props.id, value: storedValue },
             preventDefault: function () { }
         });
     };
@@ -96,14 +109,14 @@ const IUILookUp = (props) => {
                         <Form.Control type="text"
                             aria-label={props.placeholder}
                             id={props.id}
-                            value={props?.value || text || ""}
+                            value={text || props?.value || ""}
                             disabled={true}
                             readOnly={true}
                             className={`fs-6 ${props.className}`} />
                     }
                     {props?.textonly &&
                         <>
-                            {props?.value || text || ""}
+                            {text || props?.value || ""}
                         </>
                     }
                 </>
@@ -118,7 +131,12 @@ const IUILookUp = (props) => {
                     onChange={(e) => handleChange(e)}>
                     <option value="">--Select--</option>
                     {(dataSet?.items || []).map((item, i) => (
-                        <option key={i} value={item.name}>{item.name}</option>
+                        <option
+                            key={item.id || item[schema?.displayField || 'name'] || i}
+                            value={item[schema?.valueField || schema?.displayField || 'name'] ?? item.name}
+                        >
+                            {item[schema?.displayField || 'name'] || item.name}
+                        </option>
                     ))}
                 </Form.Select>
             }

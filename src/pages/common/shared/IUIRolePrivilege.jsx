@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux'
 import { Form} from "react-bootstrap";
 import IUIPrivileges from './IUIPrivileges';
+import { lisModuleDefinitions } from "../../app/schema/lisModuleDefinitions";
 
 const IUIRolePrivilege = (props) => {
 
@@ -25,6 +26,8 @@ const IUIRolePrivilege = (props) => {
         { name: "invoice", text: "Invoice" },
         { name: "employee", text: "Employee" },
         { name: "patient", text: "Patient" },
+        { name: "parameterRange", text: "Parameter Range" },
+        ...lisModuleDefinitions.map(({ module, title }) => ({ name: module, text: title })),
 		// { name: "company", text: "Companies" },
         // { name: "itemMaster", text: "Item Master" },
         // { name: "itemGroup", text: "Item Group" },

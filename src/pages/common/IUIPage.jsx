@@ -63,7 +63,7 @@ const IUIPage = (props) => {
     }, [data]);
 
     useEffect(() => {
-        if ((module === 'invoice' || module === 'patient') && !id) {
+        if ((module === 'invoice' || module === 'patient' || module === 'parameterRange') && !id) {
             dispatch(getData({ module: module, options: { recordPerPage: 0 } }));
         }
     }, [module, id, dispatch]);
@@ -98,6 +98,25 @@ const IUIPage = (props) => {
                 patientNo: prev?.patientNo || getNextNumber("patientNo", "PAT"),
                 visitId: prev?.visitId || "",
                 active: prev?.active || "Yes",
+            }));
+            return;
+        }
+
+        if (module === 'parameterRange' && !id && items) {
+            const maxRangeNumber = items.reduce((max, item) => {
+                const value = String(item?.rangeCode || '');
+                if (!value.startsWith('R')) {
+                    return max;
+                }
+
+                const suffix = value.slice(1);
+                const number = /^\d+$/.test(suffix) ? Number(suffix) : 0;
+                return Number.isFinite(number) && number > max ? number : max;
+            }, 0);
+
+            setData((prev) => ({
+                ...prev,
+                rangeCode: prev?.rangeCode || `R${String(maxRangeNumber + 1).padStart(7, '0')}`,
             }));
             return;
         }
