@@ -1,6 +1,7 @@
 import { useState } from "react";
 import IUIMenuItem from "./shared/IUIMenuItem"
 import { useSelector } from 'react-redux'
+import { lisModuleMenu } from "../app/schema/lisModuleDefinitions";
 
 const LeftMenu = (props) => {
     const loggedInUser = useSelector((state) => state.api.loggedInUser)
@@ -43,6 +44,7 @@ const LeftMenu = (props) => {
         { name: "patient", text: "Patient", icon: "hospital-user", path: "/patients", access: "patient" },
         { name: "parameterRange", text: "Parameter Range", icon: "sliders", path: "/parameterRanges", access: "parameterRange" },
         { name: "employee", text: "Employees", icon: "users", path: "/employees", access: "employee" },
+        ...lisModuleMenu,
         // {
         //     name: "setting", text: "Settings", icon: "gear",
         //     schema: [
