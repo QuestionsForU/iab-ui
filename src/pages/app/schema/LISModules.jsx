@@ -12,6 +12,7 @@ const getDefinition = (module) => {
 
 const createListSchema = (definition) => ({
     module: definition.module,
+    routePath: definition.routePaths?.[0] || `/${definition.module}s`,
     title: definition.title,
     paging: true,
     pageSize: 10,
@@ -33,6 +34,7 @@ const createListSchema = (definition) => ({
 
 const createFormSchema = (definition, page) => ({
     module: definition.module,
+    routePath: definition.routePaths?.[0] || `/${definition.module}s`,
     title: definition.title,
     editing: page === "view",
     adding: false,
@@ -53,12 +55,17 @@ export const LISModuleForm = ({ module, page }) => (
     <IUIPage schema={createFormSchema(getDefinition(module), page)} />
 );
 
-export const LISModuleRoutes = lisModuleDefinitions.flatMap(({ module }) => {
-    const path = `/${module}s`;
-    return [
+export const LISModuleRoutes = lisModuleDefinitions
+    .filter(({ module }) => !["notificationConfiguration", "reportLayoutConfiguration"].includes(module))
+    .flatMap(({ module }) => {
+    const definition = getDefinition(module);
+    const paths = definition.routePaths || [`/${module}s`];
+    return paths.flatMap(path => [
         { path, element: <LISModuleList module={module} /> },
         { path: `${path}/:id`, element: <LISModuleForm module={module} page="view" /> },
         { path: `${path}/add`, element: <LISModuleForm module={module} page="add" /> },
+        { path: `${path}/create`, element: <LISModuleForm module={module} page="add" /> },
         { path: `${path}/:id/edit`, element: <LISModuleForm module={module} page="edit" /> },
-    ];
-});
+        { path: `${path}/edit/:id`, element: <LISModuleForm module={module} page="edit" /> },
+    ]);
+    });

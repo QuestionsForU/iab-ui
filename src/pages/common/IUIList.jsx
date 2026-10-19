@@ -13,6 +13,7 @@ import IUILookUp from '../common/shared/IUILookUp'
 const IUIList = (props) => {
     const schema = props.schema;
     const module = schema.module;
+    const modulePath = schema.routePath || `/${module}s`;
     const dataSet = useSelector((state) => state.api[module])
     const defaultPageLength = schema.pageSize ?? 10;
     const pageLength = schema.paging ? (dataSet?.options?.recordPerPage ?? defaultPageLength) : 0;
@@ -123,7 +124,7 @@ const IUIList = (props) => {
                                                 <Button
                                                     variant="contained"
                                                     className="btn-wide btn-pill btn-shadow btn-hover-shine btn btn-primary btn-sm"
-                                                    onClick={() => navigate(`/${schema.module}s/add`)}
+                                                    onClick={() => navigate(`${modulePath}/add`)}
                                                 >
                                                     Add New
                                                 </Button>
@@ -187,6 +188,7 @@ const IUIList = (props) => {
                                                                     </button>}
                                                             </th>
                                                         ))}
+                                                        {module === "reportTemplateConfiguration" && <th>Designer</th>}
                                                     </tr>
                                                 </thead>
                                                 {
@@ -225,6 +227,11 @@ const IUIList = (props) => {
                                                                             }
                                                                         </td>
                                                                     ))}
+                                                                    {module === "reportTemplateConfiguration" &&
+                                                                        <td>
+                                                                            <Link to={`${modulePath}/design/${item.id}`}>Design</Link>
+                                                                        </td>
+                                                                    }
                                                                 </tr>
                                                             ))
                                                         }

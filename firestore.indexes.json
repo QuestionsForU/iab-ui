@@ -1192,6 +1192,114 @@
       ]
     },
     {
+      "collectionGroup": "unit",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "application", "order": "ASCENDING" },
+        { "fieldPath": "dateCreated", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "method",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "application", "order": "ASCENDING" },
+        { "fieldPath": "dateCreated", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "sampleCollector",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "application", "order": "ASCENDING" },
+        { "fieldPath": "dateCreated", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "doctorCommissionRate",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "application", "order": "ASCENDING" },
+        { "fieldPath": "dateCreated", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "collectorCommissionRate",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "application", "order": "ASCENDING" },
+        { "fieldPath": "dateCreated", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "corporate",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "application", "order": "ASCENDING" },
+        { "fieldPath": "dateCreated", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "testGroup",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "application", "order": "ASCENDING" },
+        { "fieldPath": "dateCreated", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "testCategory",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "application", "order": "ASCENDING" },
+        { "fieldPath": "dateCreated", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "sampleType",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "application", "order": "ASCENDING" },
+        { "fieldPath": "dateCreated", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "container",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "application", "order": "ASCENDING" },
+        { "fieldPath": "dateCreated", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "reportTemplateConfiguration",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "application", "order": "ASCENDING" },
+        { "fieldPath": "dateCreated", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "clientApplication",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "application", "order": "ASCENDING" },
+        { "fieldPath": "dateCreated", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "module",
       "queryScope": "COLLECTION",
       "fields": [

@@ -1,5 +1,5 @@
-import { useState } from "react";
 import IUIMenuItem from "./shared/IUIMenuItem"
+import { Link } from "react-router-dom";
 import { useSelector } from 'react-redux'
 import { lisModuleMenu } from "../app/schema/lisModuleDefinitions";
 
@@ -9,6 +9,11 @@ const LeftMenu = (props) => {
     const handleMenuClick = () => {
         if (window.innerWidth < 1250 && typeof props.onMobileMenuClose === 'function') {
             props.onMobileMenuClose();
+        }
+    };
+    const handleSidebarToggle = () => {
+        if (typeof props.onSidebarToggle === "function") {
+            props.onSidebarToggle();
         }
     };
     const isAdminUser = Array.isArray(loggedInUser?.roles)
@@ -71,6 +76,9 @@ const LeftMenu = (props) => {
         }
 
         if (s.access) {
+            if (isAdminUser) {
+                return true;
+            }
             if (privileges?.some(p => p.module === s.access)) {
                 return true;
             }
@@ -86,8 +94,6 @@ const LeftMenu = (props) => {
         item.visible = filterMenu(item);
     })
 
-    const [showLeftMenu, setShowLeftMenu] = useState(props.leftMenuState);
-
     return (
         <div className="app-sidebar sidebar-shadow">
             <div className="app-header__logo">
@@ -95,7 +101,7 @@ const LeftMenu = (props) => {
                 <div className="header__pane ml-auto">
                     <div>
                         <button type="button" className="hamburger close-sidebar-btn hamburger--elastic"
-                            onClick={(event) => setShowLeftMenu(!showLeftMenu)}>
+                            onClick={handleSidebarToggle}>
                             <span className="hamburger-box">
                                 <span className="hamburger-inner"></span></span>
                         </button>
@@ -105,7 +111,7 @@ const LeftMenu = (props) => {
             <div className="app-header__mobile-menu">
                 <div>
                     <button type="button" className="hamburger hamburger--elastic mobile-toggle-nav"
-                        onClick={(event) => setShowLeftMenu(!showLeftMenu)}>
+                        onClick={handleSidebarToggle}>
                         <span className="hamburger-box">
                             <span className="hamburger-inner"></span></span>
                     </button>
@@ -115,7 +121,7 @@ const LeftMenu = (props) => {
                 <span>
                     <button type="button"
                         className="btn-icon btn-icon-only btn btn-primary btn-sm mobile-toggle-header-nav"
-                        onClick={(event) => setShowLeftMenu(!showLeftMenu)}>
+                        onClick={handleSidebarToggle}>
                         <span className="btn-icon-wrapper">
                             <i className="fa fa-ellipsis-v fa-w-6"></i></span>
                     </button>
@@ -128,6 +134,10 @@ const LeftMenu = (props) => {
                         <IUIMenuItem schema={schema} onMenuClick={handleMenuClick} />
                     </ul>
                 </div>
+            </div>
+            <div className="sidebar-equipment-status">
+                <span>Equipment</span>
+                <Link to="/equipment-heartbeat" onClick={handleMenuClick}>View Status</Link>
             </div>
         </div>
     );
