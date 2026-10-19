@@ -504,85 +504,103 @@ const menuItem = definition => ({
 
 export const lisModuleMenu = [
     {
-        name: "lisSampleManagement",
-        text: "Sample Management",
+        name: "workingBoard",
+        text: "Working Board",
         icon: "hospital",
         schema: lisModuleDefinitions
-            .filter(({ module }) => ["sample", "patientVisit", "testRequest"].includes(module))
+            .filter(({ module }) => [
+                "sample",
+                "patientVisit",
+                "testRequest",
+                "testResult",
+                "testResultDetail",
+                "radiologyRequest",
+                "radiologyResult",
+                "controlResult",
+                "controlResultDetail",
+            ].includes(module))
             .map(menuItem)
             .concat([
                 { name: "patient", text: "Patients", icon: "hospital-user", path: "/patients", access: "patient" },
             ]),
     },
     {
-        name: "lisOrganization",
-        text: "Organization",
-        icon: "building",
+        name: "setup",
+        text: "Setup",
+        icon: "gear",
         schema: lisModuleDefinitions
-            .filter(({ module }) => ["department", "hospital"].includes(module))
-            .map(menuItem),
-    },
-    {
-        name: "lisTestCatalog",
-        text: "Test Catalog & Masters",
-        icon: "book-medical",
-        schema: lisModuleDefinitions
-            .filter(({ module }) => ["specimen", "referralDoctor", "lookupMaster", "lisTest", "hisTest", "hisParameter", "testParameter", "testProfile", "testProfileDetail"].includes(module))
+            .filter(({ module }) => [
+                "department",
+                "hospital",
+                "lookupMaster",
+                "equipment",
+                "equipmentHeartbeat",
+                "notificationConfiguration",
+                "notificationTemplate",
+                "reportLayoutConfiguration",
+                "externalApi",
+            ].includes(module))
             .map(menuItem)
             .concat([
-                { name: "parameterRange", text: "Parameter Ranges", icon: "sliders", path: "/parameterRanges", access: "parameterRange" },
+                { name: "dailyPrice", text: "Daily Price", icon: "coins", path: "/dailyPrices", access: "dailyPrice" },
+                { name: "purity", text: "Purity", icon: "scale-balanced", path: "/puritys", access: "purity" },
+                { name: "siteSetting", text: "Site Settings", icon: "sliders", path: "/siteSettings", access: "siteSetting" },
             ]),
     },
     {
-        name: "lisResults",
-        text: "Results & Radiology",
-        icon: "flask",
+        name: "master",
+        text: "Master",
+        icon: "book-medical",
         schema: lisModuleDefinitions
-            .filter(({ module }) => ["testResult", "testResultDetail", "radiologyRequest", "radiologyResult"].includes(module))
-            .map(menuItem),
+            .filter(({ module }) => [
+                "specimen",
+                "referralDoctor",
+                "lisTest",
+                "hisTest",
+                "hisParameter",
+                "testParameter",
+                "testMapping",
+                "testProfile",
+                "testProfileDetail",
+                "testRate",
+            ].includes(module))
+            .map(menuItem)
+            .concat([
+                { name: "parameterRange", text: "Parameter Ranges", icon: "sliders", path: "/parameterRanges", access: "parameterRange" },
+                { name: "supplier", text: "Suppliers", icon: "truck-field", path: "/suppliers", access: "supplier" },
+                { name: "productType", text: "Product Type", icon: "sitemap", path: "/productTypes", access: "productType" },
+                { name: "product", text: "Product", icon: "box-open", path: "/products", access: "product" },
+                { name: "employee", text: "Employees", icon: "users", path: "/employees", access: "employee" },
+            ]),
     },
     {
-        name: "lisBilling",
-        text: "Billing & Rates",
+        name: "transaction",
+        text: "Transaction",
         icon: "file-invoice-dollar",
         schema: lisModuleDefinitions
             .filter(({ module }) => ["saleInvoice", "saleInvoiceDetail"].includes(module))
             .map(menuItem)
             .concat([
-                menuItem(lisModuleDefinitions.find(({ module }) => module === "testRate")),
                 { name: "legacyInvoice", text: "Invoice", icon: "receipt", path: "/invoices", access: "invoice" },
+                { name: "customer", text: "Customers", icon: "user", path: "/customers", access: "customer" },
             ]),
     },
     {
-        name: "lisEquipment",
-        text: "Equipment",
-        icon: "microscope",
-        schema: lisModuleDefinitions
-            .filter(({ module }) => ["equipment", "equipmentHeartbeat", "testMapping"].includes(module))
-            .map(menuItem),
-    },
-    {
-        name: "lisQualityControl",
-        text: "Quality Control",
-        icon: "chart-line",
-        schema: lisModuleDefinitions
-            .filter(({ module }) => ["controlResult", "controlResultDetail"].includes(module))
-            .map(menuItem),
-    },
-    {
-        name: "lisReporting",
-        text: "Reporting",
+        name: "reports",
+        text: "Reports",
         icon: "file-lines",
         schema: lisModuleDefinitions
-            .filter(({ module }) => ["reportTemplate", "reportTemplateVersion", "reportLayoutConfiguration"].includes(module))
+            .filter(({ module }) => ["reportTemplate", "reportTemplateVersion"].includes(module))
             .map(menuItem),
     },
     {
-        name: "lisIntegrations",
-        text: "Integrations & Notifications",
-        icon: "plug",
-        schema: lisModuleDefinitions
-            .filter(({ module }) => ["externalApi", "notificationConfiguration", "notificationTemplate"].includes(module))
-            .map(menuItem),
+        name: "account",
+        text: "Account",
+        icon: "user-shield",
+        schema: [
+            { name: "userManagement", text: "Users", icon: "users", path: "/users" },
+            { name: "roleManagement", text: "Roles", icon: "sitemap", path: "/roles" },
+            { name: "changePassword", text: "Change Password", icon: "key", path: "/change-password" },
+        ],
     },
 ];

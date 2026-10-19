@@ -30,20 +30,14 @@ Use the left-hand navigation menu to open a section. The menu may be collapsed o
 | Menu section | Available screens |
 | --- | --- |
 | Dashboard | Dashboard |
-| Inventory | Suppliers, Product Type, Product |
-| People | Customers, Employees |
-| Sample Management | Patients, Patient Visits, Test Requests, Samples (collection and receiving status) |
-| Organization | Departments, Hospitals, and Facilities |
-| Test Catalog & Masters | Specimens, Referral Doctors, Lookup Masters, LIS/HIS Tests and Parameters, Parameter Ranges, and Test Profiles |
-| Results & Radiology | Test Results, Test Result Details, Radiology Requests, and Radiology Results |
-| Billing & Rates | Sale Invoices, Invoice Details, Test Rates, and existing Invoice |
-| Equipment | Equipment Master, Heartbeat records, and Test Mappings |
-| Quality Control | Control Results and Details |
-| Reporting | Report Templates, Versions, Layout Configurations |
-| Integrations & Notifications | External API configurations, Notification Configurations, and Templates |
-| Configuration | User Management, Role Management (administrator accounts) |
+| Working Board | Samples, patient visits, test requests, test results, radiology requests/results, quality control, and patients |
+| Setup | Departments, facilities, lookup masters, equipment/heartbeat, notification configuration/templates, report layout, API settings, and other application settings |
+| Master | Specimens, referral doctors, LIS/HIS tests and parameters, parameter ranges, mappings, profiles, rates, suppliers, products, and employees |
+| Transaction | Sale invoices, invoice details, existing invoices, and customers |
+| Reports | Report templates and template versions |
+| Account | Change Password; Users and Roles are available to administrator accounts |
 
-Menu items can be hidden if your account lacks the required module privilege. The Configuration section is shown only to users with an `admin` role. Other screens may still have routes in the application without appearing in the current menu.
+Menu items can be hidden if your account lacks the required module privilege. Users and Roles are shown only to accounts with an `admin` role. Other screens may still have routes in the application without appearing in the current menu.
 
 Select your name/profile area in the top-right corner to access **Change Password**, **View Profile**, and **Logout**. Use **Logout** when finished, especially on a shared computer.
 
@@ -76,7 +70,7 @@ If the application marks a field as required or displays a validation message, c
 - **Employee:** Name, age, gender, salary, and designation.
 - **Patient:** Patient and MR numbers are generated automatically. Enter the patient's name, phone number, salutation, and gender; date of birth, age, address, and Visit ID are optional.
 - **Parameter Range:** The range code is generated automatically. Select a gender and parameter; optionally enter range text, age bounds and age unit, and minimum/maximum values.
-- **LIS modules:** The grouped LIS sections provide list, view, add, and edit pages for sample tracking, test catalogs, results, billing, equipment, quality control, report configuration, and integration/notification configuration. Related records are selected through lookup fields; create master records (such as departments, facilities, specimens, patients, tests, and equipment) before records that refer to them.
+- **LIS modules:** The Working Board, Setup, Master, Transaction, Reports, and Account groups organize the available LIS pages. Related records are selected through lookup fields; create master records (such as departments, facilities, specimens, patients, tests, and equipment) before records that refer to them.
 - **Supplier:** Name, email, GST number, phone number, address, and optional profile picture.
 - **Customer:** Name, phone number, PAN number, and address when editing an existing record.
 
