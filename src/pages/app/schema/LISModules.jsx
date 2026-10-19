@@ -23,7 +23,7 @@ const createListSchema = (definition) => ({
         return {
             text: field.text,
             field: field.field,
-            type: index === 0 ? "link" : (field.type === "lookup" ? "lookup" : field.type === "date" ? "date" : "text"),
+            type: index === 0 ? "link" : (field.type === "lookup" ? "lookup" : field.type === "date" || field.type === "datetime" ? field.type : "text"),
             schema: field.schema,
             sorting: false,
             searching: false,

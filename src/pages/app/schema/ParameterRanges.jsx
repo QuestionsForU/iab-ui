@@ -51,7 +51,7 @@ const parameterRangeFields = [
                 type: "lookup",
                 required: true,
                 width: 12,
-                schema: { module: "parameter" },
+                schema: { module: "testParameter", displayField: "parameterName", valueField: "id" },
             },
         ],
     },

@@ -323,7 +323,7 @@ const IUIPageElement = (props) => {
                                 {/* <p className="text-danger">{errors[fld.field]}</p> */}
                             </>
                         }
-                        {(fld.type === 'date') &&
+                        {(fld.type === 'date' || fld.type === 'datetime') &&
                             <>
                                 <Form.Group className="position-relative form-group fw-bold">
                                     <Form.Label htmlFor={fld.field} >
@@ -332,12 +332,12 @@ const IUIPageElement = (props) => {
                                             <span className="text-danger">*</span>
                                         }
                                     </Form.Label>
-                                    <Form.Control type="date"
+                                    <Form.Control type={fld.type === 'datetime' ? 'datetime-local' : 'date'}
                                         name={fld.field}
                                         id={fld.field}
                                         className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
                                         placeholder={fld.placeholder}
-                                        value={data[fld.field]?.substring(0, 10) || ""}
+                                        value={data[fld.field]?.substring(0, fld.type === 'datetime' ? 16 : 10) || ""}
                                         disabled={props.readonly || fld.readonly || false}
                                         onChange={handleChange} />
 
