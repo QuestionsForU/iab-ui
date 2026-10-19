@@ -42,6 +42,283 @@ html, body, #root {
   display: none;
 }
 
+.sale-invoice-create-page {
+  min-height: calc(100vh - 120px);
+  padding: 16px 14px 24px;
+  background: #eef2f3;
+}
+
+.sale-invoice-create-card {
+  min-height: 375px;
+  padding: 14px;
+  border: 1px solid #e9c55e;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.sale-invoice-create-title {
+  margin: 0 0 8px;
+  font-size: 20px;
+  font-weight: 500;
+  color: #183b4c;
+}
+
+.sale-invoice-create-card .form-label {
+  margin: 0 0 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #16394a;
+}
+
+.sale-invoice-create-card .form-control,
+.sale-invoice-create-card .form-select {
+  min-height: 34px;
+  border-color: #efca69;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.sale-invoice-create-card .form-control:focus,
+.sale-invoice-create-card .form-select:focus {
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.15rem rgba(0, 123, 255, 0.18);
+}
+
+.sale-invoice-create-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 24px;
+}
+
+.sale-invoice-add-line-button {
+  background: #126678;
+  border-color: #126678;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.sale-invoice-add-line-button:hover,
+.sale-invoice-add-line-button:focus {
+  background: #0d5667;
+  border-color: #0d5667;
+}
+
+.sale-invoice-create-hint {
+  color: #687987;
+  font-size: 12px;
+}
+
+.sale-invoice-create-lines th,
+.sale-invoice-create-lines td {
+  vertical-align: middle;
+  font-size: 12px;
+}
+
+.sale-invoice-create-lines .form-control {
+  min-width: 76px;
+}
+
+.sale-invoice-create-totals {
+  width: min(100%, 370px);
+  margin: 12px 0 20px auto;
+  padding: 10px 16px;
+  border: 1px solid #d2e3e8;
+  border-radius: 3px;
+  background: #f3f8f9;
+  color: #173b4d;
+  font-size: 12px;
+}
+
+.sale-invoice-total-row {
+  display: grid;
+  grid-template-columns: minmax(130px, 1fr) auto;
+  min-height: 27px;
+  align-items: center;
+  gap: 8px;
+}
+
+.sale-invoice-total-row > :last-child {
+  text-align: right;
+}
+
+.sale-invoice-total-edit .form-control,
+.sale-invoice-total-edit .form-select {
+  width: 112px;
+  min-height: 30px;
+  padding: 3px 8px;
+  font-size: 12px;
+}
+
+.sale-invoice-total-controls {
+  display: flex;
+  justify-content: flex-end;
+  gap: 5px;
+}
+
+.sale-invoice-total-controls .form-select {
+  width: 138px;
+}
+
+.sale-invoice-total-controls .form-control {
+  width: 80px;
+}
+
+.sale-invoice-total-edit > .form-control {
+  justify-self: end;
+}
+
+.sale-invoice-total-net {
+  border-top: 1px solid #d2e3e8;
+  padding-top: 5px;
+  margin-top: 2px;
+}
+
+.sale-invoice-total-net strong {
+  font-size: 12px;
+}
+
+.sale-invoice-total-row.sale-invoice-status > div {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 7px;
+}
+
+.sale-invoice-total-row.sale-invoice-status .form-select {
+  width: 138px;
+}
+
+.sale-invoice-payment-badge {
+  border-radius: 3px;
+  padding: 3px 6px;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.sale-invoice-payment-badge.status-0 {
+  background: #ed7c25;
+}
+
+.sale-invoice-payment-badge.status-1 {
+  background: #d39e00;
+}
+
+.sale-invoice-payment-badge.status-2 {
+  background: #249b66;
+}
+
+.sale-invoice-create-actions {
+  display: flex;
+  gap: 5px;
+  margin-top: 16px;
+}
+
+.sale-invoice-create-actions .btn {
+  padding: 5px 11px;
+  font-size: 12px;
+}
+
+.sale-invoice-line-modal .modal-content {
+  border: 0;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.sale-invoice-line-modal .modal-header {
+  padding: 14px 16px;
+  background: #126b76;
+  color: #fff;
+}
+
+.sale-invoice-line-modal .modal-title {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.sale-invoice-line-modal .modal-header .btn-close {
+  filter: invert(1);
+}
+
+.sale-invoice-line-modal .modal-header p {
+  margin: 4px 32px 0 0;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 11px;
+}
+
+.sale-invoice-line-modal .modal-body {
+  padding: 16px 18px 8px;
+}
+
+.sale-invoice-line-type {
+  display: inline-flex;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 5px;
+  background: #eef3f5;
+}
+
+.sale-invoice-line-type .btn {
+  min-width: 62px;
+  padding: 5px 10px;
+  color: #315568;
+  font-size: 12px;
+}
+
+.sale-invoice-line-type .btn-light {
+  box-shadow: 0 1px 3px rgba(22, 54, 70, 0.18);
+}
+
+.sale-invoice-line-preview {
+  margin-top: 12px;
+  padding: 8px 12px;
+  border: 1px solid #dce8ec;
+  border-radius: 5px;
+  background: #f6f9fa;
+  font-size: 12px;
+}
+
+.sale-invoice-line-preview > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 0;
+}
+
+.sale-invoice-line-preview > div + div {
+  border-top: 1px solid #dce8ec;
+}
+
+.sale-invoice-line-preview span {
+  color: #617885;
+  text-transform: uppercase;
+}
+
+.sale-invoice-line-preview strong {
+  color: #126678;
+  text-align: right;
+}
+
+.sale-invoice-line-modal .modal-footer {
+  padding: 10px 16px 14px;
+}
+
+@media (max-width: 767px) {
+  .sale-invoice-create-page {
+    padding: 10px;
+  }
+
+  .sale-invoice-create-card {
+    padding: 12px;
+  }
+
+  .sale-invoice-create-totals {
+    margin-top: 18px;
+  }
+}
+
 .avilis-auth-page {
   min-height: 100vh;
   display: flex;

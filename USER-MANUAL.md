@@ -255,7 +255,19 @@ Not every module requires edits to every file: add indexes when the queries need
 
 ## Work with invoices
 
-1. Open **Sales → Invoice**.
+### Create a Sale Invoice
+
+1. Open **Transaction → Sale Invoice**, then choose **Add New**.
+2. Review the generated invoice number and date, and search for and select a patient. Corporate, referral doctor, and payment type are optional.
+3. Select **Add Line**, choose **Test** or **Profile**, search for an item, select it, and choose **Add to invoice**.
+4. Review each line's rate, quantity, discount, and net amount. Set any invoice-level discount, tax, or paid amount and review the payment status and outstanding amount.
+5. Select **Save Draft** or **Confirm**. A patient and at least one invoice line are required.
+
+The Sale Invoice screen is separate from the product invoice flow below. Test/profile options come from the configured master records; prices default from those records when available and can be adjusted on the line.
+
+### Legacy product invoice flow
+
+1. Open the legacy invoice screen at `/invoices` if it is enabled for your account.
 2. Select **Add New** if available.
 3. Enter the invoice date, customer name, email, phone number, and address. PAN/GST number and GST percentage are optional in the current form. The invoice number is displayed as a read-only field.
 4. Add invoice items using the product lookup, then enter quantity and price. The item total is read-only.

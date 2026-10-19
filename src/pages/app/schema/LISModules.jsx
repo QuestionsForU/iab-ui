@@ -1,5 +1,6 @@
 import IUIList from "../../common/IUIList";
 import IUIPage from "../../common/IUIPage";
+import SaleInvoiceAddPage from "../LISSaleInvoiceAddPage";
 import { lisModuleDefinitions } from "./lisModuleDefinitions";
 
 const getDefinition = (module) => {
@@ -60,11 +61,14 @@ export const LISModuleRoutes = lisModuleDefinitions
     .flatMap(({ module }) => {
     const definition = getDefinition(module);
     const paths = definition.routePaths || [`/${module}s`];
+    const addPage = module === "saleInvoice"
+        ? <SaleInvoiceAddPage />
+        : <LISModuleForm module={module} page="add" />;
     return paths.flatMap(path => [
         { path, element: <LISModuleList module={module} /> },
         { path: `${path}/:id`, element: <LISModuleForm module={module} page="view" /> },
-        { path: `${path}/add`, element: <LISModuleForm module={module} page="add" /> },
-        { path: `${path}/create`, element: <LISModuleForm module={module} page="add" /> },
+        { path: `${path}/add`, element: addPage },
+        { path: `${path}/create`, element: addPage },
         { path: `${path}/:id/edit`, element: <LISModuleForm module={module} page="edit" /> },
         { path: `${path}/edit/:id`, element: <LISModuleForm module={module} page="edit" /> },
     ]);
