@@ -29,16 +29,15 @@ Use the left-hand navigation menu to open a section. The menu may be collapsed o
 
 | Menu section | Available screens |
 | --- | --- |
-| Dashboard | Dashboard |
-| Working Board | Recent samples, sample collection and receiving, radiology report entry and approvals, technician/doctor approvals, test result editing, approved/rejected samples, quality controls, patient visits, test requests, test results, and patients |
-| Setup | Departments, units, methods, equipment/heartbeat, notification settings, report layout/template configuration and designer, client applications, API settings, and application settings |
-| Master | Test master, test profiles, specimens, referral doctors and sample collectors, commission rates, corporates, test groups/categories, sample types, containers, parameters, mappings, parameter ranges, suppliers, products, and employees |
-| Transaction | Patient details, sale invoices, invoice details, existing invoices, and customers |
-| Reports | Invoice/test registers, diagnostic and radiology reports, collection/receiving/rejection reports, turnaround, radiology statistics, and commission reports |
+| Working Board | Recent Samples; Sample Collection; Sample Receiving; Radiology Report Entry; Radiology Doctor Approval; Approved Radiology Reports; Technician's Approval; Test Result Edit; Doctor's Approval; Approved Samples; Rejected Samples; Quality Controls |
+| Setup | Department; Unit; Method; Equipment; Equipment Heartbeat; Notification Configuration; Report Layout Configuration; Report Template Configuration |
+| Master | Test Master; Test Profile; Specimen; Test Rate; Referral Doctor; Doctor Commission Rate; Sample Collector; Collector Commission Rate; Corporate; Parameter Master; Test Parameter Mapping; Analyzer Parameter Mapping; Parameter Range |
+| Transaction | Patient Details; Sale Invoice |
+| Reports | Sale Invoice Register; Test Booking Register; Diagnostic Report; Radiology Report Print; Collection Summary; Collector Wise Report; Pending Collection; Recollection Report; Received Samples; Rejected Samples; Turnaround Time; Pending Radiology Cases; Authorized Radiology; Modality Statistics; Radiologist Productivity; Doctor Commission; Collector Commission |
 | Commission | Commission payout |
 | Account | Change Password; Users and Roles are available to administrator accounts |
 
-Menu items can be hidden if your account lacks the required module privilege. Administrator accounts can access the full application menu; Users and Roles are restricted to administrators. Some detail/editor URLs are opened from their corresponding lists rather than shown as separate menu items.
+The dashboard is opened from **LMS Home** in the header and is not a sidebar menu item. Menu sections and options follow the Angular LIS navigation order; options may be hidden when your account lacks access. Administrator accounts can access the full application menu; Users and Roles are restricted to administrators. Some detail/editor URLs are opened from their corresponding lists rather than shown as separate menu items.
 
 Select your name/profile area in the top-right corner to access **Change Password**, **View Profile**, and **Logout**. Use **Logout** when finished, especially on a shared computer.
 

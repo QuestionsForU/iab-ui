@@ -685,139 +685,105 @@ const menuItem = definition => ({
     access: definition.module,
 });
 
+const lisMenuItem = (module, text, path, icon = "list", access = module) => ({
+    ...menuItem(lisModuleDefinitions.find(definition => definition.module === module) || {
+        module,
+        title: text,
+        routePaths: [path],
+    }),
+    text,
+    path,
+    icon,
+    access,
+});
+
 export const lisModuleMenu = [
     {
         name: "workingBoard",
         text: "Working Board",
         icon: "hospital",
-        schema: lisModuleDefinitions
-            .filter(({ module }) => [
-                "sample",
-                "patientVisit",
-                "testRequest",
-                "testResult",
-                "testResultDetail",
-                "radiologyRequest",
-                "radiologyResult",
-                "controlResult",
-                "controlResultDetail",
-            ].includes(module))
-            .map(menuItem)
-            .concat([
-                { name: "patient", text: "Patients", icon: "hospital-user", path: "/patients", access: "patient" },
-                { name: "sampleCollection", text: "Sample Collection", icon: "vial", path: "/sample-collection", access: "sample" },
-                { name: "sampleReceiving", text: "Sample Receiving", icon: "flask", path: "/sample-receiving", access: "sample" },
-                { name: "radiologyEntry", text: "Radiology Report Entry", icon: "file-medical", path: "/radiology-report-entry", access: "radiologyResult" },
-                { name: "radiologyApproval", text: "Radiology Doctor Approval", icon: "user-doctor", path: "/radiology-doctor-approvals", access: "radiologyResult" },
-                { name: "radiologyApproved", text: "Approved Radiology Reports", icon: "circle-check", path: "/radiology-approved-reports", access: "radiologyResult" },
-                { name: "technicianApproval", text: "Technician's Approval", icon: "user-check", path: "/technicianapprovals", access: "testResult" },
-                { name: "testResultEdit", text: "Test Result Edit", icon: "pen-to-square", path: "/edit-test-results", access: "testResult" },
-                { name: "doctorApproval", text: "Doctor's Approval", icon: "user-doctor", path: "/doctorapprovals", access: "testResult" },
-                { name: "approvedSamples", text: "Approved Samples", icon: "thumbs-up", path: "/approvedsamples", access: "testResult" },
-                { name: "rejectedSamples", text: "Rejected Samples", icon: "thumbs-down", path: "/rejectedsamples", access: "sample" },
-                { name: "qualityControls", text: "Quality Controls", icon: "scale-balanced", path: "/quality-controls", access: "controlResult" },
-            ]),
+        schema: [
+            lisMenuItem("sample", "Recent Samples", "/samples", "chalkboard"),
+            { name: "sampleCollection", text: "Sample Collection", icon: "tint", path: "/sample-collection", access: "sample" },
+            { name: "sampleReceiving", text: "Sample Receiving", icon: "file-import", path: "/sample-receiving", access: "sample" },
+            { name: "radiologyEntry", text: "Radiology Report Entry", icon: "image", path: "/radiology-report-entry", access: "radiologyResult" },
+            { name: "radiologyApproval", text: "Radiology Doctor Approval", icon: "check", path: "/radiology-doctor-approvals", access: "radiologyResult" },
+            { name: "radiologyApproved", text: "Approved Radiology Reports", icon: "circle-check", path: "/radiology-approved-reports", access: "radiologyResult" },
+            { name: "technicianApproval", text: "Technician's Approval", icon: "filter", path: "/technicianapprovals", access: "testResult" },
+            { name: "testResultEdit", text: "Test Result Edit", icon: "pen-to-square", path: "/edit-test-results", access: "testResult" },
+            { name: "doctorApproval", text: "Doctor's Approval", icon: "scissors", path: "/doctorapprovals", access: "testResult" },
+            { name: "approvedSamples", text: "Approved Samples", icon: "thumbs-up", path: "/approvedsamples", access: "testResult" },
+            { name: "rejectedSamples", text: "Rejected Samples", icon: "thumbs-down", path: "/rejectedsamples", access: "sample" },
+            { name: "qualityControls", text: "Quality Controls", icon: "scale-balanced", path: "/quality-controls", access: "controlResult" },
+        ],
     },
     {
         name: "setup",
         text: "Setup",
         icon: "gear",
-        schema: lisModuleDefinitions
-            .filter(({ module }) => [
-                "department",
-                "unit",
-                "method",
-                "hospital",
-                "lookupMaster",
-                "equipment",
-                "equipmentHeartbeat",
-                "notificationConfiguration",
-                "reportTemplateConfiguration",
-                "notificationTemplate",
-                "reportLayoutConfiguration",
-                "externalApi",
-                "clientApplication",
-            ].includes(module))
-            .map(menuItem)
-            .concat([
-                { name: "dailyPrice", text: "Daily Price", icon: "coins", path: "/dailyPrices", access: "dailyPrice" },
-                { name: "purity", text: "Purity", icon: "scale-balanced", path: "/puritys", access: "purity" },
-                { name: "siteSetting", text: "Site Settings", icon: "sliders", path: "/siteSettings", access: "siteSetting" },
-            ]),
+        schema: [
+            lisMenuItem("department", "Department", "/departments"),
+            lisMenuItem("unit", "Unit", "/units", "arrows-left-right"),
+            lisMenuItem("method", "Method", "/methods", "wrench"),
+            lisMenuItem("equipment", "Equipment", "/equipments", "hard-drive"),
+            lisMenuItem("equipmentHeartbeat", "Equipment Heartbeat", "/equipment-heartbeat", "heart"),
+            lisMenuItem("notificationConfiguration", "Notification Configuration", "/notification-configuration", "bell"),
+            lisMenuItem("reportLayoutConfiguration", "Report Layout Configuration", "/report-layout-configuration", "arrows-up-down"),
+            lisMenuItem("reportTemplateConfiguration", "Report Template Configuration", "/report-template-configuration", "file-lines"),
+        ],
     },
     {
         name: "master",
         text: "Master",
         icon: "book-medical",
-        schema: lisModuleDefinitions
-            .filter(({ module }) => [
-                "specimen",
-                "referralDoctor",
-                "sampleCollector",
-                "doctorCommissionRate",
-                "collectorCommissionRate",
-                "corporate",
-                "testGroup",
-                "testCategory",
-                "sampleType",
-                "container",
-                "lisTest",
-                "hisTest",
-                "hisParameter",
-                "testParameter",
-                "testMapping",
-                "testProfile",
-                "testProfileDetail",
-                "testRate",
-            ].includes(module))
-            .map(menuItem)
-            .concat([
-                { name: "parameterRange", text: "Parameter Range", icon: "sliders", path: "/his-parameter-ranges", access: "parameterRange" },
-                { name: "supplier", text: "Suppliers", icon: "truck-field", path: "/suppliers", access: "supplier" },
-                { name: "productType", text: "Product Type", icon: "sitemap", path: "/productTypes", access: "productType" },
-                { name: "product", text: "Product", icon: "box-open", path: "/products", access: "product" },
-                { name: "employee", text: "Employees", icon: "users", path: "/employees", access: "employee" },
-            ]),
+        schema: [
+            lisMenuItem("hisTest", "Test Master", "/test-master", "list-alt"),
+            lisMenuItem("testProfile", "Test Profile", "/test-profiles", "table-cells"),
+            lisMenuItem("specimen", "Specimen", "/specimens", "tint"),
+            lisMenuItem("testRate", "Test Rate", "/test-rates", "dollar-sign"),
+            lisMenuItem("referralDoctor", "Referral Doctor", "/referral-doctors", "user"),
+            lisMenuItem("doctorCommissionRate", "Doctor Commission Rate", "/doctor-commission-rates", "dollar-sign"),
+            lisMenuItem("sampleCollector", "Sample Collector", "/sample-collectors", "user"),
+            lisMenuItem("collectorCommissionRate", "Collector Commission Rate", "/collector-commission-rates", "dollar-sign"),
+            lisMenuItem("corporate", "Corporate", "/corporates", "briefcase"),
+            lisMenuItem("hisParameter", "Parameter Master", "/his-parameters", "filter"),
+            lisMenuItem("testParameter", "Test Parameter Mapping", "/test-parameters", "list"),
+            lisMenuItem("testMapping", "Analyzer Parameter Mapping", "/test-mappings", "shuffle"),
+            lisMenuItem("parameterRange", "Parameter Range", "/his-parameter-ranges", "signal"),
+        ],
     },
     {
         name: "transaction",
         text: "Transaction",
         icon: "file-invoice-dollar",
-        schema: lisModuleDefinitions
-            .filter(({ module }) => ["saleInvoice", "saleInvoiceDetail"].includes(module))
-            .map(menuItem)
-            .concat([
-                { name: "patientMaster", text: "Patient Details", icon: "hospital-user", path: "/patient-master", access: "patient" },
-                { name: "legacyInvoice", text: "Invoice", icon: "receipt", path: "/invoices", access: "invoice" },
-                { name: "customer", text: "Customers", icon: "user", path: "/customers", access: "customer" },
-            ]),
+        schema: [
+            { name: "patientMaster", text: "Patient Details", icon: "user", path: "/patient-master", access: "patient" },
+            lisMenuItem("saleInvoice", "Sale Invoice", "/sale-invoices", "file"),
+        ],
     },
     {
         name: "reports",
         text: "Reports",
         icon: "file-lines",
-        schema: lisModuleDefinitions
-            .filter(({ module }) => ["reportTemplate", "reportTemplateVersion"].includes(module))
-            .map(menuItem)
-            .concat([
-                { name: "saleInvoiceRegister", text: "Sale Invoice Register", icon: "file-lines", path: "/reports/sale-invoice-register", access: "reportTemplate" },
-                { name: "testBookingRegister", text: "Test Booking Register", icon: "book-medical", path: "/reports/test-booking-register", access: "reportTemplate" },
-                { name: "diagnosticReport", text: "Diagnostic Report", icon: "print", path: "/reports/test-report", access: "reportTemplate" },
-                { name: "radiologyReportPrint", text: "Radiology Report Print", icon: "print", path: "/reports/radiology-report", access: "reportTemplate" },
-                { name: "collectionSummary", text: "Collection Summary", icon: "vial", path: "/reports/collection-summary", access: "reportTemplate" },
-                { name: "collectorWiseReport", text: "Collector Wise Report", icon: "users", path: "/reports/collector-wise", access: "reportTemplate" },
-                { name: "pendingCollection", text: "Pending Collection", icon: "clock", path: "/reports/pending-collection", access: "reportTemplate" },
-                { name: "recollectionReport", text: "Recollection Report", icon: "arrow-repeat", path: "/reports/recollection", access: "reportTemplate" },
-                { name: "receivedSamplesReport", text: "Received Samples", icon: "check-circle", path: "/reports/received-samples", access: "reportTemplate" },
-                { name: "rejectedSamplesReport", text: "Rejected Samples", icon: "x-circle", path: "/reports/rejected-samples", access: "reportTemplate" },
-                { name: "turnaroundReport", text: "Turnaround Time", icon: "speedometer", path: "/reports/sample-turnaround", access: "reportTemplate" },
-                { name: "pendingRadiology", text: "Pending Radiology Cases", icon: "image", path: "/reports/radiology/pending", access: "reportTemplate" },
-                { name: "authorizedRadiology", text: "Authorized Radiology", icon: "check2-circle", path: "/reports/radiology/authorized", access: "reportTemplate" },
-                { name: "radiologyModalityStats", text: "Modality Statistics", icon: "bar-chart", path: "/reports/radiology/modality-stats", access: "reportTemplate" },
-                { name: "radiologistProductivity", text: "Radiologist Productivity", icon: "graph-up", path: "/reports/radiology/productivity", access: "reportTemplate" },
-                { name: "doctorCommissionReport", text: "Doctor Commission", icon: "file-lines", path: "/reports/doctor-commission", access: "reportTemplate" },
-                { name: "collectorCommissionReport", text: "Collector Commission", icon: "file-lines", path: "/reports/collector-commission", access: "reportTemplate" },
-            ]),
+        schema: [
+            { name: "saleInvoiceRegister", text: "Sale Invoice Register", icon: "list-alt", path: "/reports/sale-invoice-register", access: "reportTemplate" },
+            { name: "testBookingRegister", text: "Test Booking Register", icon: "book", path: "/reports/test-booking-register", access: "reportTemplate" },
+            { name: "diagnosticReport", text: "Diagnostic Report", icon: "print", path: "/reports/test-report", access: "reportTemplate" },
+            { name: "radiologyReportPrint", text: "Radiology Report Print", icon: "print", path: "/reports/radiology-report", access: "reportTemplate" },
+            { name: "collectionSummary", text: "Collection Summary", icon: "tint", path: "/reports/collection-summary", access: "reportTemplate" },
+            { name: "collectorWiseReport", text: "Collector Wise Report", icon: "user", path: "/reports/collector-wise", access: "reportTemplate" },
+            { name: "pendingCollection", text: "Pending Collection", icon: "clock", path: "/reports/pending-collection", access: "reportTemplate" },
+            { name: "recollectionReport", text: "Recollection Report", icon: "repeat", path: "/reports/recollection", access: "reportTemplate" },
+            { name: "receivedSamplesReport", text: "Received Samples", icon: "check", path: "/reports/received-samples", access: "reportTemplate" },
+            { name: "rejectedSamplesReport", text: "Rejected Samples", icon: "xmark", path: "/reports/rejected-samples", access: "reportTemplate" },
+            { name: "turnaroundReport", text: "Turnaround Time", icon: "gauge", path: "/reports/sample-turnaround", access: "reportTemplate" },
+            { name: "pendingRadiology", text: "Pending Radiology Cases", icon: "image", path: "/reports/radiology/pending", access: "reportTemplate" },
+            { name: "authorizedRadiology", text: "Authorized Radiology", icon: "check", path: "/reports/radiology/authorized", access: "reportTemplate" },
+            { name: "radiologyModalityStats", text: "Modality Statistics", icon: "signal", path: "/reports/radiology/modality-stats", access: "reportTemplate" },
+            { name: "radiologistProductivity", text: "Radiologist Productivity", icon: "chart-bar", path: "/reports/radiology/productivity", access: "reportTemplate" },
+            { name: "doctorCommissionReport", text: "Doctor Commission", icon: "list-alt", path: "/reports/doctor-commission", access: "reportTemplate" },
+            { name: "collectorCommissionReport", text: "Collector Commission", icon: "list-alt", path: "/reports/collector-commission", access: "reportTemplate" },
+        ],
     },
     {
         name: "commission",
@@ -832,9 +798,9 @@ export const lisModuleMenu = [
         text: "Account",
         icon: "user-shield",
         schema: [
-            { name: "userManagement", text: "Users", icon: "users", path: "/users" },
-            { name: "roleManagement", text: "Roles", icon: "sitemap", path: "/roles" },
-            { name: "changePassword", text: "Change Password", icon: "key", path: "/change-password" },
+            { name: "userManagement", text: "Users", icon: "user", path: "/users" },
+            { name: "roleManagement", text: "Roles", icon: "table-list", path: "/roles" },
+            { name: "changePassword", text: "Change Password", icon: "lock", path: "/change-password" },
         ],
     },
 ];
