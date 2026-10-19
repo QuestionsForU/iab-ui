@@ -33,6 +33,7 @@ Use the left-hand navigation menu to open a section. The menu may be collapsed o
 | Inventory | Suppliers, Product Type, Product |
 | Sales | Invoice |
 | Customer | Customer |
+| Patient | Patient records |
 | Employees | Employee records |
 | Configuration | User Management, Role Management (administrator accounts) |
 
@@ -67,6 +68,7 @@ If the application marks a field as required or displays a validation message, c
 
 - **Product:** Product type, name, price, quantity, and optional product image.
 - **Employee:** Name, age, gender, salary, and designation.
+- **Patient:** Patient and MR numbers are generated automatically. Enter the patient's name, phone number, salutation, and gender; date of birth, age, address, and Visit ID are optional.
 - **Supplier:** Name, email, GST number, phone number, address, and optional profile picture.
 - **Customer:** Name, phone number, PAN number, and address when editing an existing record.
 

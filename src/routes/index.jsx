@@ -14,6 +14,7 @@ import { ListSupplierPurchase, ViewSupplierPurchase, EditSupplierPurchase, AddSu
 import { ListInvoice, ViewInvoice, EditInvoice, AddInvoice } from "../pages/app/schema/Invoices";
 import { ListSaleOrder, ViewSaleOrder, EditSaleOrder, AddSaleOrder } from "../pages/app/schema/SaleOrders";
 import { ListCustomer, ViewCustomer, EditCustomer } from "../pages/app/schema/Customers";
+import { PatientList, PatientView, PatientEdit, PatientAdd } from "../pages/app/schema/Patients";
 import { EmployeeList, EmployeeView, EmployeeEdit, EmployeeAdd } from "../pages/app/schema/Employees";
 import { ListDailyPrice, ViewDailyPrice, EditDailyPrice, AddDailyPrice } from "../pages/app/schema/DailyPrices";
 import { ListPurity, ViewPurity, EditPurity, AddPurity } from "../pages/app/schema/Puritys";
@@ -196,6 +197,22 @@ const Routes = () => {
                 {
                     path: "/customers/:id/edit",
                     element: <EditCustomer />
+                },
+                {
+                    path: "/patients",
+                    element: <PatientList />
+                },
+                {
+                    path: "/patients/:id",
+                    element: <PatientView />
+                },
+                {
+                    path: "/patients/add",
+                    element: <PatientAdd />
+                },
+                {
+                    path: "/patients/:id/edit",
+                    element: <PatientEdit />
                 },
                 {
                     path: "/employees",
