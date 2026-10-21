@@ -75,10 +75,18 @@ const Header = ({ headerToLayout }) => {
                 <div className="app-header-center">
                     <div className="logo-center"><img src={clientLogo} alt="Zorya" /></div>
                 </div>
+                <nav className="header-primary-links" aria-label="Main links">
+                    <Link className="header-primary-link" to="/home">
+                        <i className="fa-solid fa-house" aria-hidden="true" />
+                        <span>LMS Home</span>
+                    </Link>
+                    <Link className="header-primary-link" to="/help">
+                        <i className="fa-regular fa-circle-question" aria-hidden="true" />
+                        <span>Help</span>
+                    </Link>
+                </nav>
                 <div className="app-header-right">
                     <div className="header-dots">
-                        <Link className="nav-link" to="/home">LMS Home</Link>
-                        <Link className="nav-link" to="/help">Help</Link>
                         {/* <div className="dropdown">
                             <button type="button" aria-haspopup="true" aria-expanded="false" data-bs-toggle="dropdown"
                                 className="p-0 mr-2 btn btn-link">
