@@ -171,4 +171,4 @@ The following items are included as UI/report concepts, not Firestore entities:
 
 ## Maintenance
 
-Keep this ERD aligned with `lisModuleMenu` and related definitions in `src/pages/app/schema/lisModuleDefinitions.js`, custom routes in `src/pages/app/LISWorkflowPages.jsx` and `src/pages/app/LISSetupPages.jsx`, and the Patient/User/Role forms. When a menu item or field mapping changes, update the relevant table and relationship diagram from those definitions.
+The companion JSON Schema is `src/pages/app/schema/erd-schema.json`. Keep it aligned with this ERD and with `lisModuleMenu` and related definitions in `src/pages/app/schema/lisModuleDefinitions.js`, custom routes in `src/pages/app/LISWorkflowPages.jsx` and `src/pages/app/LISSetupPages.jsx`, and the Patient/User/Role forms. `x-firestore.collections` maps Firestore collection names to `$defs`; `x-relationship` annotations identify lookup targets and stored keys. When a menu item or field mapping changes, update both documents from those definitions.
