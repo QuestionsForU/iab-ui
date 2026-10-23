@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux'
-import { Link } from "react-router-dom";
 import Table from 'react-bootstrap/Table';
-import { Button, Col, Row } from "react-bootstrap";
-import IUILookUp from './shared/IUILookUp'
-import IUIListPage from './IUIPageInline';
+import { Col, Row } from "react-bootstrap";
 import IUIPageInline from './IUIPageInline';
 
 const IUIListInline = (props) => {

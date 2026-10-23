@@ -6,6 +6,32 @@ import { useDispatch, useSelector } from 'react-redux'
 import IUIPageElement from './shared/IUIPageElement';
 import IUIModuleMessage from './shared/IUIModuleMessage';
 
+const validateFields = (values, fields) => {
+    let errors = {};
+
+    for (let i = 0; i < fields?.length; i++) {
+        const item = fields[i];
+        if (item.type === 'area') {
+            errors = { ...errors, ...validateFields(values, item.fields) };
+        }
+        if (item.required && values && !values[item?.field]) {
+            errors[item.field] = 'Required field.';
+        }
+        if (item.type === 'email' && values && values[item?.field]) {
+            if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values[item.field])) {
+                errors[item.field] = 'Invalid email address.';
+            }
+        }
+        if (item.type === 'phone' && values && values[item?.field]) {
+            const regex = /^(\+\d{1,3}[- ]?)?\d{10}$/;
+            if (!regex.test(values[item.field])) {
+                errors[item.field] = 'Invalid phone number.';
+            }
+        }
+    }
+    return errors;
+};
+
 const IUIPage = (props) => {
     // Properties
     const schema = props?.schema;
@@ -31,15 +57,10 @@ const IUIPage = (props) => {
 
     useEffect(() => {
         if (id) {
-            const u = items?.find((element) => {
-                return `${element.id}` === id;
-            });
-            
-            setData(u);
             dispatch(getSingleData({ module: module, id: id }));
             dispatch(selectModuleItem({ module: module, id: id }));
         }
-    }, []);
+    }, [dispatch, id, module]);
 
     useEffect(() => {
         const modulePrivileges = loggedInUser?.privileges?.filter(p => p.module === module)?.map(p => p.name);
@@ -58,10 +79,10 @@ const IUIPage = (props) => {
 
     useEffect(() => {
         if (dirty) {
-            const error = validate(data, schema?.fields)
+            const error = validateFields(data, schema?.fields)
             setErrors(error);
         }
-    }, [data]);
+    }, [data, dirty, schema?.fields]);
 
     useEffect(() => {
         if ((module === 'invoice' || module === 'patient' || module === 'parameterRange') && !id) {
@@ -74,7 +95,7 @@ const IUIPage = (props) => {
             return `${element.id}` === id;
         });
         setData(u);
-    }, [items]);
+    }, [id, items]);
 
     useEffect(() => {
         if (module === 'patient' && !id && items) {
@@ -154,38 +175,11 @@ const IUIPage = (props) => {
         setData(newData);
     };
 
-    const validate = (values, fields) => {
-        let errors = {};
-
-        for (let i = 0; i < fields?.length; i++) {
-            let item = fields[i];
-            if (item.type === 'area') {
-                errors = { ...errors, ...validate(values, item.fields) }
-            }
-            if (item.required && values && !values[item?.field]) {
-                errors[item.field] = `Required field.`;
-            }
-            if (item.type === 'email' && values && values[item?.field]) {
-                if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values[item.field])) {
-                    errors[item.field] = 'Invalid email address.'
-                }
-            }
-            if (item.type === 'phone' && values && values[item?.field]) {
-                const regex = /^(\+\d{1,3}[- ]?)?\d{10}$/;
-                //var pattern = new RegExp(/^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$/); // /^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$/
-                if (!regex.test(values[item.field])) {
-                    errors[item.field] = 'Invalid phone number.'
-                }
-            }
-        }
-        return errors;
-    };
-
     const savePageValue = (e) => {
         e.preventDefault();
         if (!props?.readonly) {
             setDirty(true);
-            const error = validate(data, schema?.fields)
+            const error = validateFields(data, schema?.fields)
             setErrors(error);
             if (Object.keys(error).length === 0) {
                 if (!data)

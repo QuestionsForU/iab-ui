@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useDispatch } from 'react-redux'
 import { Form} from "react-bootstrap";
 import IUIPrivileges from './IUIPrivileges';
 import { lisModuleDefinitions } from "../../app/schema/lisModuleDefinitions";
 
 const IUIRolePrivilege = (props) => {
 
-    const module = "privilege"
     const [value, setValue] = useState(props?.value)
     
     // There is no server module privilege - this is fixed 
@@ -41,32 +39,14 @@ const IUIRolePrivilege = (props) => {
         return { id: index, name: item.name, text: item.text, items: privileges }
     })
 
-    const [schema, setSchema] = useState(modulePrivileges)
-    const dispatch = useDispatch();
-
-
-    useEffect(() => {
-        const pageOptions = { recordPerPage: 0 }
-        //dispatch(getData({ module: module, options: pageOptions }));
-    }, []);
+    const schema = modulePrivileges;
 
     useEffect(() => {
         const nextValue = Array.isArray(props.value) ? props.value : [];
-        if (JSON.stringify(nextValue) !== JSON.stringify(value)) {
-            setValue(nextValue)
-        }
+        setValue(currentValue => (
+            JSON.stringify(nextValue) === JSON.stringify(currentValue) ? currentValue : nextValue
+        ));
     }, [props.value])
-
-    useEffect(() => {
-
-        //if (!props.readonly) {
-        //const e = { target: { id: props.id, value: value }, preventDefault: function () { } }
-        // if (props.onChange)
-        //     props.onChange(e);
-        //}
-
-        //console.log(value)
-    }, [value])
 
 
 
@@ -82,7 +62,7 @@ const IUIRolePrivilege = (props) => {
         return unique;
     };
 
-    const handleChange = (e, name) => {
+    const handleChange = (e) => {
         e.preventDefault();
         if (props.readonly) {
             return;
@@ -113,7 +93,7 @@ const IUIRolePrivilege = (props) => {
                                 schema={item}
                                 value={value}
                                 readonly={props.readonly}
-                                onChange={(e) => handleChange(e, item.name)}
+                                onChange={handleChange}
                             />
                         ))}
                     </div>

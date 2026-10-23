@@ -1,25 +1,25 @@
-import {  Navigate, useNavigate, useSearchParams } from "react-router-dom";
+import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../provider/authProvider";
 import { useEffect } from "react";
 
 const Home = () => {
     const { token ,setToken } = useAuth();
-    const [searchParams, setSearchParams] = useSearchParams()
+    const [searchParams] = useSearchParams()
     const navigate = useNavigate();
+    const redirect = searchParams.get('r');
 
     useEffect(() => {
         if (token && token.logout) {
             setToken();
             navigate("/", { replace: true });
         }
-    }, [token]);
+    }, [navigate, setToken, token]);
 
     useEffect(() => {
-            const r = searchParams.get('r')
-            if(r){
-                navigate(-1);
-            }
-        },[searchParams]);
+        if (redirect) {
+            navigate(-1);
+        }
+    }, [navigate, redirect]);
 
     return (
         <>

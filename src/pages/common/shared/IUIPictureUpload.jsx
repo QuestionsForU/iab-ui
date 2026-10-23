@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import Form from 'react-bootstrap/Form';
 
 const IUIPictureUpload = (props) => {
-    const schema = props?.schema;
     const [file, setFile] = useState([]);
     const fileRef = React.createRef()
     const cardBodyStyle = {
@@ -59,7 +58,7 @@ const IUIPictureUpload = (props) => {
                     <button className="btn top-0 end-0" onClick={triggerClick}>
                         {/* <i className="metismenu-icon fa-solid fa-cogs"></i> */}
                         {
-                            (file.length > 0) && <img src={file} style={{ width: "10rem", height: "10rem", margin: "auto", borderRadius: "150px" }} title='Profile Picture' alt='Profile Picture' />
+                            (file.length > 0) && <img src={file} style={{ width: "10rem", height: "10rem", margin: "auto", borderRadius: "150px" }} title='Profile Picture' alt='User profile' />
                         }
                         {
                             (file.length === 0) && <span className="profile-pic-upload-text">

@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Col, Row, Form } from "react-bootstrap";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import { getSingleData, editData, addData, selectModuleItem } from '../../store/api-db'
-import { useSelector } from 'react-redux'
 import IUIPageElement from './shared/IUIPageElement';
-import IUIModuleMessage from './shared/IUIModuleMessage';
 
 const IUIPageInline = (props) => {
     // Properties
