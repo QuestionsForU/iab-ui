@@ -126,7 +126,7 @@ Types are based on current React form definitions. `enum<string>` lists the menu
 
 | Collection | Fields |
 |---|---|
-| `user` | `email: string*`; `firstName: string*`; `lastName: string*`; `phoneNumber: string`; `department: enum<string> [Civil, Legal]*`; `disable: boolean`; `address: string`; `photoUrl: string`; `roles: array<map>` containing `id: string` (role document ID), `name: string`, and copied `privileges: array<map>`; `privileges: array<map>` (derived/read-only in user form); Auth-created records may also include `uid: string` and `displayName: string` |
+| `user` | `email: string*`; `firstName: string*`; `lastName: string*`; `phoneNumber: string`; `department: enum<string> [Internal, External]*`; `disable: boolean`; `address: string`; `photoUrl: string`; `roles: array<map>` containing `id: string` (role document ID), `name: string`, and copied `privileges: array<map>`; `privileges: array<map>` (derived/read-only in user form); Auth-created records may also include `uid: string` and `displayName: string` |
 | `role` | `name: string*`; `privileges: array<map>` |
 
 ## Supporting and referenced collections

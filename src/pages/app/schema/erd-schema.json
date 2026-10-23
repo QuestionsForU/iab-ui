@@ -358,7 +358,7 @@
         "firstName": { "type": "string" },
         "lastName": { "type": "string" },
         "phoneNumber": { "type": "string" },
-        "department": { "type": "string", "enum": ["Civil", "Legal"] },
+        "department": { "type": "string", "enum": ["Internal", "External"] },
         "disable": { "type": "boolean" },
         "address": { "type": "string" },
         "photoUrl": { "type": "string" },
