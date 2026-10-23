@@ -38,6 +38,28 @@ html, body, #root {
   opacity: 1;
 }
 
+.app-sidebar {
+  flex-direction: column;
+}
+
+.app-sidebar .scrollbar-sidebar {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.closed-sidebar:not(.sidebar-mobile-open) .app-sidebar .scrollbar-sidebar {
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+.closed-sidebar:not(.sidebar-mobile-open) .app-sidebar:hover .scrollbar-sidebar {
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
 .closed-sidebar .sidebar-equipment-status {
   display: none;
 }

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Col, Form, Row, InputGroup } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import MaskedInput from 'react-text-mask';
 import IUILookUp from './IUILookUp';
 import IUIPictureUpload from './IUIPictureUpload';
 import IUIRolePrivilege from './IUIRolePrivilege';
@@ -82,6 +81,14 @@ const IUIPageElement = (props) => {
         if (props.onChange) {
             props.onChange(event);
         }
+    };
+
+    const handlePhoneChange = (e) => {
+        const value = e.target.value.replace(/\D/g, '').replace(/^0+/, '').slice(0, 10);
+        handleChange({
+            target: { id: e.target.id, value },
+            preventDefault: () => e.preventDefault()
+        });
     };
 
 
@@ -225,15 +232,17 @@ const IUIPageElement = (props) => {
                                             <span className="text-danger">*</span>
                                         }
                                     </Form.Label>
-                                    <MaskedInput
-                                        mask={[/[1-9]/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/]}
+                                    <Form.Control
+                                        type="tel"
+                                        inputMode="numeric"
+                                        maxLength={10}
                                         placeholder="##########"
                                         name={fld.field}
                                         id={fld.field}
                                         className={dirty ? (errors[fld.field] ? "form-control is-invalid" : "form-control is-valid") : "form-control"}
                                         value={data[fld.field] || ""}
                                         disabled={props.readonly || fld.readonly || false}
-                                        onChange={handleChange} />
+                                        onChange={handlePhoneChange} />
                                     {/* <p className="text-danger">{errors[fld.field]}</p> */}
 
                                 </Form.Group>
