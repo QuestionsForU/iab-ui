@@ -5,6 +5,32 @@ import { useNavigate } from "react-router-dom";
 import { updateProfile, resetSave } from '../../../store/api-db';
 import IUIPageElement from '../shared/IUIPageElement';
 
+const validateProfile = (values, fields) => {
+    let errors = {};
+
+    for (let i = 0; i < fields?.length; i++) {
+        let item = fields[i];
+        if (item.type === 'area') {
+            errors = { ...errors, ...validateProfile(values, item.fields) }
+        }
+        if (item.required && values && !values[item?.field]) {
+            errors[item.field] = `Required field.`;
+        }
+        if (item.type === 'email' && values && values[item?.field]) {
+            if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values[item.field])) {
+                errors[item.field] = 'Invalid email address.'
+            }
+        }
+        if (item.type === 'phone' && values && values[item?.field]) {
+            const regex = /^(\+\d{1,3}[- ]?)?\d{10}$/;
+            if (!regex.test(values[item.field])) {
+                errors[item.field] = 'Invalid phone number.'
+            }
+        }
+    }
+    return errors;
+};
+
 const IUIUserProfile = (props) => {
     // Properties
     const schema = props?.schema;
@@ -33,10 +59,10 @@ const IUIUserProfile = (props) => {
 
     useEffect(() => {
         if (dirty) {
-            const error = validate(data, schema?.fields)
+            const error = validateProfile(data, schema?.fields)
             setErrors(error);
         }
-    }, [data]);
+    }, [data, dirty, schema?.fields]);
 
     const handleChange = (e) => {
         e.preventDefault();
@@ -44,38 +70,11 @@ const IUIUserProfile = (props) => {
         setData(newData);
     };
 
-    const validate = (values, fields) => {
-        let errors = {};
-
-        for (let i = 0; i < fields?.length; i++) {
-            let item = fields[i];
-            if (item.type === 'area') {
-                errors = { ...errors, ...validate(values, item.fields) }
-            }
-            if (item.required && values && !values[item?.field]) {
-                errors[item.field] = `Required field.`;
-            }
-            if (item.type === 'email' && values && values[item?.field]) {
-                if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values[item.field])) {
-                    errors[item.field] = 'Invalid email address.'
-                }
-            }
-            if (item.type === 'phone' && values && values[item?.field]) {
-                const regex = /^(\+\d{1,3}[- ]?)?\d{10}$/;
-                //var pattern = new RegExp(/^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$/); // /^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$/
-                if (!regex.test(values[item.field])) {
-                    errors[item.field] = 'Invalid phone number.'
-                }
-            }
-        }
-        return errors;
-    };
-
     const savePageValue = (e) => {
         e.preventDefault();
         if (!props?.readonly) {
             setDirty(true);
-            const error = validate(data, schema?.fields)
+            const error = validateProfile(data, schema?.fields)
             setErrors(error);
             if (Object.keys(error).length === 0) {
                 if (!data)
@@ -110,7 +109,7 @@ const IUIUserProfile = (props) => {
                 }
             }
         }
-    }, [saved])
+    }, [dispatch, module, navigate, props?.readonly, saved])
 
     return (
         <>

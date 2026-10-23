@@ -3,18 +3,20 @@ import { useSelector } from 'react-redux'
  
 const IUIHiddenState = (props) => {
     const schema = props?.schema;
+    const id = props?.id;
+    const onChange = props?.onChange;
     const selectedId = useSelector((state) => state.api[schema?.module].selectedId)
     
 
     
     useEffect(() => {
-        if (selectedId && props?.id) {
-            const event = { target: { id: props?.id, value: selectedId }, preventDefault: function () { } }
-            if (props.onChange) {
-                props.onChange(event);
+        if (selectedId && id) {
+            const event = { target: { id: id, value: selectedId }, preventDefault: function () { } }
+            if (onChange) {
+                onChange(event);
             }
         }
-    }, [selectedId, props?.id]);
+    }, [id, onChange, selectedId]);
 
     return (
         <></>

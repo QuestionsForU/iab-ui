@@ -1,5 +1,4 @@
 
-import { type } from "@testing-library/user-event/dist/type";
 import IUIList from "../../common/IUIList";
 import IUIPage from "../../common/IUIPage"
 

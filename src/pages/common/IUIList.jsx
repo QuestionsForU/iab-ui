@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { getData } from '../../store/api-db';
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from "react-router-dom";
@@ -16,7 +16,8 @@ const IUIList = (props) => {
     const modulePath = schema.routePath || `/${module}s`;
     const dataSet = useSelector((state) => state.api[module])
     const defaultPageLength = schema.pageSize ?? 10;
-    const pageLength = schema.paging ? (dataSet?.options?.recordPerPage ?? defaultPageLength) : 0;
+    const dataSetRef = useRef(dataSet);
+    dataSetRef.current = dataSet;
     const [search, setSearch] = useState(useSelector((state) => state.api[module])?.options?.search);
     const loggedInUser = useSelector((state) => state.api.loggedInUser)
     const [privileges, setPrivileges] = useState({});
@@ -24,10 +25,11 @@ const IUIList = (props) => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const persistedPageSize = dataSet?.options?.recordPerPage ?? defaultPageLength;
-        const pageOptions = { ...dataSet?.options, recordPerPage: persistedPageSize }
+        const options = dataSetRef.current?.options;
+        const persistedPageSize = options?.recordPerPage ?? defaultPageLength;
+        const pageOptions = { ...options, recordPerPage: persistedPageSize }
         dispatch(getData({ module: module, options: pageOptions }));
-    }, []);
+    }, [defaultPageLength, dispatch, module]);
 
     useEffect(() => {
         const modulePrivileges = loggedInUser?.privileges?.filter(p => p.module === module)?.map(p => p.name);

@@ -26,7 +26,7 @@ const IUIModuleMessage = (props) => {
         return () => {
             clearTimeout(timeId)
         }
-    }, []);
+    }, [dispatch, module, status]);
 
     // If show is false the component will return null and stop here
     if (!show) {

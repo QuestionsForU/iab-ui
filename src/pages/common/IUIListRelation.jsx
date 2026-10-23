@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { getData } from '../../store/api-db';
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from "react-router-dom";
@@ -6,7 +6,6 @@ import Pagination from 'react-bootstrap/Pagination';
 import * as Icon from 'react-bootstrap-icons';
 import Table from 'react-bootstrap/Table';
 import { Button, Col, Row } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
 import IUIModuleMessage from './shared/IUIModuleMessage';
 import IUILookUp from './shared/IUILookUp'
 import IUIListPage from './IUIPageInline';
@@ -16,32 +15,31 @@ const IUIListRelation = (props) => {
     const module = `${schema.module}#${props.parentId}`;
     const dataSet = useSelector((state) => state.api[module])
     const defaultPageLength = schema.pageSize ?? 10;
-    const pageLength = schema.paging ? (dataSet?.options?.recordPerPage ?? defaultPageLength) : 0;
-    const [baseFilter, setBaseFilter] = useState({})
+    const dataSetRef = useRef(dataSet);
+    dataSetRef.current = dataSet;
     const [search, setSearch] = useState(useSelector((state) => state.api[module])?.options?.search);
     const dispatch = useDispatch();
-    const navigate = useNavigate();
+    const parentId = props?.parentId;
+    const relationKey = schema?.relationKey;
 
     useEffect(() => {
-        if (props?.parentId) {
+        if (parentId) {
             const newBaseFilter = {
-                name: schema?.relationKey,
-                value: props?.parentId,
+                name: relationKey,
+                value: parentId,
                 //operator: 'likelihood' // Default value is equal
             }
 
-            setBaseFilter(newBaseFilter)
-
-            const persistedPageSize = dataSet?.options?.recordPerPage ?? defaultPageLength;
+            const options = dataSetRef.current?.options;
+            const persistedPageSize = options?.recordPerPage ?? defaultPageLength;
             const pageOptions = {
-                ...dataSet?.options
+                ...options
                 , recordPerPage: persistedPageSize
                 , filters: newBaseFilter
             }
             dispatch(getData({ module: module, options: pageOptions }));
-            console.log(baseFilter)
         }
-    }, [props]);
+    }, [defaultPageLength, dispatch, module, parentId, relationKey]);
 
 
     const pageChanges = async (e) => {

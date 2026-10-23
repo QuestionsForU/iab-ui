@@ -21,14 +21,14 @@ const Refresh = () => {
             setToken();
             navigate("/", { replace: true });
         }
-    }, []);
+    }, [dispatch, module, navigate, setToken]);
 
     useEffect(() => {
         if (loggedInUser) {
             setToken(loggedInUser);
             navigate("/", { replace: true });
         }
-    }, [loggedInUser]);
+    }, [loggedInUser, navigate, setToken]);
 
 
     return (

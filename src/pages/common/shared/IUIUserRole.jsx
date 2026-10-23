@@ -14,7 +14,7 @@ const IUIUserRole = (props) => {
     useEffect(() => {
         const pageOptions = { recordPerPage: 0 }
         dispatch(getData({ module: module, options: pageOptions }));
-    }, []);
+    }, [dispatch]);
 
     useEffect(() => {
         if (!props.value || !Array.isArray(props.value)) {
@@ -27,7 +27,7 @@ const IUIUserRole = (props) => {
         if (JSON.stringify(props.value) !== JSON.stringify(value)) {
             setValue(props.value)
         }
-    }, [props.value])
+    }, [props.value, value])
 
     useEffect(() => {
         if (!allRoles || allRoles.length === 0) {
@@ -42,7 +42,7 @@ const IUIUserRole = (props) => {
         if (JSON.stringify(schema) !== JSON.stringify(nextSchema)) {
             setSchema(nextSchema);
         }
-    }, [allRoles, value]);
+    }, [allRoles, schema, value]);
 
     const handleChange = (e, name) => {
         e.preventDefault();
