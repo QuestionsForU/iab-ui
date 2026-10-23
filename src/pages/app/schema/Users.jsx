@@ -54,8 +54,8 @@ export const ViewUser = () => {
                         schema: {
                             //module:'department', Pass either module to be fetched data dynamically
                             items: [ // or use items for fixed value
-                                { name: 'Civil' },
-                                { name: 'Legal' }
+                                { name: 'Internal' },
+                                { name: 'External' }
                             ]
                         }
                     },
@@ -101,8 +101,8 @@ export const EditUser = () => {
                         schema: {
                             //module:'department', Pass either module to be fetched data dynamically
                             items: [ // or use items for fixed value
-                                { name: 'Civil' },
-                                { name: 'Legal' }
+                                { name: 'Internal' },
+                                { name: 'External' }
                             ]
                         }
                     },
@@ -147,8 +147,8 @@ export const AddUser = () => {
                         schema: {
                             //module:'department', Pass either module to be fetched data dynamically
                             items: [ // or use items for fixed value
-                                { name: 'Civil' },
-                                { name: 'Legal' }
+                                { name: 'Internal' },
+                                { name: 'External' }
                             ]
                         }
                     },
