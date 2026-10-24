@@ -5,32 +5,7 @@ import { getSingleData, getData, editData, addData, selectModuleItem } from '../
 import { useDispatch, useSelector } from 'react-redux'
 import IUIPageElement from './shared/IUIPageElement';
 import IUIModuleMessage from './shared/IUIModuleMessage';
-
-const validateFields = (values, fields) => {
-    let errors = {};
-
-    for (let i = 0; i < fields?.length; i++) {
-        const item = fields[i];
-        if (item.type === 'area') {
-            errors = { ...errors, ...validateFields(values, item.fields) };
-        }
-        if (item.required && values && !values[item?.field]) {
-            errors[item.field] = 'Required field.';
-        }
-        if (item.type === 'email' && values && values[item?.field]) {
-            if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values[item.field])) {
-                errors[item.field] = 'Invalid email address.';
-            }
-        }
-        if (item.type === 'phone' && values && values[item?.field]) {
-            const regex = /^(\+\d{1,3}[- ]?)?\d{10}$/;
-            if (!regex.test(values[item.field])) {
-                errors[item.field] = 'Invalid phone number.';
-            }
-        }
-    }
-    return errors;
-};
+import validateFormFields from './formValidation';
 
 const IUIPage = (props) => {
     // Properties
@@ -79,7 +54,7 @@ const IUIPage = (props) => {
 
     useEffect(() => {
         if (dirty) {
-            const error = validateFields(data, schema?.fields)
+            const error = validateFormFields(data, schema?.fields)
             setErrors(error);
         }
     }, [data, dirty, schema?.fields]);
@@ -179,7 +154,7 @@ const IUIPage = (props) => {
         e.preventDefault();
         if (!props?.readonly) {
             setDirty(true);
-            const error = validateFields(data, schema?.fields)
+            const error = validateFormFields(data, schema?.fields)
             setErrors(error);
             if (Object.keys(error).length === 0) {
                 if (!data)
