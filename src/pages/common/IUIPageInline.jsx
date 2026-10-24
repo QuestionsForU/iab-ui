@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import IUIPageElement from './shared/IUIPageElement';
+import validateFormFields from './formValidation';
 
 const IUIPageInline = (props) => {
     // Properties
@@ -34,37 +35,10 @@ const IUIPageInline = (props) => {
         setValue(item)
     };
 
-    const validate = (values, fields) => {
-        let errors = {};
-
-        for (let i = 0; i < fields?.length; i++) {
-            let item = fields[i];
-            if (item.type === 'area') {
-                errors = { ...errors, ...validate(values, item.fields) }
-            }
-            if (item.required && values && !values[item?.field]) {
-                errors[item.field] = `Required field.`;
-            }
-            if (item.type === 'email' && values && values[item?.field]) {
-                if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values[item.field])) {
-                    errors[item.field] = 'Invalid email address.'
-                }
-            }
-            if (item.type === 'phone' && values && values[item?.field]) {
-                const regex = /^(\+\d{1,3}[- ]?)?\d{10}$/;
-                //var pattern = new RegExp(/^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$/); // /^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$/
-                if (!regex.test(values[item.field])) {
-                    errors[item.field] = 'Invalid phone number.'
-                }
-            }
-        }
-        return errors;
-    };
-
     const savePageValue = (e) => {
         e.preventDefault();
         setDirty(true);
-        const error = validate(value, schema?.fields)
+        const error = validateFormFields(value, schema?.fields)
         setErrors(error);
         if (Object.keys(error).length === 0) {
             if (!value)

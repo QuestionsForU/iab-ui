@@ -1,7 +1,7 @@
 import IUIMenuItem from "./shared/IUIMenuItem"
 import { Link } from "react-router-dom";
 import { useSelector } from 'react-redux'
-import { lisModuleMenu } from "../app/schema/lisModuleDefinitions";
+import { lisModuleMenu } from "../app/schema/lisModuleMenu";
 
 const LeftMenu = (props) => {
     const loggedInUser = useSelector((state) => state.api.loggedInUser)

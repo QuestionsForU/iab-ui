@@ -1,0 +1,153 @@
+const REPORT_CONFIGS = {
+    "/reports/sale-invoice-register": {
+        title: "Sale Invoice Register",
+        reportType: "SaleInvoiceRegister",
+        layout: "sale-invoice",
+        description: "Operational invoice listing for the selected period.",
+        filters: [
+            { name: "fromDate", label: "From Date", type: "date", width: 2 },
+            { name: "toDate", label: "To Date", type: "date", width: 2 },
+            { name: "patientId", label: "Patient", type: "select", width: 3, placeholder: "All Patients" },
+            { name: "referralDoctorId", label: "Referral Doctor", type: "select", width: 3, placeholder: "All Doctors" },
+            { name: "invoiceNo", label: "Invoice No.", type: "text", width: 2 },
+            { name: "createdById", label: "Created By", type: "select", width: 3, secondRow: true, placeholder: "All Users" },
+        ],
+        columns: [
+            "Invoice Date", "Invoice No.", "Patient ID", "Patient Name", "Referral Doctor", "Corporate",
+            "Gross", "Discount", "Tax", "Net", "Status", "Payment", "Created By",
+        ],
+    },
+    "/reports/test-booking-register": {
+        title: "Test Booking Register",
+        reportType: "TestBookingRegister",
+        layout: "test-booking",
+        description: "Test booking and sample request listing for the selected period.",
+        filters: [
+            { name: "fromDate", label: "From Date", type: "date", width: 2, required: true },
+            { name: "toDate", label: "To Date", type: "date", width: 2, required: true },
+            { name: "patientId", label: "Patient", type: "select", width: 4, placeholder: "All patients" },
+            { name: "referralDoctorId", label: "Referral Doctor", type: "select", width: 4, placeholder: "All doctors" },
+        ],
+        columns: [
+            "Booking Date", "Request No.", "Invoice No.", "Patient ID", "Patient Name", "Test Name",
+            "Department", "Specimen", "Referral Doctor", "Status", "Sample No.", "Created By",
+        ],
+    },
+    "/reports/collection-summary": {
+        title: "Collection Summary",
+        reportType: "CollectionSummary",
+        layout: "fdd",
+        description: "Report summary based on selected date range and filters.",
+        filters: { patient: true },
+        columns: [
+            "Collection Date", "Barcode", "Order No.", "Patient ID", "Patient", "Test", "Collector", "Status",
+        ],
+    },
+    "/reports/collector-wise": {
+        title: "Collector Wise Report",
+        reportType: "CollectorWise",
+        layout: "fdd",
+        description: "Report summary based on selected date range and filters.",
+        filters: { collector: true, patient: false },
+        columns: ["Collector", "Collected", "Rejected", "Recollection"],
+    },
+    "/reports/pending-collection": {
+        title: "Pending Collection Report",
+        reportType: "PendingCollection",
+        layout: "fdd",
+        description: "Report summary based on selected date range and filters.",
+        filters: { patient: false },
+        columns: ["Barcode", "Order No.", "Patient ID", "Patient", "Test", "Order Date"],
+    },
+    "/reports/recollection": {
+        title: "Recollection Report",
+        reportType: "Recollection",
+        layout: "fdd",
+        description: "Report summary based on selected date range and filters.",
+        filters: { patient: true },
+        columns: ["Barcode", "Order", "Patient", "Test", "Collector", "Date", "Remarks"],
+    },
+    "/reports/received-samples": {
+        title: "Received Samples Report",
+        reportType: "ReceivedSamples",
+        layout: "fdd",
+        description: "Report summary based on selected date range and filters.",
+        filters: { patient: true },
+        columns: ["Barcode", "Patient", "Test", "Collected", "Received", "Received By", "TAT (min)"],
+    },
+    "/reports/rejected-samples": {
+        title: "Rejected Samples Report",
+        reportType: "RejectedSamples",
+        layout: "fdd",
+        description: "Report summary based on selected date range and filters.",
+        filters: { patient: true },
+        columns: ["Barcode", "Patient", "Test", "Stage", "Reason", "Rejected By", "Rejected On"],
+    },
+    "/reports/sample-turnaround": {
+        title: "Turnaround Time Report",
+        reportType: "SampleTurnaround",
+        layout: "fdd",
+        description: "Report summary based on selected date range and filters.",
+        filters: { patient: true },
+        columns: ["Barcode", "Patient", "Test", "Collection", "Received", "TAT (min)"],
+    },
+    "/reports/radiology/pending": {
+        title: "Pending Reporting Cases",
+        reportType: "PendingRadiology",
+        layout: "fdd",
+        description: "Report summary based on selected date range and filters.",
+        filters: { patient: true, modality: true },
+        columns: ["Accession", "Patient", "Test", "Modality", "Status", "Created"],
+    },
+    "/reports/radiology/authorized": {
+        title: "Authorized Reports",
+        reportType: "AuthorizedRadiology",
+        layout: "fdd",
+        description: "Report summary based on selected date range and filters.",
+        filters: { patient: true, modality: true },
+        columns: ["Accession", "Patient", "Test", "Modality", "Authorized By", "Authorized On", "Status"],
+    },
+    "/reports/radiology/modality-stats": {
+        title: "Modality Statistics",
+        reportType: "ModalityStatistics",
+        layout: "fdd",
+        description: "Report summary based on selected date range and filters.",
+        filters: { patient: false },
+        columns: ["Modality", "Total", "Authorized", "Pending"],
+    },
+    "/reports/radiology/productivity": {
+        title: "Radiologist Productivity Report",
+        reportType: "RadiologistProductivity",
+        layout: "fdd",
+        description: "Report summary based on selected date range and filters.",
+        filters: { patient: false },
+        columns: ["Radiologist", "Authorized", "Released"],
+    },
+    "/reports/doctor-commission": {
+        title: "Doctor Commission",
+        reportType: "CommissionReport",
+        recipient: "doctor",
+        layout: "commission",
+    },
+    "/reports/collector-commission": {
+        title: "Collector Commission",
+        reportType: "CommissionReport",
+        recipient: "collector",
+        layout: "commission",
+    },
+    "/reports/test-report": {
+        title: "Diagnostic Report",
+        reportType: "TestReport",
+        layout: "test-report",
+    },
+    "/reports/radiology-report": {
+        title: "Radiology Report Print",
+        reportType: "RadiologyReportPrint",
+        layout: "radiology-report",
+    },
+};
+
+const REPORT_UI_ONLY_MESSAGE =
+    "This report is UI-only. Searching and exporting require the Angular application's report services and are unavailable here.";
+
+export { REPORT_CONFIGS, REPORT_UI_ONLY_MESSAGE };

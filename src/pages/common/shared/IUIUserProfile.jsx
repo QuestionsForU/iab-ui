@@ -4,32 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from "react-router-dom";
 import { updateProfile, resetSave } from '../../../store/api-db';
 import IUIPageElement from '../shared/IUIPageElement';
-
-const validateProfile = (values, fields) => {
-    let errors = {};
-
-    for (let i = 0; i < fields?.length; i++) {
-        let item = fields[i];
-        if (item.type === 'area') {
-            errors = { ...errors, ...validateProfile(values, item.fields) }
-        }
-        if (item.required && values && !values[item?.field]) {
-            errors[item.field] = `Required field.`;
-        }
-        if (item.type === 'email' && values && values[item?.field]) {
-            if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values[item.field])) {
-                errors[item.field] = 'Invalid email address.'
-            }
-        }
-        if (item.type === 'phone' && values && values[item?.field]) {
-            const regex = /^(\+\d{1,3}[- ]?)?\d{10}$/;
-            if (!regex.test(values[item.field])) {
-                errors[item.field] = 'Invalid phone number.'
-            }
-        }
-    }
-    return errors;
-};
+import validateFormFields from '../formValidation';
 
 const IUIUserProfile = (props) => {
     // Properties
@@ -59,7 +34,7 @@ const IUIUserProfile = (props) => {
 
     useEffect(() => {
         if (dirty) {
-            const error = validateProfile(data, schema?.fields)
+            const error = validateFormFields(data, schema?.fields)
             setErrors(error);
         }
     }, [data, dirty, schema?.fields]);
@@ -74,7 +49,7 @@ const IUIUserProfile = (props) => {
         e.preventDefault();
         if (!props?.readonly) {
             setDirty(true);
-            const error = validateProfile(data, schema?.fields)
+            const error = validateFormFields(data, schema?.fields)
             setErrors(error);
             if (Object.keys(error).length === 0) {
                 if (!data)
