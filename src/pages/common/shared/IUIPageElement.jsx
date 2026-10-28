@@ -55,7 +55,11 @@ const IUIPageElement = (props) => {
         let newData = { ...data };
         if (e?.target?.value && typeof e.target.value === 'object' && !Array.isArray(e.target.value)) {
             newData = { ...newData, ...e.target.value };
-        } else {
+        } else if (e.target.checked !== undefined) {
+            // Handle checkbox fields
+            newData = { ...newData, [e.target.id]: e.target.checked }
+        }
+        else {
             newData = { ...newData, [e.target.id]: e.target.value }
         }
 
@@ -268,6 +272,37 @@ const IUIPageElement = (props) => {
                                         />
                                     </InputGroup>
                                 </Form.Group>
+                                {data[fld.field] && fld.showFields && (
+                                    <>
+                                        {fld.showFields.map((showField, idx) => (
+                                            <Form.Group key={idx} className="position-relative mb-3">
+                                                <Form.Label htmlFor={showField.field} className="fw-bold">
+                                                    {showField.text}
+                                                    {showField.required &&
+                                                        <span className="text-danger">*</span>
+                                                    }
+                                                </Form.Label>
+                                                <InputGroup>
+                                                    {showField.fieldIcon && (
+                                                        <InputGroup.Text id={`${showField.field}_input_icon`}>
+                                                            <i className={`fa-solid fa-${showField.fieldIcon}`}></i>
+                                                        </InputGroup.Text>
+                                                    )}
+                                                    <Form.Control 
+                                                        type="text"
+                                                        name={showField.field}
+                                                        id={showField.field}
+                                                        className={dirty ? (errors[showField.field] ? "is-invalid" : "is-valid") : ""}
+                                                        placeholder={showField.placeholder}
+                                                        value={data[showField.field] || ""}
+                                                        disabled={props.readonly || false}
+                                                        onChange={handleChange}
+                                                    />
+                                                </InputGroup>
+                                            </Form.Group>
+                                        ))}
+                                    </>
+                                )}
                             </>
                         }
                         {fld.type === 'user-roles' &&
