@@ -400,14 +400,13 @@ export const lisModuleDefinitions = [
         displayField: "hisTestCodeDescription",
         routePaths: ["/test-master"],
         fields: [
-            text("hisTestCode", "HIS Test Code", true),
-            text("hisTestCodeDescription", "HIS Test Description", true),
-            text("hisSpecimenCode", "HIS Specimen Code"),
-            text("hisSpecimenName", "HIS Specimen Name"),
+            text("hisTestCode", "Test Code", true),
+            text("hisTestCodeDescription", "Test Name", true),
+            relation("specimenCode", "Specimen", "specimen", "specimenName", false, "specimenCode"),
             relation("departmentCode", "Department", "department", "departmentName", false, "departmentCode"),
             choice("isActive", "Active", ["Yes", "No"]),
         ],
-        listFields: ["hisTestCodeDescription", "hisTestCode", "hisSpecimenName", "departmentCode"],
+        listFields: ["hisTestCodeDescription", "hisTestCode", "specimenCode", "departmentCode"],
     },
     {
         module: "hisParameter",
@@ -504,9 +503,10 @@ export const lisModuleDefinitions = [
         fields: [
             text("departmentCode", "Department Code", true),
             text("departmentName", "Department Name", true),
+            choice("processingCategory", "Processing Category", ["Laboratory", "Diagnostic"]),
             choice("isActive", "Active", ["Yes", "No"]),
         ],
-        listFields: ["departmentName", "departmentCode", "isActive"],
+        listFields: ["departmentName", "departmentCode", "processingCategory", "isActive"],
     },
     {
         module: "referralDoctor",
