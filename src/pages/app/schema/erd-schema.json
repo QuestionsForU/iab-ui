@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "ZoryaLMS Firestore ERD Schema",
-  "description": "Collection and field catalog based on ENTITY_RELATIONSHIP_DIAGRAM.md and the current React form schemas. Lookup fields are string values; relationships are descriptive annotations and are not enforced by Firestore.",
+  "description": "Collection and field catalog for every collection in firestore.indexes.json. LIS fields follow the current React forms. Legacy business collections are included so the catalog and the index file name the same collections. Lookup fields are string values; relationships are descriptive annotations and are not enforced by Firestore.",
   "type": "object",
   "$defs": {
     "sample": {
@@ -74,9 +74,10 @@
       "properties": {
         "departmentCode": { "type": "string" },
         "departmentName": { "type": "string" },
+        "processingCategory": { "type": "string", "enum": ["Laboratory", "Radiology"] },
         "isActive": { "type": "string", "enum": ["Yes", "No"] }
       },
-      "required": ["departmentCode", "departmentName"]
+      "required": ["departmentCode", "departmentName", "processingCategory"]
     },
     "unit": {
       "type": "object",
@@ -130,47 +131,56 @@
     "hisTest": {
       "type": "object",
       "properties": {
-        "hisTestCode": { "type": "string" },
+        "hisTestCode": { "type": "string", "readOnly": true },
         "hisTestCodeDescription": { "type": "string" },
-        "hisSpecimenCode": { "type": "string" },
-        "hisSpecimenName": { "type": "string" },
+        "specimenId": { "type": "string", "x-relationship": { "collection": "specimen", "field": "id", "stores": "documentId" } },
         "departmentCode": { "type": "string", "x-relationship": { "collection": "department", "field": "departmentCode", "stores": "departmentCode" } },
         "isActive": { "type": "string", "enum": ["Yes", "No"] }
       },
-      "required": ["hisTestCode", "hisTestCodeDescription"]
+      "required": ["hisTestCode", "hisTestCodeDescription", "specimenId", "departmentCode"]
     },
     "testProfile": {
       "type": "object",
       "properties": {
-        "code": { "type": "string" },
+        "code": { "type": "string", "readOnly": true },
         "name": { "type": "string" },
         "packageRate": { "type": "number" },
-        "isActive": { "type": "string", "enum": ["Yes", "No"] }
+        "isActive": { "type": "string", "enum": ["Yes", "No"] },
+        "profileTests": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "testId": { "type": "string", "x-relationship": { "collection": "hisTest", "field": "id", "stores": "documentId" } },
+              "quantity": { "type": "number" }
+            }
+          }
+        }
       },
       "required": ["code", "name"]
     },
     "specimen": {
       "type": "object",
       "properties": {
-        "specimenCode": { "type": "string" },
         "specimenName": { "type": "string" },
         "isActive": { "type": "string", "enum": ["Yes", "No"] }
       },
-      "required": ["specimenCode", "specimenName"]
+      "required": ["specimenName"]
     },
     "testRate": {
       "type": "object",
       "properties": {
-        "rateName": { "type": "string" },
-        "lisTestId": { "type": "string", "x-relationship": { "collection": "lisTest", "field": "id", "stores": "documentId" } },
-        "testProfileId": { "type": "string", "x-relationship": { "collection": "testProfile", "field": "id", "stores": "documentId" } },
         "rate": { "type": "number" },
+        "emergencyRate": { "type": "number" },
+        "discount": { "type": "number" },
         "effectiveFrom": { "type": "string", "format": "date" },
         "effectiveTo": { "type": "string", "format": "date" },
-        "hospitalId": { "type": "string", "x-relationship": { "collection": "hospital", "field": "id", "stores": "documentId" } },
-        "isActive": { "type": "string", "enum": ["Yes", "No"] }
+        "isActive": { "type": "string", "enum": ["Yes", "No"] },
+        "testId": { "type": "string", "x-relationship": { "collection": "hisTest", "field": "id", "stores": "documentId" } },
+        "rateType": { "type": "string", "enum": ["Standard", "Emergency", "Package"] }
       },
-      "required": ["rateName", "rate"]
+      "required": ["rate", "effectiveFrom", "effectiveTo", "testId"]
     },
     "referralDoctor": {
       "type": "object",
@@ -180,6 +190,7 @@
         "qualification": { "type": "string" },
         "phoneNumber": { "type": "string" },
         "email": { "type": "string" },
+        "type": { "type": "string", "enum": ["Corporate", "Self"] },
         "isActive": { "type": "string", "enum": ["Yes", "No"] }
       },
       "required": ["doctorCode", "doctorName"]
@@ -231,42 +242,33 @@
       "properties": {
         "hisParamCode": { "type": "string" },
         "hisParamDescription": { "type": "string" },
-        "hisTestId": { "type": "string", "x-relationship": { "collection": "hisTest", "field": "id", "stores": "documentId" } },
-        "testMappingId": { "type": "string", "x-relationship": { "collection": "testMapping", "field": "id", "stores": "documentId" } },
-        "lisParamCode": { "type": "string" },
-        "unit": { "type": "string" },
-        "lowerRefRange": { "type": "number" },
-        "upperRefRange": { "type": "number" },
+        "unitId": { "type": "string", "x-relationship": { "collection": "unit", "field": "id", "stores": "documentId" } },
+        "methodId": { "type": "string", "x-relationship": { "collection": "method", "field": "id", "stores": "documentId" } },
+        "comment": { "type": "string", "description": "Rich text stored as HTML." },
         "isActive": { "type": "string", "enum": ["Yes", "No"] }
       },
-      "required": ["hisParamCode", "hisParamDescription", "hisTestId"]
+      "required": ["hisParamCode", "hisParamDescription"]
     },
     "testMapping": {
       "type": "object",
       "properties": {
-        "equipmentId": { "type": "string", "x-relationship": { "collection": "equipment", "field": "id", "stores": "documentId" } },
-        "hisParamCode": { "type": "string" },
-        "hisParamDescription": { "type": "string" },
-        "specimenCode": { "type": "string" },
-        "specimenName": { "type": "string" },
-        "lisTestCode": { "type": "string" },
-        "lisTestCodeDescription": { "type": "string" },
-        "groupName": { "type": "string" },
-        "isActive": { "type": "string", "enum": ["Yes", "No"] }
+        "lisParamCode": { "type": "string" },
+        "lisParamDescription": { "type": "string" },
+        "isActive": { "type": "string", "enum": ["Yes", "No"] },
+        "parameterId": { "type": "string", "x-relationship": { "collection": "hisParameter", "field": "id", "stores": "documentId" } },
+        "equipmentId": { "type": "string", "x-relationship": { "collection": "equipment", "field": "id", "stores": "documentId" } }
       },
-      "required": ["equipmentId", "lisTestCode", "lisTestCodeDescription"]
+      "required": ["lisParamCode", "parameterId", "equipmentId"]
     },
     "testParameter": {
       "type": "object",
       "properties": {
-        "parameterCode": { "type": "string" },
-        "parameterName": { "type": "string" },
-        "lisTestId": { "type": "string", "x-relationship": { "collection": "lisTest", "field": "id", "stores": "documentId" } },
-        "unit": { "type": "string" },
-        "parameterRangeId": { "type": "string", "x-relationship": { "collection": "parameterRange", "field": "id", "stores": "documentId" } },
-        "isActive": { "type": "string", "enum": ["Yes", "No"] }
+        "sequence": { "type": "number" },
+        "isActive": { "type": "string", "enum": ["Yes", "No"] },
+        "testId": { "type": "string", "x-relationship": { "collection": "hisTest", "field": "id", "stores": "documentId" } },
+        "parameterId": { "type": "string", "x-relationship": { "collection": "hisParameter", "field": "id", "stores": "documentId" } }
       },
-      "required": ["parameterCode", "parameterName", "lisTestId"]
+      "required": ["sequence", "testId", "parameterId"]
     },
     "parameterRange": {
       "type": "object",
@@ -289,7 +291,6 @@
         "mrNo": { "type": "string", "readOnly": true },
         "visitId": { "type": "string", "readOnly": true },
         "name": { "type": "string" },
-        "hisPatientId": { "type": "string" },
         "phoneNumber": { "type": "string" },
         "dateOfBirth": { "type": "string", "format": "date" },
         "patientNo": { "type": "string", "readOnly": true },
@@ -336,7 +337,8 @@
         "patientNo": { "type": "string" },
         "patientPhone": { "type": "string" },
         "corporateId": { "type": ["string", "null"], "x-relationship": { "collection": "corporate", "field": "id", "stores": "documentId" } },
-        "referralDoctorId": { "type": ["string", "null"], "x-relationship": { "collection": "referralDoctor", "field": "id", "stores": "documentId" } },
+        "referralDoctorId": { "type": ["string", "null"], "x-relationship": { "collection": "referralDoctor", "field": "id", "stores": "documentId" }, "description": "Null when Referral Type is Self or Corporate." },
+        "referralType": { "type": "string", "enum": ["", "Self", "Corporate"] },
         "paymentType": { "type": "string", "enum": ["Cash", "Card", "UPI", "Net Banking", "Cheque", "Credit"] },
         "notes": { "type": "string" },
         "grossAmount": { "type": "number" },
@@ -361,6 +363,8 @@
         "department": { "type": "string", "enum": ["Internal", "External"] },
         "disable": { "type": "boolean" },
         "address": { "type": "string" },
+        "doctorDesignation": { "type": "string", "description": "Required by the form only when a role named Doctor is selected." },
+        "doctorSignature": { "type": "string", "description": "PNG or JPG data URL, maximum 2 MB. Required by the form only when a role named Doctor is selected." },
         "photoUrl": { "type": "string" },
         "roles": { "type": "array", "items": { "$ref": "#/$defs/userRole" } },
         "privileges": { "type": "array", "items": { "$ref": "#/$defs/privilege" }, "readOnly": true },
@@ -475,12 +479,13 @@
       "properties": {
         "testCode": { "type": "string" },
         "name": { "type": "string" },
+        "processingCategory": { "type": "string" },
         "description": { "type": "string" },
         "specimenId": { "type": "string", "x-relationship": { "collection": "specimen", "field": "id", "stores": "documentId" } },
         "departmentCode": { "type": "string", "x-relationship": { "collection": "department", "field": "departmentCode", "stores": "departmentCode" } },
         "isActive": { "type": "string", "enum": ["Yes", "No"] }
       },
-      "required": ["testCode", "name"]
+      "required": ["testCode", "name", "processingCategory"]
     },
     "hospital": {
       "type": "object",
@@ -500,6 +505,7 @@
       "properties": {
         "patientId": { "type": "string", "x-relationship": { "collection": "patient", "field": "id", "stores": "documentId" } },
         "visitId": { "type": "string" },
+        "dateOfBirth": { "type": "string", "format": "date" },
         "visitDateTime": { "type": "string", "format": "date-time" },
         "saleInvoiceId": { "type": "string", "x-relationship": { "collection": "saleInvoice", "field": "id", "stores": "documentId" } },
         "visitStatus": { "type": "string", "enum": ["Scheduled", "In Progress", "Completed", "Cancelled"] },
@@ -577,6 +583,83 @@
         "placeholder": { "type": "string" }
       },
       "required": ["notificationConfigurationId", "templateName"]
+    },
+    "testGroup": {
+      "type": "object",
+      "properties": {
+        "code": { "type": "string" },
+        "name": { "type": "string" },
+        "specimenTag": { "type": "string" },
+        "isActive": { "type": "string", "enum": ["Yes", "No"] }
+      },
+      "required": ["code", "name"]
+    },
+    "testCategory": {
+      "type": "object",
+      "properties": {
+        "code": { "type": "string" },
+        "name": { "type": "string" },
+        "isActive": { "type": "string", "enum": ["Yes", "No"] }
+      },
+      "required": ["code", "name"]
+    },
+    "sampleType": {
+      "type": "object",
+      "properties": {
+        "code": { "type": "string" },
+        "name": { "type": "string" },
+        "isActive": { "type": "string", "enum": ["Yes", "No"] }
+      },
+      "required": ["code", "name"]
+    },
+    "container": {
+      "type": "object",
+      "properties": {
+        "code": { "type": "string" },
+        "name": { "type": "string" },
+        "color": { "type": "string" },
+        "isActive": { "type": "string", "enum": ["Yes", "No"] }
+      },
+      "required": ["code", "name"]
+    },
+    "clientApplication": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "code": { "type": "string" },
+        "description": { "type": "string" },
+        "baseUrl": { "type": "string" },
+        "isActive": { "type": "string", "enum": ["Yes", "No"] }
+      },
+      "required": ["name"]
+    },
+    "externalApi": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "system": { "type": "string" },
+        "baseUrl": { "type": "string" },
+        "authenticationType": { "type": "string", "enum": ["OAuth 2.0", "API Key", "Basic", "None"] },
+        "credentialReference": { "type": "string" },
+        "direction": { "type": "string", "enum": ["Import", "Export", "Bidirectional"] },
+        "isActive": { "type": "string", "enum": ["Yes", "No"] }
+      },
+      "required": ["name", "system", "baseUrl"]
+    },
+    "testProfileDetail": {
+      "type": "object",
+      "properties": {
+        "profileId": { "type": "string", "x-relationship": { "collection": "testProfile", "field": "id", "stores": "documentId" } },
+        "testCode": { "type": "string", "x-relationship": { "collection": "hisTest", "field": "hisTestCode", "stores": "hisTestCode" } },
+        "testName": { "type": "string" },
+        "sequence": { "type": "number" }
+      },
+      "required": ["profileId", "testCode"]
+    },
+    "legacyRecord": {
+      "type": "object",
+      "description": "Legacy business collection. List queries are covered by firestore.indexes.json. Page schemas may store additional fields.",
+      "additionalProperties": true
     }
   },
   "x-firestore": {
@@ -630,7 +713,29 @@
       "reportTemplateVersion": { "$ref": "#/$defs/reportTemplateVersion", "menuSection": null, "supporting": true },
       "reportLayoutConfiguration": { "$ref": "#/$defs/reportLayoutConfiguration", "menuSection": "Setup", "supporting": true, "persistedByMenuPage": false },
       "notificationConfiguration": { "$ref": "#/$defs/notificationConfiguration", "menuSection": "Setup", "supporting": true, "persistedByMenuPage": false },
-      "notificationTemplate": { "$ref": "#/$defs/notificationTemplate", "menuSection": null, "supporting": true }
+      "notificationTemplate": { "$ref": "#/$defs/notificationTemplate", "menuSection": null, "supporting": true },
+      "testGroup": { "$ref": "#/$defs/testGroup", "menuSection": null, "supporting": true },
+      "testCategory": { "$ref": "#/$defs/testCategory", "menuSection": null, "supporting": true },
+      "sampleType": { "$ref": "#/$defs/sampleType", "menuSection": null, "supporting": true },
+      "container": { "$ref": "#/$defs/container", "menuSection": null, "supporting": true },
+      "clientApplication": { "$ref": "#/$defs/clientApplication", "menuSection": null, "supporting": true },
+      "externalApi": { "$ref": "#/$defs/externalApi", "menuSection": null, "supporting": true },
+      "testProfileDetail": { "$ref": "#/$defs/testProfileDetail", "menuSection": null, "supporting": true },
+      "customer": { "$ref": "#/$defs/legacyRecord", "domain": "legacy", "menuSection": null },
+      "dailyPrice": { "$ref": "#/$defs/legacyRecord", "domain": "legacy", "menuSection": null },
+      "employee": { "$ref": "#/$defs/legacyRecord", "domain": "legacy", "menuSection": null },
+      "invoice": { "$ref": "#/$defs/legacyRecord", "domain": "legacy", "menuSection": null },
+      "invoiceItem": { "$ref": "#/$defs/legacyRecord", "domain": "legacy", "menuSection": null },
+      "itemGroup": { "$ref": "#/$defs/legacyRecord", "domain": "legacy", "menuSection": null },
+      "itemMaster": { "$ref": "#/$defs/legacyRecord", "domain": "legacy", "menuSection": null },
+      "module": { "$ref": "#/$defs/legacyRecord", "domain": "legacy", "menuSection": null, "description": "Indexed for application and dateCreated. No current screen writes this collection." },
+      "product": { "$ref": "#/$defs/legacyRecord", "domain": "legacy", "menuSection": null },
+      "productType": { "$ref": "#/$defs/legacyRecord", "domain": "legacy", "menuSection": null },
+      "purity": { "$ref": "#/$defs/legacyRecord", "domain": "legacy", "menuSection": null },
+      "saleOrder": { "$ref": "#/$defs/legacyRecord", "domain": "legacy", "menuSection": null },
+      "siteSetting": { "$ref": "#/$defs/legacyRecord", "domain": "legacy", "menuSection": null },
+      "supplier": { "$ref": "#/$defs/legacyRecord", "domain": "legacy", "menuSection": null },
+      "supplierPurchase": { "$ref": "#/$defs/legacyRecord", "domain": "legacy", "menuSection": null }
     }
   },
   "x-menuViews": {
