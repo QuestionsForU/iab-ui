@@ -14,6 +14,23 @@ import IUISignatureUpload from './IUISignatureUpload';
 import ProfileTestsField from './ProfileTestsField';
 import { isFieldVisible } from '../formValidation';
 
+const FieldRow = ({ inline, alignTop, wide, htmlFor, text, required, children }) => {
+    if (inline) {
+        return <Form.Group className="position-relative mb-3">{children}</Form.Group>;
+    }
+
+    const className = ["iui-field", alignTop ? "iui-field-top" : "", wide ? "iui-field-wide" : ""].filter(Boolean).join(" ");
+    return (
+        <Form.Group className={className}>
+            <Form.Label htmlFor={htmlFor} className="fw-bold">
+                {text}
+                {required && <span className="text-danger">*</span>}
+            </Form.Label>
+            <div className="iui-field-control">{children}</div>
+        </Form.Group>
+    );
+};
+
 const IUIPageElement = (props) => {
     // Properties
     const schema = props?.schema;
@@ -103,12 +120,9 @@ const IUIPageElement = (props) => {
                 {schema?.map((fld, f) => isFieldVisible(fld, data) && (
                     <Col md={fld.width || 12} key={f}>
                         {fld.type === 'link' &&
-                            <>
-                                <Form.Group className="position-relative form-group">
-                                    <Form.Label htmlFor={fld.field}>{fld.text}</Form.Label>
-                                    <span><Link className="stretched-link" to={`${fld.to}${data[fld.field]}`}> {data[fld.field]} </Link></span>
-                                </Form.Group>
-                            </>
+                            <FieldRow htmlFor={fld.field} text={fld.text}>
+                                <span><Link className="stretched-link" to={`${fld.to}${data[fld.field]}`}> {data[fld.field]} </Link></span>
+                            </FieldRow>
                         }
                         {fld.type === 'hidden-filter' &&
                             <span key={f}>
@@ -121,36 +135,17 @@ const IUIPageElement = (props) => {
                             </span>
                         }
                         {fld.type === 'label' &&
-                            <>
-                                <Form.Group className="position-relative form-group">
-                                    <Form.Label htmlFor={fld.field}>{fld.text} : </Form.Label>
-                                    <span> {data[fld.field]} </span>
-                                </Form.Group>
-                            </>
+                            <FieldRow htmlFor={fld.field} text={`${fld.text} :`}>
+                                <span> {data[fld.field]} </span>
+                            </FieldRow>
                         }
                         {(!fld.type || fld.type === 'text' || fld.type === 'number') &&
-                            <>
-                                <Form.Group className="position-relative mb-3">
-                                    {!props?.inline &&
-                                        <Form.Label htmlFor={fld.field} className="fw-bold">
-                                            {fld.text}
-                                            {fld.required &&
-                                                <span className="text-danger">*</span>
-                                            }
-                                        </Form.Label>
-                                    }
-
+                            <FieldRow inline={props?.inline} htmlFor={fld.field} text={fld.text} required={fld.required}>
+                                {fld.fieldIcon && !props?.inline ? (
                                     <InputGroup>
-                                        {!props?.inline &&
-                                            <InputGroup.Text id={`${fld.field}_input_icon`}>
-                                                {
-                                                    (fld.fieldIcon) ?
-                                                        <i className={`fa-solid fa-${fld.fieldIcon}`}></i>
-                                                        :
-                                                        <i className={`fa-solid fa-star`}></i>
-                                                }
-                                            </InputGroup.Text>
-                                        }
+                                        <InputGroup.Text id={`${fld.field}_input_icon`}>
+                                            <i className={`fa-solid fa-${fld.fieldIcon}`}></i>
+                                        </InputGroup.Text>
                                         <Form.Control type="text"
                                             name={fld.field}
                                             id={fld.field}
@@ -162,103 +157,64 @@ const IUIPageElement = (props) => {
                                             disabled={props.readonly || fld.readonly || false}
                                             onChange={handleChange} />
                                     </InputGroup>
-                                    {/* <p className="text-danger">{errors[fld.field]}</p> */}
-                                </Form.Group>
-                            </>
-                        }
-                        {(fld.type === 'textarea') &&
-                            <>
-                                <Form.Group className="position-relative mb-3">
-                                    <Form.Label htmlFor={fld.field} className="fw-bold">
-                                        {fld.text}
-                                        {fld.required &&
-                                            <span className="text-danger">*</span>
-                                        }
-                                    </Form.Label>
-                                    <InputGroup>
-                                        <InputGroup.Text id={`${fld.field}_input_icon`}>
-                                            {
-                                                (fld.fieldIcon) ?
-                                                    <i className={`fa-solid fa-${fld.fieldIcon}`}></i>
-                                                    :
-                                                    <i className={`fa-solid fa-star`}></i>
-                                            }
-                                        </InputGroup.Text>
-                                        <Form.Control as="textarea" rows={3}
-                                            name={fld.field}
-                                            id={fld.field}
-                                            className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
-                                            placeholder={fld.placeholder}
-                                            value={data[fld.field] || ""}
-                                            disabled={props.readonly || fld.readonly || false}
-                                            onChange={handleChange} />
-                                        {/* <p className="text-danger">{errors[fld.field]}</p> */}
-                                    </InputGroup>
-                                </Form.Group>
-                            </>
-                        }
-                        {(fld.type === 'email') &&
-                            <>
-                                <Form.Group className="position-relative mb-3">
-                                    <Form.Label htmlFor={fld.field} className="fw-bold">
-                                        {fld.text}
-                                        {fld.required &&
-                                            <span className="text-danger">*</span>
-                                        }
-                                    </Form.Label>
-                                    <InputGroup>
-                                        <InputGroup.Text id={`${fld.field}_input_icon`}>
-                                            {
-                                                (fld.fieldIcon) ?
-                                                    <i className={`fa-solid fa-${fld.fieldIcon}`}></i>
-                                                    :
-                                                    <i className={`fa-solid fa-star`}></i>
-                                            }
-                                        </InputGroup.Text>
-                                        <Form.Control type="text"
-                                            name={fld.field}
-                                            id={fld.field}
-                                            className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
-                                            placeholder={fld.placeholder}
-                                            value={data[fld.field] || ""}
-                                            disabled={props.readonly || fld.readonly || false}
-                                            onChange={handleChange} />
-                                        {/* <p className="text-danger">{errors[fld.field]}</p> */}
-                                    </InputGroup>
-                                </Form.Group>
-                            </>
-                        }
-                        {(fld.type === 'phone') &&
-                            <>
-                                <Form.Group className="position-relative mb-3">
-                                    <Form.Label htmlFor={fld.field} className="fw-bold">
-                                        {fld.text}
-                                        {fld.required &&
-                                            <span className="text-danger">*</span>
-                                        }
-                                    </Form.Label>
-                                    <Form.Control
-                                        type="tel"
-                                        inputMode="numeric"
-                                        maxLength={10}
-                                        placeholder="##########"
+                                ) : (
+                                    <Form.Control type="text"
                                         name={fld.field}
                                         id={fld.field}
-                                        className={dirty ? (errors[fld.field] ? "form-control is-invalid" : "form-control is-valid") : "form-control"}
-                                        value={data[fld.field] || ""}
+                                        className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
+                                        placeholder={fld.placeholder}
+                                        value={fld.field === 'total'
+                                            ? (Number(data.quantity || 0) * Number(data.price || 0)).toFixed(2)
+                                            : (data[fld.field] ?? "")}
                                         disabled={props.readonly || fld.readonly || false}
-                                        onChange={handlePhoneChange} />
-                                    {/* <p className="text-danger">{errors[fld.field]}</p> */}
-
-                                </Form.Group>
-                            </>
+                                        onChange={handleChange} />
+                                )}
+                            </FieldRow>
+                        }
+                        {(fld.type === 'textarea') &&
+                            <FieldRow alignTop htmlFor={fld.field} text={fld.text} required={fld.required}>
+                                <Form.Control as="textarea" rows={3}
+                                    name={fld.field}
+                                    id={fld.field}
+                                    className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
+                                    placeholder={fld.placeholder}
+                                    value={data[fld.field] || ""}
+                                    disabled={props.readonly || fld.readonly || false}
+                                    onChange={handleChange} />
+                            </FieldRow>
+                        }
+                        {(fld.type === 'email') &&
+                            <FieldRow htmlFor={fld.field} text={fld.text} required={fld.required}>
+                                <Form.Control type="text"
+                                    name={fld.field}
+                                    id={fld.field}
+                                    className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
+                                    placeholder={fld.placeholder}
+                                    value={data[fld.field] || ""}
+                                    disabled={props.readonly || fld.readonly || false}
+                                    onChange={handleChange} />
+                            </FieldRow>
+                        }
+                        {(fld.type === 'phone') &&
+                            <FieldRow htmlFor={fld.field} text={fld.text} required={fld.required}>
+                                <Form.Control
+                                    type="tel"
+                                    inputMode="numeric"
+                                    maxLength={10}
+                                    placeholder="##########"
+                                    name={fld.field}
+                                    id={fld.field}
+                                    className={dirty ? (errors[fld.field] ? "form-control is-invalid" : "form-control is-valid") : "form-control"}
+                                    value={data[fld.field] || ""}
+                                    disabled={props.readonly || fld.readonly || false}
+                                    onChange={handlePhoneChange} />
+                            </FieldRow>
                         }
                         {fld.type === 'checkbox' &&
-                            <Form.Group className="position-relative mb-3">
+                            <FieldRow htmlFor={fld.field} text={fld.text} required={fld.required}>
                                 <Form.Check
                                     type="checkbox"
                                     id={fld.field}
-                                    label={<>{fld.text}{fld.required && <span className="text-danger">*</span>}</>}
                                     checked={data[fld.field] === true || data[fld.field] === (fld.trueValue || "Yes")}
                                     disabled={props.readonly}
                                     onChange={(e) => handleChange({
@@ -270,35 +226,27 @@ const IUIPageElement = (props) => {
                                         preventDefault() {},
                                     })}
                                 />
-                            </Form.Group>
+                            </FieldRow>
                         }
                         {fld.type === 'richtext' &&
-                            <Form.Group className="position-relative mb-3">
-                                <Form.Label htmlFor={fld.field} className="fw-bold">
-                                    {fld.text}
-                                    {fld.required && <span className="text-danger">*</span>}
-                                </Form.Label>
+                            <FieldRow alignTop wide htmlFor={fld.field} text={fld.text} required={fld.required}>
                                 <IUIRichText
                                     id={fld.field}
                                     value={data[fld.field] || ""}
                                     readonly={props.readonly}
                                     onChange={handleChange}
                                 />
-                            </Form.Group>
+                            </FieldRow>
                         }
                         {fld.type === 'signature' &&
-                            <Form.Group className="position-relative mb-3">
-                                <Form.Label htmlFor={fld.field} className="fw-bold">
-                                    {fld.text}
-                                    {fld.required && <span className="text-danger">*</span>}
-                                </Form.Label>
+                            <FieldRow alignTop htmlFor={fld.field} text={fld.text} required={fld.required}>
                                 <IUISignatureUpload
                                     id={fld.field}
                                     value={data[fld.field] || ""}
                                     readonly={props.readonly}
                                     onChange={handleChange}
                                 />
-                            </Form.Group>
+                            </FieldRow>
                         }
                         {fld.type === 'profile-tests' &&
                             <ProfileTestsField
@@ -309,55 +257,29 @@ const IUIPageElement = (props) => {
                         }
                         {fld.type === 'check' &&
                             <>
-                                <Form.Group className="position-relative mb-3">
-                                    <Form.Label htmlFor={fld.field} className="fw-bold">
-                                        {fld.text} :
-                                        {fld.required &&
-                                            <span className="text-danger">*</span>
-                                        }
-                                    </Form.Label>
-                                    <InputGroup>
-                                        <Form.Check className='text-capitalize'
-                                            type="switch"
-                                            style={{ transform: 'scale(1.2)' }}
-                                            id={fld.field}
-                                            checked={data[fld.field] || false}
-                                            onChange={(e) => handleChange(e)}
-                                            disabled={props.readonly}
+                                <FieldRow htmlFor={fld.field} text={`${fld.text} :`} required={fld.required}>
+                                    <Form.Check className='text-capitalize'
+                                        type="switch"
+                                        id={fld.field}
+                                        checked={data[fld.field] || false}
+                                        onChange={(e) => handleChange(e)}
+                                        disabled={props.readonly}
+                                    />
+                                </FieldRow>
+                                {data[fld.field] && fld.showFields && fld.showFields.map((showField, idx) => (
+                                    <FieldRow key={idx} htmlFor={showField.field} text={showField.text} required={showField.required}>
+                                        <Form.Control
+                                            type="text"
+                                            name={showField.field}
+                                            id={showField.field}
+                                            className={dirty ? (errors[showField.field] ? "is-invalid" : "is-valid") : ""}
+                                            placeholder={showField.placeholder}
+                                            value={data[showField.field] || ""}
+                                            disabled={props.readonly || false}
+                                            onChange={handleChange}
                                         />
-                                    </InputGroup>
-                                </Form.Group>
-                                {data[fld.field] && fld.showFields && (
-                                    <>
-                                        {fld.showFields.map((showField, idx) => (
-                                            <Form.Group key={idx} className="position-relative mb-3">
-                                                <Form.Label htmlFor={showField.field} className="fw-bold">
-                                                    {showField.text}
-                                                    {showField.required &&
-                                                        <span className="text-danger">*</span>
-                                                    }
-                                                </Form.Label>
-                                                <InputGroup>
-                                                    {showField.fieldIcon && (
-                                                        <InputGroup.Text id={`${showField.field}_input_icon`}>
-                                                            <i className={`fa-solid fa-${showField.fieldIcon}`}></i>
-                                                        </InputGroup.Text>
-                                                    )}
-                                                    <Form.Control 
-                                                        type="text"
-                                                        name={showField.field}
-                                                        id={showField.field}
-                                                        className={dirty ? (errors[showField.field] ? "is-invalid" : "is-valid") : ""}
-                                                        placeholder={showField.placeholder}
-                                                        value={data[showField.field] || ""}
-                                                        disabled={props.readonly || false}
-                                                        onChange={handleChange}
-                                                    />
-                                                </InputGroup>
-                                            </Form.Group>
-                                        ))}
-                                    </>
-                                )}
+                                    </FieldRow>
+                                ))}
                             </>
                         }
                         {fld.type === 'user-roles' &&
@@ -388,61 +310,29 @@ const IUIPageElement = (props) => {
                             </>
                         }
                         {fld.type === 'lookup' &&
-                            <>
-                                <Form.Group className="position-relative mb-3">
-                                    {!props?.inline &&
-                                        <Form.Label htmlFor={fld.field} className="fw-bold">
-                                            {fld.text}
-                                            {fld.required &&
-                                                <span className="text-danger">*</span>
-                                            }
-                                        </Form.Label>
-                                    }
-                                    <InputGroup>
-                                        {!props?.inline &&
-                                            <InputGroup.Text id={`${fld.field}_input_icon`}>
-                                                {
-                                                    (fld.fieldIcon) ?
-                                                        <i className={`fa-solid fa-${fld.fieldIcon}`}></i>
-                                                        :
-                                                        <i className={`fa-solid fa-star`}></i>
-                                                }
-                                            </InputGroup.Text>
-                                        }
-                                        <IUILookUp
-                                            value={data[fld.field]}
-                                            className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
-                                            id={fld.field}
-                                            placeholder={fld.placeholder || fld.schema?.placeholder}
-                                            schema={fld.schema}
-                                            onChange={handleChange}
-                                            readonly={props.readonly || fld.readonly || false}
-                                        />
-                                    </InputGroup>
-                                </Form.Group>
-                                {/* <p className="text-danger">{errors[fld.field]}</p> */}
-                            </>
+                            <FieldRow inline={props?.inline} htmlFor={fld.field} text={fld.text} required={fld.required}>
+                                <IUILookUp
+                                    value={data[fld.field]}
+                                    className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
+                                    id={fld.field}
+                                    placeholder={fld.placeholder || fld.schema?.placeholder}
+                                    schema={fld.schema}
+                                    onChange={handleChange}
+                                    readonly={props.readonly || fld.readonly || false}
+                                />
+                            </FieldRow>
                         }
                         {(fld.type === 'date' || fld.type === 'datetime') &&
-                            <>
-                                <Form.Group className="position-relative form-group fw-bold">
-                                    <Form.Label htmlFor={fld.field} >
-                                        {fld.text}
-                                        {fld.required &&
-                                            <span className="text-danger">*</span>
-                                        }
-                                    </Form.Label>
-                                    <Form.Control type={fld.type === 'datetime' ? 'datetime-local' : 'date'}
-                                        name={fld.field}
-                                        id={fld.field}
-                                        className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
-                                        placeholder={fld.placeholder}
-                                        value={data[fld.field]?.substring(0, fld.type === 'datetime' ? 16 : 10) || ""}
-                                        disabled={props.readonly || fld.readonly || false}
-                                        onChange={handleChange} />
-
-                                </Form.Group>
-                            </>
+                            <FieldRow htmlFor={fld.field} text={fld.text} required={fld.required}>
+                                <Form.Control type={fld.type === 'datetime' ? 'datetime-local' : 'date'}
+                                    name={fld.field}
+                                    id={fld.field}
+                                    className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
+                                    placeholder={fld.placeholder}
+                                    value={data[fld.field]?.substring(0, fld.type === 'datetime' ? 16 : 10) || ""}
+                                    disabled={props.readonly || fld.readonly || false}
+                                    onChange={handleChange} />
+                            </FieldRow>
                         }
                         {fld.type === 'picture-upload' &&
                             <>

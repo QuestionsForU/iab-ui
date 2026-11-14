@@ -1,7 +1,13 @@
 import IUIList from "../../common/IUIList";
 import IUIPage from "../../common/IUIPage";
 
-const patientFields = [
+export const patientGenderOptions = [
+    { name: "Male" },
+    { name: "Female" },
+    { name: "Other" },
+];
+
+export const patientFields = [
     {
         type: "area",
         width: 6,
@@ -44,12 +50,7 @@ const patientFields = [
                 type: "lookup",
                 required: true,
                 width: 12,
-                schema: {
-                    items: [
-                        { name: "M" },
-                        { name: "F" },
-                    ],
-                },
+                schema: { items: patientGenderOptions },
             },
             { text: "Age", field: "age", fieldIcon: "calendar", placeholder: "Age...", type: "number", required: false, width: 12 },
             { text: "Address", field: "address", fieldIcon: "house", placeholder: "Address...", type: "textarea", required: false, width: 12 },

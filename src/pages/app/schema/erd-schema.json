@@ -102,7 +102,7 @@
       "properties": {
         "name": { "type": "string" },
         "model": { "type": "string" },
-        "accessKey": { "type": "string" },
+        "accessKey": { "type": "string", "readOnly": true },
         "isActive": { "type": "string", "enum": ["Yes", "No"] }
       },
       "required": ["name", "accessKey"]
@@ -281,7 +281,7 @@
         "ageType": { "type": "string", "enum": ["Year", "Month", "Day"] },
         "minValue": { "type": "number" },
         "maxValue": { "type": "number" },
-        "parameter": { "type": "string", "x-relationship": { "collection": "testParameter", "field": "id", "stores": "documentId" } }
+        "parameter": { "type": "string", "x-relationship": { "collection": "hisParameter", "field": "id", "stores": "documentId" } }
       },
       "required": ["gender", "parameter"]
     },
@@ -295,7 +295,7 @@
         "dateOfBirth": { "type": "string", "format": "date" },
         "patientNo": { "type": "string", "readOnly": true },
         "salutation": { "type": "string", "enum": ["Mr", "Mr.", "Miss", "Mrs.", "Ms."] },
-        "gender": { "type": "string", "enum": ["M", "F"] },
+        "gender": { "type": "string", "enum": ["Male", "Female", "Other"] },
         "age": { "type": "number" },
         "address": { "type": "string" },
         "active": { "type": "string", "enum": ["Yes", "No"] }

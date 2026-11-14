@@ -161,12 +161,15 @@ export const apiSlice = createSlice({
                 state["any"].status = "loading"
             })
             .addCase(getData.fulfilled, (state, action) => {
-                state[action.meta.arg.module].status = "succeeded"
                 state["any"].status = "succeeded"
                 action.payload.data.totalPages = action.meta.arg.options.recordPerPage === 0 ? 1
                     : parseInt(action.payload.data.totalRecords / action.meta.arg.options.recordPerPage)
                     + (action.payload.data.totalRecords % action.meta.arg.options.recordPerPage !== 0 ? 1 : 0);
-                state[action.meta.arg.module] = { ...action.payload.data, ...{ options: action.meta.arg.options } };
+                state[action.meta.arg.module] = {
+                    ...action.payload.data,
+                    options: action.meta.arg.options,
+                    status: "succeeded",
+                };
             })
             .addCase(getData.rejected, (state, action) => {
                 state[action.meta.arg.module] = { ...state[action.meta.arg.module] }

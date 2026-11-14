@@ -24,6 +24,10 @@ describe("IUIPageElement", () => {
 
         expect(onChange).toHaveBeenCalled();
         expect(onChange.mock.calls.at(-1)[0].target.value.name).toBe("CBC");
+        const input = screen.getByLabelText("Name");
+        expect(input.closest(".iui-field")).toBeTruthy();
+        expect(input.closest(".iui-field-control")).toBeTruthy();
+        expect(input.closest(".iui-field").querySelector("label").textContent).toBe("Name");
     });
 
     it("shows doctor designation only after the Doctor role is selected", () => {

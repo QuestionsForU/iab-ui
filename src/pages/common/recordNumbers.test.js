@@ -23,6 +23,12 @@ describe("record numbers", () => {
         expect(current.visitId).toBe("VIS-MANUAL");
     });
 
+    it("generates the next equipment access key", () => {
+        expect(buildNewRecordDefaults("equipment", []).accessKey).toBe("AK00000001");
+        expect(buildNewRecordDefaults("equipment", [{ accessKey: "AK00000007" }]).accessKey).toBe("AK00000008");
+        expect(buildNewRecordDefaults("equipment", []).isActive).toBe("Yes");
+    });
+
     it("defaults a test rate to standard pricing for one year", () => {
         const defaults = buildNewRecordDefaults("testRate", [], new Date("2026-10-25T12:00:00Z"));
         expect(defaults.rateType).toBe("Standard");

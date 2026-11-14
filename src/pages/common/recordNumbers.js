@@ -63,6 +63,11 @@ const buildNewRecordDefaults = (module, items = [], today = new Date()) => {
             return {
                 isActive: "Yes",
             };
+        case "equipment":
+            return {
+                accessKey: nextPaddedCode(items, "accessKey", "AK", 8),
+                isActive: "Yes",
+            };
         default:
             return null;
     }
