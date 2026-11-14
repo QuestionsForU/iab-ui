@@ -13,7 +13,7 @@ const ageTypeOptions = [
     { name: "Day" },
 ];
 
-const parameterRangeFields = [
+export const parameterRangeFields = [
     {
         type: "area",
         width: 12,
@@ -46,12 +46,16 @@ const parameterRangeFields = [
             {
                 text: "Parameter",
                 field: "parameter",
-                fieldIcon: "pencil",
                 placeholder: "Select parameter...",
                 type: "lookup",
                 required: true,
                 width: 12,
-                schema: { module: "testParameter", displayField: "parameterName", valueField: "id" },
+                schema: {
+                    module: "hisParameter",
+                    displayField: "hisParamDescription",
+                    displayFields: ["hisParamCode", "hisParamDescription"],
+                    valueField: "id",
+                },
             },
         ],
     },
@@ -68,7 +72,19 @@ export const ParameterRangeList = () => {
         adding: true,
         fields: [
             { text: "Range Code", field: "rangeCode", type: "link", sorting: true, searching: true },
-            { text: "Parameter", field: "parameter", type: "text", sorting: true, searching: true },
+            {
+                text: "Parameter",
+                field: "parameter",
+                type: "lookup",
+                sorting: true,
+                searching: true,
+                schema: {
+                    module: "hisParameter",
+                    displayField: "hisParamDescription",
+                    displayFields: ["hisParamCode", "hisParamDescription"],
+                    valueField: "id",
+                },
+            },
             { text: "Range Value", field: "rangeValue", type: "text", sorting: false, searching: false },
             { text: "Gender", field: "gender", type: "text", sorting: false, searching: false },
             { text: "Min", field: "minValue", type: "number", sorting: false, searching: false },

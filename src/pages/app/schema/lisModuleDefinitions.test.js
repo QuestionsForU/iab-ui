@@ -43,6 +43,12 @@ describe("LIS master forms from the bug list", () => {
         expect(fieldNames("testMapping")).toEqual(["lisParamCode", "lisParamDescription", "isActive", "parameterId", "equipmentId"]);
     });
 
+    it("keeps the equipment access key read-only so the form can generate it", () => {
+        const accessKey = definition("equipment").fields.find(field => field.field === "accessKey");
+        expect(accessKey.readonly).toBe(true);
+        expect(accessKey.required).toBe(true);
+    });
+
     it("keeps every listed column backed by a form field", () => {
         lisModuleDefinitions.forEach(item => {
             item.listFields.forEach(fieldName => {

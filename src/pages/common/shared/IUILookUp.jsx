@@ -3,6 +3,24 @@ import { useSelector, useDispatch } from 'react-redux'
 import Form from 'react-bootstrap/Form';
 import { getData } from '../../../store/api-db';
 
+const optionLabel = (item, schema) => {
+    if (!item) {
+        return "";
+    }
+
+    if (Array.isArray(schema?.displayFields) && schema.displayFields.length > 0) {
+        const label = schema.displayFields
+            .map(field => item[field])
+            .filter(value => value !== undefined && value !== null && String(value).trim() !== "")
+            .join(" - ");
+        if (label) {
+            return label;
+        }
+    }
+
+    return item[schema?.displayField || "name"] || item.name || "";
+};
+
 const IUILookUp = (props) => {
     const schema = props?.schema;
     const dispatch = useDispatch();
@@ -39,13 +57,11 @@ const IUILookUp = (props) => {
     useEffect(() => {
         const displayField = schema?.displayField || 'name';
         const valueField = schema?.valueField || displayField;
-        const lookupValue = dataSet?.items?.find(item =>
+        const match = dataSet?.items?.find(item =>
             `${item?.[valueField]}` === `${value}` || item?.[displayField] === value || item?.name === value
-        )?.[displayField] || dataSet?.items?.find(item =>
-            `${item?.[valueField]}` === `${value}` || item?.[displayField] === value || item?.name === value
-        )?.name || value;
-        setText(lookupValue);
-    }, [dataSet?.items, schema?.displayField, schema?.valueField, value]);
+        );
+        setText(optionLabel(match, schema) || value);
+    }, [dataSet?.items, schema, value]);
 
     const handleChange = (e) => {
         e.preventDefault();
@@ -166,7 +182,7 @@ const IUILookUp = (props) => {
                     />
                     <datalist id={`${props.id}-options`}>
                         {(dataSet?.items || []).map((item, i) => (
-                            <option key={item.id || i} value={item[schema?.displayField || "name"] || item.name} />
+                            <option key={item.id || i} value={optionLabel(item, schema)} />
                         ))}
                     </datalist>
                 </>
@@ -185,7 +201,7 @@ const IUILookUp = (props) => {
                             key={item.id || item[schema?.displayField || 'name'] || i}
                             value={item[schema?.valueField || schema?.displayField || 'name'] ?? item.name}
                         >
-                            {item[schema?.displayField || 'name'] || item.name}
+                            {optionLabel(item, schema)}
                         </option>
                     ))}
                 </Form.Select>

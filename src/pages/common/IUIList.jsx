@@ -214,7 +214,11 @@ const IUIList = (props) => {
                                                                             className={fld.hiddenOnMobile ? 'd-none d-md-table-cell' : ''}
                                                                         >
                                                                             {fld.type === 'link' &&
-                                                                                <Link to={`${item.id}`}>{item[fld.field]}</Link>
+                                                                                <Link to={`${item.id}`}>
+                                                                                    {fld.schema
+                                                                                        ? <IUILookUp value={item[fld.field]} schema={fld.schema} readonly={true} textonly={true} />
+                                                                                        : item[fld.field]}
+                                                                                </Link>
                                                                             }
                                                                             {(!fld.type || fld.type === 'text') && item[fld.field]}
                                                                             {fld.type === 'date' && item[fld.field]?.substring(0, 10)}

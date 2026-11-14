@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Col, Row, Form } from "react-bootstrap";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import { getSingleData, getData, editData, addData, selectModuleItem } from '../../store/api-db'
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { getSingleData, getData, editData, addData, selectModuleItem, resetSave } from '../../store/api-db'
 import { useDispatch, useSelector } from 'react-redux'
 import IUIPageElement from './shared/IUIPageElement';
 import IUIModuleMessage from './shared/IUIModuleMessage';
 import validateFormFields from './formValidation';
 import { applyGeneratedDefaults, buildNewRecordDefaults, withoutGeneratedMeta } from './recordNumbers';
+import { pathAfterSave } from './saveNavigation';
 
 const IUIPage = (props) => {
     // Properties
@@ -16,6 +17,7 @@ const IUIPage = (props) => {
 
     // Parameter
     const { id } = useParams();
+    const { pathname } = useLocation();
 
     // Global State
     const saved = useSelector((state) => state.api[module]?.saved)
@@ -61,7 +63,7 @@ const IUIPage = (props) => {
     }, [data, dirty, schema?.fields]);
 
     useEffect(() => {
-        if (['invoice', 'patient', 'parameterRange', 'hisTest', 'testProfile'].includes(module) && !id) {
+        if (['invoice', 'patient', 'parameterRange', 'hisTest', 'testProfile', 'equipment'].includes(module) && !id) {
             dispatch(getData({ module: module, options: { recordPerPage: 0 } }));
         }
     }, [module, id, dispatch]);
@@ -83,7 +85,7 @@ const IUIPage = (props) => {
             return;
         }
 
-        const needsExistingRecords = ['patient', 'parameterRange', 'hisTest', 'testProfile'].includes(module);
+        const needsExistingRecords = ['patient', 'parameterRange', 'hisTest', 'testProfile', 'equipment'].includes(module);
         if (needsExistingRecords && !items) {
             return;
         }
@@ -287,17 +289,13 @@ const IUIPage = (props) => {
 
     // Redirection after save
     useEffect(() => {
-        if (!props.readonly && saved === 'saved') {
-            if (!module) {
-                navigate("/", { replace: true });
-                return;
-            }
-
-            const recordId = id || data?.id;
-            const destination = recordId ? `${modulePath}/${recordId}` : modulePath;
-            navigate(destination, { replace: true });
+        if (schema?.readonly || saved !== 'saved') {
+            return;
         }
-    }, [saved, module, modulePath, id, data?.id, navigate, props.readonly])
+
+        dispatch(resetSave({ module }));
+        navigate(pathAfterSave(module, modulePath, pathname), { replace: true });
+    }, [saved, schema?.readonly, module, modulePath, pathname, navigate, dispatch])
 
     return (
         <>

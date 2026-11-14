@@ -448,7 +448,7 @@ export const lisModuleDefinitions = [
         fields: [
             text("name", "Equipment Name", true),
             text("model", "Model"),
-            text("accessKey", "Access Key", true),
+            { ...text("accessKey", "Access Key", true), readonly: true },
             choice("isActive", "Active", ["Yes", "No"]),
         ],
         listFields: ["name", "model", "accessKey", "isActive"],

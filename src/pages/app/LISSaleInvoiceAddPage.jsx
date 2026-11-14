@@ -3,6 +3,7 @@ import { Alert, Button, Form, Modal, Table } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { addData, getData } from "../../store/api-db";
+import { filterBillableItems, isActiveRecord, standardTestRate } from "./saleInvoiceBilling";
 
 const LOOKUP_MODULES = [
     "patient",
@@ -10,6 +11,7 @@ const LOOKUP_MODULES = [
     "referralDoctor",
     "hisTest",
     "testProfile",
+    "testRate",
     "department",
     "saleInvoice",
 ];
@@ -51,8 +53,10 @@ const SaleInvoiceAddPage = () => {
 
     const collections = useSelector(state => state.api);
     const lookupData = Object.fromEntries(LOOKUP_MODULES.map(module => [module, collections[module]?.items || []]));
-    const invoiceDataReady = collections.saleInvoice?.status === "succeeded";
-    const invoiceDataLoading = !invoiceDataReady && collections.saleInvoice?.status !== "error";
+    const invoiceCollection = collections.saleInvoice;
+    const invoiceDataReady = invoiceCollection?.status === "succeeded"
+        || (Array.isArray(invoiceCollection?.items) && invoiceCollection?.status !== "loading");
+    const invoiceDataLoading = invoiceCollection?.status === "loading" && !Array.isArray(invoiceCollection?.items);
     const lookupErrors = LOOKUP_MODULES
         .map(module => collections[module]?.status === "error" ? `${module}: ${collections[module]?.message || "Unable to load records"}` : "")
         .filter(Boolean);
@@ -79,18 +83,19 @@ const SaleInvoiceAddPage = () => {
     const billableItems = useMemo(() => {
         if (modalItemType === "profile") {
             return lookupData.testProfile
-                .filter(profile => profile.isActive !== false && profile.active !== "No")
+                .filter(isActiveRecord)
                 .map(profile => ({
                     key: `profile:${profile.id}`,
                     id: profile.id,
                     label: getName(profile) || profile.code || "Test profile",
+                    code: profile.code || "",
                     type: "profile",
                     rate: Number(profile.packageRate || profile.rate || 0),
                 }));
         }
 
         return lookupData.hisTest
-            .filter(test => test.isActive !== false && test.active !== "No")
+            .filter(isActiveRecord)
             .map(test => {
                 const departmentCode = test.departmentCode || test.departmentId || "";
                 const department = lookupData.department.find(item =>
@@ -104,14 +109,12 @@ const SaleInvoiceAddPage = () => {
                     type: "test",
                     departmentCode,
                     departmentName: getName(department) || departmentCode || "—",
-                    rate: Number(test.rate || 0),
+                    rate: standardTestRate(test.id, lookupData.testRate, invoiceDate) || Number(test.rate) || 0,
                 };
             });
-    }, [lookupData.department, lookupData.hisTest, lookupData.testProfile, modalItemType]);
+    }, [invoiceDate, lookupData.department, lookupData.hisTest, lookupData.testProfile, lookupData.testRate, modalItemType]);
 
-    const visibleBillableItems = billableItems.filter(item =>
-        `${item.label} ${item.code || ""}`.toLowerCase().includes(modalSearch.trim().toLowerCase())
-    );
+    const visibleBillableItems = filterBillableItems(billableItems, modalSearch);
     const selectedBillable = billableItems.find(item => item.key === selectedBillableKey);
     const grossAmount = lines.reduce((total, line) => total + Number(line.rate || 0) * Number(line.quantity || 0), 0);
     const lineDiscount = line => {
@@ -222,7 +225,7 @@ const SaleInvoiceAddPage = () => {
                 throw new Error("The invoice could not be saved.");
             }
             setSuccess(confirm ? "Invoice confirmed." : "Invoice saved as draft.");
-            navigate(`/sale-invoices/${result.data}`);
+            navigate("/sale-invoices");
         } catch (saveError) {
             setError(saveError.message || "Unable to save the invoice.");
         } finally {
@@ -247,49 +250,51 @@ const SaleInvoiceAddPage = () => {
 
                 <Form noValidate onSubmit={event => event.preventDefault()}>
                     <div className="row g-3">
-                        <Form.Group className="col-md-3" controlId="sale-invoice-number">
+                        <Form.Group className="col-md-3 iui-field" controlId="sale-invoice-number">
                             <Form.Label>Invoice No</Form.Label>
                             <Form.Control value={invoiceNo} readOnly />
                         </Form.Group>
-                        <Form.Group className="col-md-3" controlId="sale-invoice-date">
+                        <Form.Group className="col-md-3 iui-field" controlId="sale-invoice-date">
                             <Form.Label>Date</Form.Label>
                             <Form.Control type="date" value={invoiceDate} onChange={event => setInvoiceDate(event.target.value)} />
                         </Form.Group>
-                        <Form.Group className="col-md-6" controlId="sale-invoice-patient">
+                        <Form.Group className="col-md-6 iui-field" controlId="sale-invoice-patient">
                             <Form.Label>Patient <span className="text-danger">*</span></Form.Label>
-                            <Form.Control
-                                list="sale-invoice-patient-options"
-                                value={patientSearch}
-                                placeholder="Search patient by name, phone, or ID"
-                                isInvalid={submitted && !patientId}
-                                onChange={event => {
-                                    const value = event.target.value;
-                                    setPatientSearch(value);
-                                    const patient = patients.find(item =>
-                                        getPatientLabel(item).toLowerCase() === value.toLowerCase() ||
-                                        String(item.id) === value
-                                    );
-                                    setPatientId(patient ? String(patient.id) : "");
-                                }}
-                            />
-                            <datalist id="sale-invoice-patient-options">
-                                {patients.map(patient => (
-                                    <option key={patient.id} value={getPatientLabel(patient)} />
-                                ))}
-                            </datalist>
-                            <Form.Control.Feedback type="invalid">Patient is required.</Form.Control.Feedback>
+                            <div className="iui-field-control">
+                                <Form.Control
+                                    list="sale-invoice-patient-options"
+                                    value={patientSearch}
+                                    placeholder="Search patient by name, phone, or ID"
+                                    isInvalid={submitted && !patientId}
+                                    onChange={event => {
+                                        const value = event.target.value;
+                                        setPatientSearch(value);
+                                        const patient = patients.find(item =>
+                                            getPatientLabel(item).toLowerCase() === value.toLowerCase() ||
+                                            String(item.id) === value
+                                        );
+                                        setPatientId(patient ? String(patient.id) : "");
+                                    }}
+                                />
+                                <datalist id="sale-invoice-patient-options">
+                                    {patients.map(patient => (
+                                        <option key={patient.id} value={getPatientLabel(patient)} />
+                                    ))}
+                                </datalist>
+                                <Form.Control.Feedback type="invalid">Patient is required.</Form.Control.Feedback>
+                            </div>
                         </Form.Group>
                     </div>
 
                     <div className="row g-3 mt-1">
-                        <Form.Group className="col-md-4" controlId="sale-invoice-corporate">
+                        <Form.Group className="col-md-4 iui-field" controlId="sale-invoice-corporate">
                             <Form.Label>Corporate</Form.Label>
                             <Form.Select value={corporateId} onChange={event => setCorporateId(event.target.value)}>
                                 <option value="">-- None --</option>
                                 {lookupData.corporate.map(item => <option key={item.id} value={item.id}>{getName(item)}</option>)}
                             </Form.Select>
                         </Form.Group>
-                        <Form.Group className="col-md-4" controlId="sale-invoice-referral-doctor">
+                        <Form.Group className="col-md-4 iui-field" controlId="sale-invoice-referral-doctor">
                             <Form.Label>Referral Doctor</Form.Label>
                             <Form.Select value={referralDoctorId} onChange={event => setReferralDoctorId(event.target.value)}>
                                 <option value="">-- None --</option>
@@ -302,7 +307,7 @@ const SaleInvoiceAddPage = () => {
                                 ))}
                             </Form.Select>
                         </Form.Group>
-                        <Form.Group className="col-md-4" controlId="sale-invoice-payment-type">
+                        <Form.Group className="col-md-4 iui-field" controlId="sale-invoice-payment-type">
                             <Form.Label>Payment Type</Form.Label>
                             <Form.Select value={paymentType} onChange={event => setPaymentType(event.target.value)}>
                                 {["Cash", "Card", "UPI", "Net Banking", "Cheque", "Credit"].map(type => (
@@ -312,7 +317,7 @@ const SaleInvoiceAddPage = () => {
                         </Form.Group>
                     </div>
 
-                    <Form.Group className="mt-3" controlId="sale-invoice-notes">
+                    <Form.Group className="mt-3 iui-field" controlId="sale-invoice-notes">
                         <Form.Label>Notes</Form.Label>
                         <Form.Control value={notes} onChange={event => setNotes(event.target.value)} />
                     </Form.Group>
@@ -415,19 +420,23 @@ const SaleInvoiceAddPage = () => {
                     </div>
                     <Form.Group className="mt-3" controlId="sale-invoice-billable-search">
                         <Form.Label>Search {modalItemType}</Form.Label>
-                        <Form.Control autoFocus type="search" value={modalSearch} onChange={event => {
-                            setModalSearch(event.target.value);
-                            setSelectedBillableKey("");
-                        }} placeholder={`Type to search ${modalItemType === "test" ? "tests" : "profiles"}`} />
+                        <Form.Control autoFocus type="search" value={modalSearch} onChange={event => setModalSearch(event.target.value)} placeholder={`Type to search ${modalItemType === "test" ? "tests" : "profiles"}`} />
                     </Form.Group>
-                    <Form.Group className="mt-3" controlId="sale-invoice-billable-select">
-                        <Form.Select size="lg" value={selectedBillableKey} onChange={event => setSelectedBillableKey(event.target.value)}>
-                            <option value="">Select a {modalItemType}...</option>
-                            {visibleBillableItems.map(item => (
-                                <option key={item.key} value={item.key}>{item.label}{item.code ? ` (${item.code})` : ""}</option>
-                            ))}
-                        </Form.Select>
-                    </Form.Group>
+                    <div className="sale-invoice-search-results" role="listbox" aria-label={`Matching ${modalItemType}s`}>
+                        {visibleBillableItems.map(item => (
+                            <button
+                                key={item.key}
+                                type="button"
+                                role="option"
+                                aria-selected={item.key === selectedBillableKey}
+                                className={item.key === selectedBillableKey ? "is-selected" : ""}
+                                onClick={() => setSelectedBillableKey(item.key)}
+                            >
+                                <span>{item.label}{item.code ? ` (${item.code})` : ""}</span>
+                                <strong>{currency(item.rate)}</strong>
+                            </button>
+                        ))}
+                    </div>
                     {visibleBillableItems.length === 0 && (
                         <p className="text-muted mt-2 mb-0">
                             {modalSearch ? `No ${modalItemType}s match your search.` : `No ${modalItemType}s are available.`}
