@@ -50,5 +50,13 @@ describe("sale invoice add line", () => {
         fireEvent.click(screen.getByRole("button", { name: "Add to invoice" }));
 
         expect(screen.getByLabelText("Rate for Complete Blood Count").value).toBe("350");
+
+        fireEvent.change(screen.getByPlaceholderText("Search patient by name, phone, or ID"), { target: { value: "Ada — 9999999999" } });
+        fireEvent.change(screen.getByRole("textbox", { name: "Notes" }), { target: { value: "Routine visit" } });
+
+        const saveDraft = screen.getByRole("button", { name: "Save Draft" });
+        expect(saveDraft.closest(".sale-invoice-create-actions")).toBeTruthy();
+        expect(saveDraft.hidden).toBe(false);
+        expect(saveDraft.disabled).toBe(false);
     });
 });
