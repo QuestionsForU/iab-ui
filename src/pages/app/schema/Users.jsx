@@ -2,6 +2,11 @@
 import IUIList from "../../common/IUIList";
 import IUIPage from "../../common/IUIPage"
 
+const doctorRoleFields = [
+    { text: 'Doctor Designation', field: 'doctorDesignation', placeholder: 'Consultant Pathologist', type: 'textarea', required: true, width: 12, showWhenRole: 'Doctor' },
+    { text: 'Signature', field: 'doctorSignature', type: 'signature', required: true, width: 12, showWhenRole: 'Doctor' },
+];
+
 export const ListUser = () => {
 
     const schema = {
@@ -70,6 +75,7 @@ export const ViewUser = () => {
                 type: "area", width: 12
                 , fields: [
                     { text: 'Roles', field: 'roles', type: 'user-roles' },
+                    ...doctorRoleFields,
                     { text: 'Privileges', field: 'privileges', type: 'user-privileges', readonly: true },
                 ]
             },
@@ -117,6 +123,7 @@ export const EditUser = () => {
                 type: "area", width: 12
                 , fields: [
                     { text: 'Roles', field: 'roles', type: 'user-roles' },
+                    ...doctorRoleFields,
                     { text: 'Privileges', field: 'privileges', type: 'user-privileges', readonly: true },
                 ]
             },
@@ -163,6 +170,7 @@ export const AddUser = () => {
                 type: "area", width: 12
                 , fields: [
                     { text: 'Roles', field: 'roles', type: 'user-roles' },
+                    ...doctorRoleFields,
                     { text: 'Privileges', field: 'privileges', type: 'user-privileges', readonly: true },
                 ]
             },

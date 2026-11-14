@@ -193,7 +193,8 @@ const SaleInvoiceAddPage = () => {
                 patientNo: selectedPatient?.patientNo || "",
                 patientPhone: selectedPatient?.phoneNumber || selectedPatient?.phone || "",
                 corporateId: corporateId || null,
-                referralDoctorId: referralDoctorId || null,
+                referralDoctorId: referralDoctorId === "self" || referralDoctorId === "corporate" ? null : (referralDoctorId || null),
+                referralType: referralDoctorId === "self" ? "Self" : referralDoctorId === "corporate" ? "Corporate" : (lookupData.referralDoctor.find(item => String(item.id) === referralDoctorId)?.type || ""),
                 paymentType,
                 notes,
                 invoiceStatus: confirm ? 1 : 0,
@@ -292,7 +293,13 @@ const SaleInvoiceAddPage = () => {
                             <Form.Label>Referral Doctor</Form.Label>
                             <Form.Select value={referralDoctorId} onChange={event => setReferralDoctorId(event.target.value)}>
                                 <option value="">-- None --</option>
-                                {lookupData.referralDoctor.map(item => <option key={item.id} value={item.id}>{getName(item)}</option>)}
+                                <option value="self">Self</option>
+                                <option value="corporate">Corporate</option>
+                                {lookupData.referralDoctor.map(item => (
+                                    <option key={item.id} value={item.id}>
+                                        {getName(item) || item.doctorCode}{item.type ? ` (${item.type})` : ""}
+                                    </option>
+                                ))}
                             </Form.Select>
                         </Form.Group>
                         <Form.Group className="col-md-4" controlId="sale-invoice-payment-type">

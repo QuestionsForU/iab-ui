@@ -51,7 +51,7 @@ const Dashboard = () => {
                     Welcome, {loggedInUser?.firstName} {loggedInUser?.lastName}
                 </div>
                 <div className="page-title-subheading text-muted">
-                    Zorya Laboratory Management System
+                    {[loggedInUser?.email, "Zorya Laboratory Management System"].filter(Boolean).join(" · ")}
                 </div>
             </div>
             <Row className="g-3">

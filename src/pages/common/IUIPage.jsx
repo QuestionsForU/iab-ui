@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import IUIPageElement from './shared/IUIPageElement';
 import IUIModuleMessage from './shared/IUIModuleMessage';
 import validateFormFields from './formValidation';
+import { applyGeneratedDefaults, buildNewRecordDefaults, withoutGeneratedMeta } from './recordNumbers';
 
 const IUIPage = (props) => {
     // Properties
@@ -60,65 +61,39 @@ const IUIPage = (props) => {
     }, [data, dirty, schema?.fields]);
 
     useEffect(() => {
-        if ((module === 'invoice' || module === 'patient' || module === 'parameterRange') && !id) {
+        if (['invoice', 'patient', 'parameterRange', 'hisTest', 'testProfile'].includes(module) && !id) {
             dispatch(getData({ module: module, options: { recordPerPage: 0 } }));
         }
     }, [module, id, dispatch]);
 
     useEffect(() => {
+        if (!id) {
+            return;
+        }
         const u = items?.find((element) => {
             return `${element.id}` === id;
         });
-        setData(u);
+        if (u) {
+            setData(u);
+        }
     }, [id, items]);
 
     useEffect(() => {
-        if (module === 'patient' && !id && items) {
-            const getNextNumber = (field, prefix) => {
-                const maxNumber = items.reduce((max, item) => {
-                    const value = String(item?.[field] || '');
-                    if (!value.startsWith(prefix)) {
-                        return max;
-                    }
-
-                    const suffix = value.slice(prefix.length);
-                    const number = /^\d+$/.test(suffix) ? Number(suffix) : 0;
-                    return Number.isFinite(number) && number > max ? number : max;
-                }, 0);
-
-                return `${prefix}${String(maxNumber + 1).padStart(5, '0')}`;
-            };
-
-            setData((prev) => ({
-                ...prev,
-                mrNo: prev?.mrNo || getNextNumber("mrNo", "MR"),
-                patientNo: prev?.patientNo || getNextNumber("patientNo", "PAT"),
-                visitId: prev?.visitId || "",
-                active: prev?.active || "Yes",
-            }));
+        if (id) {
             return;
         }
 
-        if (module === 'parameterRange' && !id && items) {
-            const maxRangeNumber = items.reduce((max, item) => {
-                const value = String(item?.rangeCode || '');
-                if (!value.startsWith('R')) {
-                    return max;
-                }
-
-                const suffix = value.slice(1);
-                const number = /^\d+$/.test(suffix) ? Number(suffix) : 0;
-                return Number.isFinite(number) && number > max ? number : max;
-            }, 0);
-
-            setData((prev) => ({
-                ...prev,
-                rangeCode: prev?.rangeCode || `R${String(maxRangeNumber + 1).padStart(7, '0')}`,
-            }));
+        const needsExistingRecords = ['patient', 'parameterRange', 'hisTest', 'testProfile'].includes(module);
+        if (needsExistingRecords && !items) {
             return;
         }
 
-        if (module !== 'invoice' || id) {
+        const defaults = buildNewRecordDefaults(module, items);
+        if (defaults) {
+            setData((prev) => applyGeneratedDefaults(prev, defaults));
+        }
+
+        if (module !== 'invoice') {
             return;
         }
 
@@ -160,10 +135,11 @@ const IUIPage = (props) => {
                 if (!data)
                     return
 
+                const payload = withoutGeneratedMeta(data);
                 if (id !== undefined)
-                    dispatch(editData({ module: module, data: data }));
+                    dispatch(editData({ module: module, data: payload }));
                 else
-                    dispatch(addData({ module: module, data: data }));
+                    dispatch(addData({ module: module, data: payload }));
             }
         }
     };

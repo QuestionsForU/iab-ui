@@ -36,7 +36,7 @@ const createListSchema = (definition) => ({
 const createFormSchema = (definition, page) => ({
     module: definition.module,
     routePath: definition.routePaths?.[0] || `/${definition.module}s`,
-    title: definition.title,
+    title: page === "add" && definition.addTitle ? definition.addTitle : (definition.formTitle || definition.title),
     editing: page === "view",
     adding: false,
     back: page === "view",

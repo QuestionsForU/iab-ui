@@ -9,6 +9,10 @@ import IUIListRelation from '../IUIListRelation';
 import IUIResetPasswordElement from '../../ResetUserPassword';
 import IUIHiddenState from './IUIHiddenState';
 import IUIListInline from '../IUIListInline';
+import IUIRichText from './IUIRichText';
+import IUISignatureUpload from './IUISignatureUpload';
+import ProfileTestsField from './ProfileTestsField';
+import { isFieldVisible } from '../formValidation';
 
 const IUIPageElement = (props) => {
     // Properties
@@ -53,14 +57,14 @@ const IUIPageElement = (props) => {
             return
 
         let newData = { ...data };
-        if (e?.target?.value && typeof e.target.value === 'object' && !Array.isArray(e.target.value)) {
+        if (e.target?.id === 'disable') {
+            newData = { ...newData, disable: e.target.checked };
+        } else if (e?.target?.value && typeof e.target.value === 'object' && !Array.isArray(e.target.value)) {
             newData = { ...newData, ...e.target.value };
-        } else if (e.target.checked !== undefined) {
-            // Handle checkbox fields
-            newData = { ...newData, [e.target.id]: e.target.checked }
-        }
-        else {
-            newData = { ...newData, [e.target.id]: e.target.value }
+        } else if (e.target?.type === 'checkbox') {
+            newData = { ...newData, [e.target.id]: e.target.value };
+        } else {
+            newData = { ...newData, [e.target.id]: e.target.value };
         }
 
         if (e.target.id === 'roles') {
@@ -76,9 +80,6 @@ const IUIPageElement = (props) => {
                 roles: [...selectedRoles],
                 privileges: normalizePrivileges(mergedPrivileges)
             };
-        }
-        else if (e.target.id === 'disable') {
-            newData = { ...data, [e.target.id]: e.target.checked }
         }
         setData(newData);
         const event = { target: { id: props.id, value: newData }, preventDefault: function () { } }
@@ -99,7 +100,7 @@ const IUIPageElement = (props) => {
     return (
         <>
             <Row>
-                {schema?.map((fld, f) => (
+                {schema?.map((fld, f) => isFieldVisible(fld, data) && (
                     <Col md={fld.width || 12} key={f}>
                         {fld.type === 'link' &&
                             <>
@@ -252,6 +253,60 @@ const IUIPageElement = (props) => {
                                 </Form.Group>
                             </>
                         }
+                        {fld.type === 'checkbox' &&
+                            <Form.Group className="position-relative mb-3">
+                                <Form.Check
+                                    type="checkbox"
+                                    id={fld.field}
+                                    label={<>{fld.text}{fld.required && <span className="text-danger">*</span>}</>}
+                                    checked={data[fld.field] === true || data[fld.field] === (fld.trueValue || "Yes")}
+                                    disabled={props.readonly}
+                                    onChange={(e) => handleChange({
+                                        target: {
+                                            id: fld.field,
+                                            type: "checkbox",
+                                            value: e.target.checked ? (fld.trueValue || "Yes") : (fld.falseValue || "No"),
+                                        },
+                                        preventDefault() {},
+                                    })}
+                                />
+                            </Form.Group>
+                        }
+                        {fld.type === 'richtext' &&
+                            <Form.Group className="position-relative mb-3">
+                                <Form.Label htmlFor={fld.field} className="fw-bold">
+                                    {fld.text}
+                                    {fld.required && <span className="text-danger">*</span>}
+                                </Form.Label>
+                                <IUIRichText
+                                    id={fld.field}
+                                    value={data[fld.field] || ""}
+                                    readonly={props.readonly}
+                                    onChange={handleChange}
+                                />
+                            </Form.Group>
+                        }
+                        {fld.type === 'signature' &&
+                            <Form.Group className="position-relative mb-3">
+                                <Form.Label htmlFor={fld.field} className="fw-bold">
+                                    {fld.text}
+                                    {fld.required && <span className="text-danger">*</span>}
+                                </Form.Label>
+                                <IUISignatureUpload
+                                    id={fld.field}
+                                    value={data[fld.field] || ""}
+                                    readonly={props.readonly}
+                                    onChange={handleChange}
+                                />
+                            </Form.Group>
+                        }
+                        {fld.type === 'profile-tests' &&
+                            <ProfileTestsField
+                                value={data[fld.field]}
+                                readonly={props.readonly}
+                                onChange={handleChange}
+                            />
+                        }
                         {fld.type === 'check' &&
                             <>
                                 <Form.Group className="position-relative mb-3">
@@ -358,6 +413,7 @@ const IUIPageElement = (props) => {
                                             value={data[fld.field]}
                                             className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
                                             id={fld.field}
+                                            placeholder={fld.placeholder || fld.schema?.placeholder}
                                             schema={fld.schema}
                                             onChange={handleChange}
                                             readonly={props.readonly || fld.readonly || false}

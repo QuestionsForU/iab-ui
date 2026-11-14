@@ -9,7 +9,6 @@ const patientFields = [
             { text: "MR Number", field: "mrNo", fieldIcon: "id-card", type: "text", readonly: true, width: 12 },
             { text: "Visit Id", field: "visitId", fieldIcon: "clipboard-list", type: "text", readonly: true, width: 12 },
             { text: "Patient Name", field: "name", fieldIcon: "user", placeholder: "Patient name...", type: "text", required: true, width: 12 },
-            { text: "HIS Patient ID", field: "hisPatientId", fieldIcon: "id-card", type: "text", required: false, width: 12 },
             { text: "Phone Number", field: "phoneNumber", fieldIcon: "phone", placeholder: "Phone number...", type: "text", required: true, width: 12 },
             { text: "Date of Birth", field: "dateOfBirth", fieldIcon: "calendar", type: "date", required: false, width: 12 },
         ],
@@ -85,6 +84,7 @@ const patientEditFields = [
 export const PatientList = () => {
     const schema = {
         module: "patient",
+        routePath: "/patient-master",
         title: "Patient Master",
         paging: true,
         pageSize: 10,
@@ -110,6 +110,7 @@ export const PatientList = () => {
 export const PatientView = () => {
     const schema = {
         module: "patient",
+        routePath: "/patient-master",
         title: "Patient",
         editing: true,
         adding: false,
@@ -124,6 +125,7 @@ export const PatientView = () => {
 export const PatientAdd = () => {
     const schema = {
         module: "patient",
+        routePath: "/patient-master",
         title: "Patient",
         back: false,
         fields: patientFields,
@@ -135,6 +137,7 @@ export const PatientAdd = () => {
 export const PatientEdit = () => {
     const schema = {
         module: "patient",
+        routePath: "/patient-master",
         title: "Patient",
         back: false,
         fields: patientEditFields,

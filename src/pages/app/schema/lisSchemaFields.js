@@ -8,6 +8,17 @@ const dateTime = (field, label, required = false) => ({ field, text: label, type
 
 const longText = (field, label, required = false) => ({ field, text: label, type: "textarea", required });
 
+const richText = (field, label, required = false) => ({ field, text: label, type: "richtext", required, width: 12 });
+
+const checkbox = (field, label, required = false) => ({
+    field,
+    text: label,
+    type: "checkbox",
+    required,
+    trueValue: "Yes",
+    falseValue: "No",
+});
+
 const choice = (field, label, values, required = false) => ({
     field,
     text: label,
@@ -16,12 +27,20 @@ const choice = (field, label, values, required = false) => ({
     schema: { items: values.map(name => ({ name })) },
 });
 
-const relation = (field, label, module, displayField, required = false, valueField = "id") => ({
+const relation = (field, label, module, displayField, required = false, valueField = "id", options = {}) => ({
     field,
     text: label,
     type: "lookup",
     required,
-    schema: { module, displayField, valueField },
+    placeholder: options.placeholder,
+    width: options.width,
+    schema: {
+        module,
+        displayField,
+        valueField,
+        searchable: options.searchable || false,
+        placeholder: options.placeholder,
+    },
 });
 
-export { choice, date, dateTime, longText, number, relation, text };
+export { checkbox, choice, date, dateTime, longText, number, relation, richText, text };

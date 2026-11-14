@@ -25,6 +25,7 @@ const IUIRolePrivilege = (props) => {
         { name: "employee", text: "Employee" },
         { name: "patient", text: "Patient" },
         { name: "parameterRange", text: "Parameter Range" },
+        { name: "commissionPayout", text: "Commission Payout" },
         ...lisModuleDefinitions.map(({ module, title }) => ({ name: module, text: title })),
 		// { name: "company", text: "Companies" },
         // { name: "itemMaster", text: "Item Master" },
