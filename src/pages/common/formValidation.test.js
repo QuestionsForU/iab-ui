@@ -27,6 +27,19 @@ describe('validateFormFields', () => {
         }])).toEqual({ email: 'Required field.' });
     });
 
+    it('requires doctor designation only when the doctor role is selected', () => {
+        const fields = [{ field: 'doctorDesignation', type: 'textarea', required: true, showWhenRole: 'Doctor' }];
+
+        expect(validateFormFields({ roles: [{ name: 'Admin' }] }, fields)).toEqual({});
+        expect(validateFormFields({ roles: [{ name: 'Doctor' }] }, fields)).toEqual({
+            doctorDesignation: 'Required field.',
+        });
+        expect(validateFormFields({
+            roles: [{ name: 'Doctor' }],
+            doctorDesignation: 'Consultant Pathologist',
+        }, fields)).toEqual({});
+    });
+
     it('returns no errors for valid optional values', () => {
         expect(validateFormFields({
             email: 'user@example.com',

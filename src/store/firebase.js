@@ -29,7 +29,7 @@ const provider = new GoogleAuthProvider();
 
 // whenever a user interacts with the provider, we force them to select an account
 provider.setCustomParameters({
-  prompt: "select_account "
+  prompt: "select_account"
 });
 
 getRedirectResult(auth)

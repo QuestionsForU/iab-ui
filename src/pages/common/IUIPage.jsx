@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Col, Row, Form } from "react-bootstrap";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import { getSingleData, getData, editData, addData, selectModuleItem } from '../../store/api-db'
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { getSingleData, getData, editData, addData, selectModuleItem, resetSave } from '../../store/api-db'
 import { useDispatch, useSelector } from 'react-redux'
 import IUIPageElement from './shared/IUIPageElement';
 import IUIModuleMessage from './shared/IUIModuleMessage';
 import validateFormFields from './formValidation';
+import { applyGeneratedDefaults, buildNewRecordDefaults, withoutGeneratedMeta } from './recordNumbers';
+import { pathAfterSave } from './saveNavigation';
 
 const IUIPage = (props) => {
     // Properties
@@ -15,6 +17,7 @@ const IUIPage = (props) => {
 
     // Parameter
     const { id } = useParams();
+    const { pathname } = useLocation();
 
     // Global State
     const saved = useSelector((state) => state.api[module]?.saved)
@@ -60,65 +63,39 @@ const IUIPage = (props) => {
     }, [data, dirty, schema?.fields]);
 
     useEffect(() => {
-        if ((module === 'invoice' || module === 'patient' || module === 'parameterRange') && !id) {
+        if (['invoice', 'patient', 'parameterRange', 'hisTest', 'testProfile', 'equipment'].includes(module) && !id) {
             dispatch(getData({ module: module, options: { recordPerPage: 0 } }));
         }
     }, [module, id, dispatch]);
 
     useEffect(() => {
+        if (!id) {
+            return;
+        }
         const u = items?.find((element) => {
             return `${element.id}` === id;
         });
-        setData(u);
+        if (u) {
+            setData(u);
+        }
     }, [id, items]);
 
     useEffect(() => {
-        if (module === 'patient' && !id && items) {
-            const getNextNumber = (field, prefix) => {
-                const maxNumber = items.reduce((max, item) => {
-                    const value = String(item?.[field] || '');
-                    if (!value.startsWith(prefix)) {
-                        return max;
-                    }
-
-                    const suffix = value.slice(prefix.length);
-                    const number = /^\d+$/.test(suffix) ? Number(suffix) : 0;
-                    return Number.isFinite(number) && number > max ? number : max;
-                }, 0);
-
-                return `${prefix}${String(maxNumber + 1).padStart(5, '0')}`;
-            };
-
-            setData((prev) => ({
-                ...prev,
-                mrNo: prev?.mrNo || getNextNumber("mrNo", "MR"),
-                patientNo: prev?.patientNo || getNextNumber("patientNo", "PAT"),
-                visitId: prev?.visitId || "",
-                active: prev?.active || "Yes",
-            }));
+        if (id) {
             return;
         }
 
-        if (module === 'parameterRange' && !id && items) {
-            const maxRangeNumber = items.reduce((max, item) => {
-                const value = String(item?.rangeCode || '');
-                if (!value.startsWith('R')) {
-                    return max;
-                }
-
-                const suffix = value.slice(1);
-                const number = /^\d+$/.test(suffix) ? Number(suffix) : 0;
-                return Number.isFinite(number) && number > max ? number : max;
-            }, 0);
-
-            setData((prev) => ({
-                ...prev,
-                rangeCode: prev?.rangeCode || `R${String(maxRangeNumber + 1).padStart(7, '0')}`,
-            }));
+        const needsExistingRecords = ['patient', 'parameterRange', 'hisTest', 'testProfile', 'equipment'].includes(module);
+        if (needsExistingRecords && !items) {
             return;
         }
 
-        if (module !== 'invoice' || id) {
+        const defaults = buildNewRecordDefaults(module, items);
+        if (defaults) {
+            setData((prev) => applyGeneratedDefaults(prev, defaults));
+        }
+
+        if (module !== 'invoice') {
             return;
         }
 
@@ -160,10 +137,11 @@ const IUIPage = (props) => {
                 if (!data)
                     return
 
+                const payload = withoutGeneratedMeta(data);
                 if (id !== undefined)
-                    dispatch(editData({ module: module, data: data }));
+                    dispatch(editData({ module: module, data: payload }));
                 else
-                    dispatch(addData({ module: module, data: data }));
+                    dispatch(addData({ module: module, data: payload }));
             }
         }
     };
@@ -311,17 +289,13 @@ const IUIPage = (props) => {
 
     // Redirection after save
     useEffect(() => {
-        if (!props.readonly && saved === 'saved') {
-            if (!module) {
-                navigate("/", { replace: true });
-                return;
-            }
-
-            const recordId = id || data?.id;
-            const destination = recordId ? `${modulePath}/${recordId}` : modulePath;
-            navigate(destination, { replace: true });
+        if (schema?.readonly || saved !== 'saved') {
+            return;
         }
-    }, [saved, module, modulePath, id, data?.id, navigate, props.readonly])
+
+        dispatch(resetSave({ module }));
+        navigate(pathAfterSave(module, modulePath, pathname), { replace: true });
+    }, [saved, schema?.readonly, module, modulePath, pathname, navigate, dispatch])
 
     return (
         <>

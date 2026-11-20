@@ -3,6 +3,24 @@ import { useSelector, useDispatch } from 'react-redux'
 import Form from 'react-bootstrap/Form';
 import { getData } from '../../../store/api-db';
 
+const optionLabel = (item, schema) => {
+    if (!item) {
+        return "";
+    }
+
+    if (Array.isArray(schema?.displayFields) && schema.displayFields.length > 0) {
+        const label = schema.displayFields
+            .map(field => item[field])
+            .filter(value => value !== undefined && value !== null && String(value).trim() !== "")
+            .join(" - ");
+        if (label) {
+            return label;
+        }
+    }
+
+    return item[schema?.displayField || "name"] || item.name || "";
+};
+
 const IUILookUp = (props) => {
     const schema = props?.schema;
     const dispatch = useDispatch();
@@ -39,13 +57,11 @@ const IUILookUp = (props) => {
     useEffect(() => {
         const displayField = schema?.displayField || 'name';
         const valueField = schema?.valueField || displayField;
-        const lookupValue = dataSet?.items?.find(item =>
+        const match = dataSet?.items?.find(item =>
             `${item?.[valueField]}` === `${value}` || item?.[displayField] === value || item?.name === value
-        )?.[displayField] || dataSet?.items?.find(item =>
-            `${item?.[valueField]}` === `${value}` || item?.[displayField] === value || item?.name === value
-        )?.name || value;
-        setText(lookupValue);
-    }, [dataSet?.items, schema?.displayField, schema?.valueField, value]);
+        );
+        setText(optionLabel(match, schema) || value);
+    }, [dataSet?.items, schema, value]);
 
     const handleChange = (e) => {
         e.preventDefault();
@@ -121,7 +137,57 @@ const IUILookUp = (props) => {
                     }
                 </>
             }
-            {!props?.readonly &&
+            {!props?.readonly && schema?.searchable &&
+                <>
+                    <Form.Control
+                        type="text"
+                        list={`${props.id}-options`}
+                        aria-label={schema?.placeholder || props.placeholder || "Type to search"}
+                        placeholder={schema?.placeholder || "Type to search..."}
+                        id={props.id}
+                        value={text || ""}
+                        className={`fs-6 ${props.className || ""}`}
+                        onChange={(event) => {
+                            const typed = event.target.value;
+                            setText(typed);
+                            const displayField = schema?.displayField || "name";
+                            const valueField = schema?.valueField || displayField;
+                            const selectedItem = (dataSet?.items || []).find(item =>
+                                String(item?.[displayField] || item?.name || "").toLowerCase() === typed.toLowerCase()
+                            );
+                            if (!selectedItem && typed !== "") {
+                                return;
+                            }
+                            const storedValue = selectedItem ? selectedItem[valueField] : "";
+                            setValue(storedValue || "");
+                            props.onChange?.({
+                                target: { id: props.id, value: storedValue || "" },
+                                preventDefault() {},
+                            });
+                        }}
+                        onBlur={() => {
+                            const displayField = schema?.displayField || "name";
+                            const matched = (dataSet?.items || []).some(item =>
+                                String(item?.[displayField] || item?.name || "").toLowerCase() === String(text || "").toLowerCase()
+                            );
+                            if (text && !matched) {
+                                setText("");
+                                setValue("");
+                                props.onChange?.({
+                                    target: { id: props.id, value: "" },
+                                    preventDefault() {},
+                                });
+                            }
+                        }}
+                    />
+                    <datalist id={`${props.id}-options`}>
+                        {(dataSet?.items || []).map((item, i) => (
+                            <option key={item.id || i} value={optionLabel(item, schema)} />
+                        ))}
+                    </datalist>
+                </>
+            }
+            {!props?.readonly && !schema?.searchable &&
                 <Form.Select
                     aria-label={props.placeholder}
                     id={props.id}
@@ -129,13 +195,13 @@ const IUILookUp = (props) => {
                     className={`fs-6 ${props.className}`}
                     disabled={props.readonly || false}
                     onChange={(e) => handleChange(e)}>
-                    <option value="">--Select--</option>
+                    <option value="">{schema?.placeholder || "--Select--"}</option>
                     {(dataSet?.items || []).map((item, i) => (
                         <option
                             key={item.id || item[schema?.displayField || 'name'] || i}
                             value={item[schema?.valueField || schema?.displayField || 'name'] ?? item.name}
                         >
-                            {item[schema?.displayField || 'name'] || item.name}
+                            {optionLabel(item, schema)}
                         </option>
                     ))}
                 </Form.Select>

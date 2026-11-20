@@ -252,6 +252,14 @@ const Routes = () => {
                     element: <PatientView />
                 },
                 {
+                    path: "/patient-master/add",
+                    element: <PatientAdd />
+                },
+                {
+                    path: "/patient-master/:id/edit",
+                    element: <PatientEdit />
+                },
+                {
                     path: "/employees",
                     element: <EmployeeList />
                 },

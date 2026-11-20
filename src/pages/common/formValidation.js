@@ -1,3 +1,12 @@
+const isFieldVisible = (field, values = {}) => {
+    if (!field?.showWhenRole) {
+        return true;
+    }
+
+    const roles = Array.isArray(values.roles) ? values.roles : [];
+    return roles.some(role => String(role?.name || "").toLowerCase() === String(field.showWhenRole).toLowerCase());
+};
+
 // Validates form fields.
 const validateFormFields = (values, fields) => {
     let errors = {};
@@ -6,6 +15,10 @@ const validateFormFields = (values, fields) => {
         const item = fields[i];
         if (item.type === 'area') {
             errors = { ...errors, ...validateFormFields(values, item.fields) };
+            continue;
+        }
+        if (!isFieldVisible(item, values)) {
+            continue;
         }
         if (item.required && values && !values[item?.field]) {
             errors[item.field] = 'Required field.';
@@ -25,4 +38,5 @@ const validateFormFields = (values, fields) => {
     return errors;
 };
 
+export { isFieldVisible };
 export default validateFormFields;
