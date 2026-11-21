@@ -22,12 +22,17 @@ jest.mock("react-redux", () => ({
 }));
 
 describe("parameter range and equipment fields", () => {
-    it("shows parameter master names in the parameter dropdown", () => {
-        render(<IUIPageElement schema={parameterRangeFields[0].fields} value={{}} />);
+    it("shows parameter master names in the searchable parameter list", () => {
+        const { container } = render(<IUIPageElement schema={parameterRangeFields[0].fields} value={{}} />);
+        const parameter = parameterRangeFields[0].fields.find(field => field.field === "parameter");
 
-        expect(screen.getByRole("option", { name: "HB - Hemoglobin" })).toBeTruthy();
-        expect(screen.getByRole("option", { name: "WBC" })).toBeTruthy();
-        expect(screen.queryByRole("option", { name: "" })).toBeNull();
+        expect(parameter.schema.searchable).toBe(true);
+        expect(parameter.labelAlign).toBe("left");
+        expect(screen.getByPlaceholderText("Type to search parameters...")).toBeTruthy();
+        const options = [...container.querySelectorAll("datalist option")].map(option => option.value);
+        expect(options).toContain("HB - Hemoglobin");
+        expect(options).toContain("WBC");
+        expect(options).not.toContain("");
     });
 
     it("shows a read-only generated equipment access key beside its label", () => {

@@ -518,6 +518,10 @@ html, body, #root {
   text-align: right;
 }
 
+.iui-field-left > .form-label {
+  text-align: left;
+}
+
 .iui-field > .iui-field-control,
 .iui-field > .form-control,
 .iui-field > .form-select,
@@ -536,6 +540,28 @@ html, body, #root {
 .iui-field .form-select,
 .iui-field .input-group {
   width: 100%;
+}
+
+@media (max-width: 767px) {
+  .iui-field {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .iui-field > .form-label,
+  .iui-field-left > .form-label {
+    flex: 0 0 auto;
+    max-width: none;
+    text-align: left;
+  }
+
+  .iui-field > .iui-field-control,
+  .iui-field > .form-control,
+  .iui-field > .form-select,
+  .iui-field > .input-group {
+    flex: 1 1 auto;
+    max-width: none;
+  }
 }
 
 @media (max-width: 575px) {

@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import IUIPageElement from './shared/IUIPageElement';
 import IUIModuleMessage from './shared/IUIModuleMessage';
 import validateFormFields from './formValidation';
+import { masterFieldErrors } from '../app/masterValidation';
 import { applyGeneratedDefaults, buildNewRecordDefaults, withoutGeneratedMeta } from './recordNumbers';
 import { pathAfterSave } from './saveNavigation';
 
@@ -57,16 +58,22 @@ const IUIPage = (props) => {
 
     useEffect(() => {
         if (dirty) {
-            const error = validateFormFields(data, schema?.fields)
+            const error = {
+                ...validateFormFields(data, schema?.fields),
+                ...masterFieldErrors(module, data, items, id),
+            };
             setErrors(error);
         }
-    }, [data, dirty, schema?.fields]);
+    }, [data, dirty, id, items, module, schema?.fields]);
 
     useEffect(() => {
-        if (['invoice', 'patient', 'parameterRange', 'hisTest', 'testProfile', 'equipment'].includes(module) && !id) {
-            dispatch(getData({ module: module, options: { recordPerPage: 0 } }));
+        if (['invoice', 'patient', 'parameterRange', 'hisTest', 'testProfile', 'equipment', 'hisParameter', 'specimen', 'testRate'].includes(module)) {
+            dispatch(getData({
+                module: module,
+                options: { recordPerPage: 0, search: "", searchCondition: null, searchMode: null, searchFields: null },
+            }));
         }
-    }, [module, id, dispatch]);
+    }, [module, dispatch]);
 
     useEffect(() => {
         if (!id) {
@@ -131,7 +138,10 @@ const IUIPage = (props) => {
         e.preventDefault();
         if (!props?.readonly) {
             setDirty(true);
-            const error = validateFormFields(data, schema?.fields)
+            const error = {
+                ...validateFormFields(data, schema?.fields),
+                ...masterFieldErrors(module, data, items, id),
+            };
             setErrors(error);
             if (Object.keys(error).length === 0) {
                 if (!data)
@@ -369,6 +379,9 @@ const IUIPage = (props) => {
                                                     <IUIModuleMessage schema={props.schema} />
                                                 </Col>
                                             </Row>
+                                            {dirty && Object.keys(errors).length > 0 &&
+                                                <div className="alert alert-danger mt-3" role="alert">{Object.values(errors).join(" ")}</div>
+                                            }
                                             {(schema?.back || schema?.adding || schema?.editing) &&
                                                 <hr />
                                             }

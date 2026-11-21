@@ -167,14 +167,14 @@ const workflowPages = {
 
 const getItemLabel = (item, field) => {
     const fallbackFields = {
-        barcode: item.sampleNo,
-        orderNumber: item.hisRequestNo || item.invoiceNo,
+        barcode: item.barcode || item.sampleNo,
+        orderNumber: item.invoiceNo || item.hisRequestNo || item.sampleNo,
         orderDate: item.orderDate || item.orderDateTime || item.sampleCollectionDate || item.dateCreated,
-        patientName: item.patientId,
-        hisPatientId: item.patientId,
-        testName: item.hisTestName || item.hisTestCode || item.lisTestCode,
+        patientName: item.patientName || item.patientId,
+        hisPatientId: item.patientNo || item.patientId,
+        testName: item.testName || item.hisTestName || item.hisTestCode || item.lisTestCode,
         accessionNo: item.requestNo || item.radiologyRequestId,
-        department: item.departmentName,
+        department: item.department || item.departmentName,
         status: item.collectionStatus || item.receivingStatus,
     };
     const value = item[field] ?? fallbackFields[field];

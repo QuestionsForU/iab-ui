@@ -26,6 +26,7 @@ const mockApi = {
 
 jest.mock("react-router-dom", () => ({
     useNavigate: () => jest.fn(),
+    useParams: () => ({}),
 }));
 jest.mock("react-redux", () => ({
     useDispatch: () => jest.fn(),
@@ -40,6 +41,8 @@ describe("sale invoice add line", () => {
         expect(screen.getByRole("button", { name: "Confirm" }).disabled).toBe(false);
 
         fireEvent.click(screen.getByRole("button", { name: /Add Line/ }));
+        expect(screen.getByRole("option", { name: /Complete Blood Count/ })).toBeTruthy();
+        expect(screen.queryByRole("option", { name: /Lipid Profile/ })).toBeNull();
         fireEvent.change(screen.getByPlaceholderText("Type to search tests"), { target: { value: "blood" } });
 
         expect(screen.getByRole("option", { name: /Complete Blood Count/ })).toBeTruthy();

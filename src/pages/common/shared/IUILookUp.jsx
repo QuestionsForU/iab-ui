@@ -2,24 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux'
 import Form from 'react-bootstrap/Form';
 import { getData } from '../../../store/api-db';
-
-const optionLabel = (item, schema) => {
-    if (!item) {
-        return "";
-    }
-
-    if (Array.isArray(schema?.displayFields) && schema.displayFields.length > 0) {
-        const label = schema.displayFields
-            .map(field => item[field])
-            .filter(value => value !== undefined && value !== null && String(value).trim() !== "")
-            .join(" - ");
-        if (label) {
-            return label;
-        }
-    }
-
-    return item[schema?.displayField || "name"] || item.name || "";
-};
+import { optionLabel, uniqueLookupMatch } from '../lookupSelection';
 
 const IUILookUp = (props) => {
     const schema = props?.schema;
@@ -50,7 +33,10 @@ const IUILookUp = (props) => {
 
     useEffect(() => {
         if (schema?.module) {
-            dispatch(getData({ module: schema.module, options: { recordPerPage: 0 } }));
+            dispatch(getData({
+                module: schema.module,
+                options: { recordPerPage: 0, search: "", searchCondition: null, searchMode: null, searchFields: null },
+            }));
         }
     }, [dispatch, schema?.module]);
 
@@ -150,27 +136,29 @@ const IUILookUp = (props) => {
                         onChange={(event) => {
                             const typed = event.target.value;
                             setText(typed);
-                            const displayField = schema?.displayField || "name";
-                            const valueField = schema?.valueField || displayField;
-                            const selectedItem = (dataSet?.items || []).find(item =>
-                                String(item?.[displayField] || item?.name || "").toLowerCase() === typed.toLowerCase()
-                            );
-                            if (!selectedItem && typed !== "") {
+                            const valueField = schema?.valueField || schema?.displayField || "name";
+                            const match = uniqueLookupMatch(dataSet?.items || [], schema, typed);
+                            if (match.status === "empty") {
+                                setValue("");
+                                props.onChange?.({
+                                    target: { id: props.id, value: "" },
+                                    preventDefault() {},
+                                });
                                 return;
                             }
-                            const storedValue = selectedItem ? selectedItem[valueField] : "";
-                            setValue(storedValue || "");
+                            if (match.status !== "selected") {
+                                return;
+                            }
+                            const storedValue = match.item[valueField] ?? "";
+                            setValue(storedValue);
                             props.onChange?.({
-                                target: { id: props.id, value: storedValue || "" },
+                                target: { id: props.id, value: storedValue },
                                 preventDefault() {},
                             });
                         }}
                         onBlur={() => {
-                            const displayField = schema?.displayField || "name";
-                            const matched = (dataSet?.items || []).some(item =>
-                                String(item?.[displayField] || item?.name || "").toLowerCase() === String(text || "").toLowerCase()
-                            );
-                            if (text && !matched) {
+                            const match = uniqueLookupMatch(dataSet?.items || [], schema, text);
+                            if (text && match.status !== "selected") {
                                 setText("");
                                 setValue("");
                                 props.onChange?.({
