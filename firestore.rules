@@ -2,12 +2,110 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
 
-    // Temporary single-lab policy: any authenticated user can read and write
-    // all documents. Replace with role- and collection-specific rules before
-    // the app is used with untrusted or broader user groups.
+    function isProtected(collectionName) {
+      return collectionName in [
+        "hisTest",
+        "hisParameter",
+        "specimen",
+        "testRate",
+        "uniqueIndex",
+        "sample"
+      ];
+    }
+
+    function indexPath(nameKey) {
+      return /databases/$(database)/documents/uniqueIndex/$(nameKey);
+    }
+
+    function rateLock(data) {
+      return "testRate__" + data.testId + "__" + (
+        data.keys().hasAny(["rateType"]) && data.rateType != "" ? data.rateType : "Standard"
+      );
+    }
+
     match /{document=**} {
-      allow read, write: if request.auth != null;
+      allow read: if signedIn();
+    }
+
+    match /{collection}/{docId} {
+      allow write: if signedIn() && !isProtected(collection);
+    }
+
+    match /{collection}/{docId}/{document=**} {
+      allow write: if signedIn();
+    }
+
+    match /uniqueIndex/{nameKey} {
+      allow create: if signedIn()
+        && request.resource.data.nameKey == nameKey
+        && (
+          request.resource.data.recordId is string
+          || request.resource.data.module == "testRate"
+        );
+      allow update: if signedIn()
+        && request.resource.data.nameKey == nameKey
+        && (
+          (resource.data.module == "testRate" && request.resource.data.module == "testRate")
+          || (
+            resource.data.recordId == request.resource.data.recordId
+            && resource.data.normalized == request.resource.data.normalized
+          )
+        );
+      allow delete: if signedIn()
+        && (
+          !existsAfter(/databases/$(database)/documents/$(resource.data.module)/$(resource.data.recordId))
+          || getAfter(/databases/$(database)/documents/$(resource.data.module)/$(resource.data.recordId)).data.nameKey != nameKey
+        );
+    }
+
+    match /hisTest/{docId} {
+      allow create, update: if signedIn()
+        && request.resource.data.nameKey is string
+        && existsAfter(indexPath(request.resource.data.nameKey))
+        && getAfter(indexPath(request.resource.data.nameKey)).data.recordId == docId;
+      allow delete: if signedIn();
+    }
+
+    match /hisParameter/{docId} {
+      allow create, update: if signedIn()
+        && request.resource.data.nameKey is string
+        && existsAfter(indexPath(request.resource.data.nameKey))
+        && getAfter(indexPath(request.resource.data.nameKey)).data.recordId == docId;
+      allow delete: if signedIn();
+    }
+
+    match /specimen/{docId} {
+      allow create, update: if signedIn()
+        && request.resource.data.nameKey is string
+        && existsAfter(indexPath(request.resource.data.nameKey))
+        && getAfter(indexPath(request.resource.data.nameKey)).data.recordId == docId;
+      allow delete: if signedIn();
+    }
+
+    match /testRate/{docId} {
+      allow create, update: if signedIn()
+        && existsAfter(indexPath(rateLock(request.resource.data)))
+        && getAfter(indexPath(rateLock(request.resource.data))).data.recordIds.hasAny([docId]);
+      allow delete: if signedIn();
+    }
+
+    match /sample/{docId} {
+      allow create: if signedIn() && (
+        !request.resource.data.keys().hasAny(["saleInvoiceId"])
+        || docId == "sample__" + request.resource.data.saleInvoiceId + "__" + request.resource.data.lineKey
+      );
+      allow update: if signedIn() && (
+        !resource.data.keys().hasAny(["saleInvoiceId"])
+        || (
+          resource.data.saleInvoiceId == request.resource.data.saleInvoiceId
+          && resource.data.lineKey == request.resource.data.lineKey
+        )
+      );
+      allow delete: if signedIn();
     }
   }
 }

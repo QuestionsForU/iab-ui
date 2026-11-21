@@ -1,14 +1,21 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { Alert, Button, Form, Modal, Table } from "react-bootstrap";
-import { getData } from "../../store/api-db";
+import { addData, editData, getData } from "../../store/api-db";
+import { missingCollectionSamples } from "./saleInvoiceBilling";
 import { getItemLabel, matchesQueue, radiologyPaths, reportRoutes, workflowPages } from "./LISWorkflowDefinitions";
 
 const EMPTY_ITEMS = [];
 
 const SampleWorkflow = ({ config, items, loading, error }) => {
+    const dispatch = useDispatch();
+    const loggedInUser = useSelector(state => state.api.loggedInUser);
     const isCollection = config.sampleWorkflow === "collection";
+    const [actionDate, setActionDate] = useState("");
+    const [remarks, setRemarks] = useState("");
+    const [actionError, setActionError] = useState("");
+    const [savingAction, setSavingAction] = useState(false);
     const [filters, setFilters] = useState({});
     const [appliedFilters, setAppliedFilters] = useState({});
     const [selectedIds, setSelectedIds] = useState([]);
@@ -35,7 +42,56 @@ const SampleWorkflow = ({ config, items, loading, error }) => {
             ? [...new Set([...current, id])]
             : current.filter(selectedId => selectedId !== id));
     };
-    const openModal = (action, item = null) => setModal({ action, item });
+    const openModal = (action, item = null) => {
+        setActionError("");
+        setRemarks("");
+        setActionDate("");
+        setModal({ action, item });
+    };
+    const persistAction = async () => {
+        const targets = modal?.item
+            ? [modal.item]
+            : (items || []).filter(item => selectedIds.includes(item.id) && visibleItems.some(visible => visible.id === item.id));
+        if (!targets.length) {
+            return;
+        }
+        setSavingAction(true);
+        setActionError("");
+        try {
+            for (const item of targets) {
+                const update = { ...item, id: item.id };
+                if (modal.action.includes("Reject")) {
+                    update.collectionStatus = "Rejected";
+                    update.status = "Rejected";
+                    update.rejectionRemarks = remarks;
+                } else if (modal.action.includes("Recollect")) {
+                    update.collectionStatus = "Pending";
+                    update.status = "Pending";
+                    update.collectionRemarks = remarks;
+                } else if (isCollection) {
+                    update.collectionStatus = "Collected";
+                    update.status = "Collected";
+                    update.sampleCollectionDate = actionDate || new Date().toISOString();
+                    update.collectedBy = loggedInUser?.name || loggedInUser?.email || item.collectedBy || "";
+                    update.collectionRemarks = remarks;
+                } else {
+                    update.receivingStatus = "Received";
+                    update.status = "Received";
+                    update.sampleReceivedDate = actionDate || new Date().toISOString();
+                    update.receivedBy = loggedInUser?.name || loggedInUser?.email || item.receivedBy || "";
+                    update.receivingRemarks = remarks;
+                }
+                await dispatch(editData({ module: "sample", data: update })).unwrap();
+            }
+            setModal(null);
+            setSelectedIds([]);
+            dispatch(getData({ module: "sample", options: { recordPerPage: 0, search: "", searchCondition: null, searchMode: null, searchFields: null } }));
+        } catch (saveError) {
+            setActionError(saveError.message || "Unable to save the sample update.");
+        } finally {
+            setSavingAction(false);
+        }
+    };
     const filterFields = isCollection
         ? [
             ["barcode", "Barcode"],
@@ -171,8 +227,7 @@ const SampleWorkflow = ({ config, items, loading, error }) => {
                         </tbody>
                     </Table>
                     <Alert variant="info" className="mb-0">
-                        These controls reproduce the workflow layout only. Saving collection, receiving, or rejection
-                        changes is not connected to the Angular application's services.
+                        Collect, receive, recollect, and reject save the sample status for the next step in the workflow.
                     </Alert>
                 </div>
             </div>
@@ -182,31 +237,29 @@ const SampleWorkflow = ({ config, items, loading, error }) => {
                 </Modal.Header>
                 <Modal.Body>
                     {modal?.item && <p className="text-muted">Sample: {getItemLabel(modal.item, "barcode") || "—"}</p>}
+                    {actionError && <Alert variant="danger">{actionError}</Alert>}
                     {modal?.action?.includes("Reject") && (
                         <Form.Group className="mb-3">
                             <Form.Label>Reason</Form.Label>
-                            <Form.Control as="textarea" rows={3} />
+                            <Form.Control as="textarea" rows={3} value={remarks} onChange={event => setRemarks(event.target.value)} />
                         </Form.Group>
                     )}
                     {!modal?.action?.includes("Reject") && (
                         <>
                             <Form.Group className="mb-3">
                                 <Form.Label>{isCollection ? "Collection Date/Time" : "Received Date/Time"}</Form.Label>
-                                <Form.Control type="datetime-local" />
+                                <Form.Control type="datetime-local" value={actionDate} onChange={event => setActionDate(event.target.value)} />
                             </Form.Group>
                             <Form.Group>
                                 <Form.Label>Remarks</Form.Label>
-                                <Form.Control as="textarea" rows={2} />
+                                <Form.Control as="textarea" rows={2} value={remarks} onChange={event => setRemarks(event.target.value)} />
                             </Form.Group>
                         </>
                     )}
-                    <Alert variant="info" className="mt-3 mb-0">
-                        This action is a UI placeholder and cannot save until the workflow service is connected.
-                    </Alert>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="outline-secondary" onClick={() => setModal(null)}>Cancel</Button>
-                    <Button variant="primary" disabled>{modal?.action?.includes("Reject") ? "Reject" : "Save"}</Button>
+                    <Button variant="primary" onClick={persistAction} disabled={savingAction}>{modal?.action?.includes("Reject") ? "Reject" : "Save"}</Button>
                 </Modal.Footer>
             </Modal>
         </>
@@ -218,11 +271,44 @@ export const LISWorkflowPage = () => {
     const dispatch = useDispatch();
     const config = workflowPages[location.pathname];
     const dataSet = useSelector(state => state.api[config.module]);
+    const invoices = useSelector(state => state.api.saleInvoice);
     const [search, setSearch] = useState("");
+    const reconciling = useRef(false);
 
     useEffect(() => {
-        dispatch(getData({ module: config.module, options: { recordPerPage: 0 } }));
-    }, [config.module, dispatch]);
+        dispatch(getData({
+            module: config.module,
+            options: { recordPerPage: 0, search: "", searchCondition: null, searchMode: null, searchFields: null },
+        }));
+        if (config.sampleWorkflow === "collection") {
+            dispatch(getData({
+                module: "saleInvoice",
+                options: { recordPerPage: 0, search: "", searchCondition: null, searchMode: null, searchFields: null },
+            }));
+        }
+    }, [config.module, config.sampleWorkflow, dispatch]);
+
+    useEffect(() => {
+        if (config.sampleWorkflow !== "collection" || reconciling.current) {
+            return;
+        }
+        if (dataSet?.status !== "succeeded" || invoices?.status !== "succeeded") {
+            return;
+        }
+        const missing = missingCollectionSamples(invoices.items, dataSet.items);
+        if (missing.length === 0) {
+            return;
+        }
+        reconciling.current = true;
+        Promise.all(missing.map(sample => dispatch(addData({ module: "sample", data: sample })).unwrap()))
+            .then(() => dispatch(getData({
+                module: "sample",
+                options: { recordPerPage: 0, search: "", searchCondition: null, searchMode: null, searchFields: null },
+            })).unwrap())
+            .finally(() => {
+                reconciling.current = false;
+            });
+    }, [config.sampleWorkflow, dataSet, dispatch, invoices]);
 
     const rows = useMemo(() => {
         const items = (dataSet?.items || []).filter(item => matchesQueue(item, config.queue));

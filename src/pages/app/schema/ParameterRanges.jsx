@@ -13,50 +13,51 @@ const ageTypeOptions = [
     { name: "Day" },
 ];
 
+const rangeField = (field) => ({ width: 12, labelAlign: "left", ...field });
+
 export const parameterRangeFields = [
     {
         type: "area",
         width: 12,
         fields: [
-            { text: "Range Code", field: "rangeCode", fieldIcon: "pencil", type: "text", readonly: true, width: 12 },
-            { text: "Range Value", field: "rangeValue", fieldIcon: "pencil", type: "text", width: 12 },
-            {
+            rangeField({ text: "Range Code", field: "rangeCode", fieldIcon: "pencil", type: "text", readonly: true }),
+            rangeField({ text: "Range Value", field: "rangeValue", fieldIcon: "pencil", type: "text" }),
+            rangeField({
                 text: "Gender",
                 field: "gender",
                 fieldIcon: "pencil",
                 placeholder: "Select gender...",
                 type: "lookup",
                 required: true,
-                width: 12,
                 schema: { items: genderOptions },
-            },
-            { text: "Age From", field: "ageFrom", fieldIcon: "pencil", type: "number", width: 12 },
-            { text: "Age To", field: "ageTo", fieldIcon: "pencil", type: "number", width: 12 },
-            {
+            }),
+            rangeField({ text: "Age From", field: "ageFrom", fieldIcon: "pencil", type: "number" }),
+            rangeField({ text: "Age To", field: "ageTo", fieldIcon: "pencil", type: "number" }),
+            rangeField({
                 text: "Age Type",
                 field: "ageType",
                 fieldIcon: "pencil",
                 placeholder: "Select age type...",
                 type: "lookup",
-                width: 12,
                 schema: { items: ageTypeOptions },
-            },
-            { text: "Min Value", field: "minValue", fieldIcon: "pencil", type: "number", width: 12 },
-            { text: "Max Value", field: "maxValue", fieldIcon: "pencil", type: "number", width: 12 },
-            {
+            }),
+            rangeField({ text: "Min Value", field: "minValue", fieldIcon: "pencil", type: "number" }),
+            rangeField({ text: "Max Value", field: "maxValue", fieldIcon: "pencil", type: "number" }),
+            rangeField({
                 text: "Parameter",
                 field: "parameter",
-                placeholder: "Select parameter...",
+                placeholder: "Type to search parameters...",
                 type: "lookup",
                 required: true,
-                width: 12,
                 schema: {
                     module: "hisParameter",
                     displayField: "hisParamDescription",
                     displayFields: ["hisParamCode", "hisParamDescription"],
                     valueField: "id",
+                    searchable: true,
+                    placeholder: "Type to search parameters...",
                 },
-            },
+            }),
         ],
     },
 ];
@@ -68,6 +69,7 @@ export const ParameterRangeList = () => {
         paging: true,
         pageSize: 10,
         searching: true,
+        searchMode: "contains",
         editing: true,
         adding: true,
         fields: [
@@ -85,10 +87,10 @@ export const ParameterRangeList = () => {
                     valueField: "id",
                 },
             },
-            { text: "Range Value", field: "rangeValue", type: "text", sorting: false, searching: false },
-            { text: "Gender", field: "gender", type: "text", sorting: false, searching: false },
-            { text: "Min", field: "minValue", type: "number", sorting: false, searching: false },
-            { text: "Max", field: "maxValue", type: "number", sorting: false, searching: false },
+            { text: "Range Value", field: "rangeValue", type: "text", sorting: false, searching: true },
+            { text: "Gender", field: "gender", type: "text", sorting: false, searching: true },
+            { text: "Min Value", field: "minValue", type: "number", sorting: false, searching: true },
+            { text: "Max Value", field: "maxValue", type: "number", sorting: false, searching: true },
         ],
     };
 

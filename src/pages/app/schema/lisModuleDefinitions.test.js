@@ -14,6 +14,8 @@ describe("LIS master forms from the bug list", () => {
         expect(fieldNames("hisTest")).toEqual(["hisTestCode", "hisTestCodeDescription", "specimenId", "departmentCode", "isActive"]);
         expect(definition("hisTest").addTitle).toBe("Add Test");
         expect(definition("hisTest").fields.find(field => field.field === "specimenId").schema.module).toBe("specimen");
+        expect(definition("hisTest").fields.find(field => field.field === "hisTestCode").labelAlign).toBe("left");
+        expect(definition("hisTest").fields.find(field => field.field === "hisTestCodeDescription").labelAlign).toBe("left");
     });
 
     it("includes profile tests on the test profile form", () => {
@@ -41,6 +43,7 @@ describe("LIS master forms from the bug list", () => {
         const mapping = definition("testMapping");
         expect(mapping.title).toBe("Analyzer Parameter Mapping");
         expect(fieldNames("testMapping")).toEqual(["lisParamCode", "lisParamDescription", "isActive", "parameterId", "equipmentId"]);
+        expect(mapping.fields.find(field => field.field === "parameterId").schema.searchable).toBe(true);
     });
 
     it("keeps the equipment access key read-only so the form can generate it", () => {

@@ -111,8 +111,10 @@ html, body, #root {
 }
 
 .sale-invoice-create-page {
-  min-height: calc(100vh - 120px);
-  padding: 16px 14px 24px;
+  max-height: calc(100vh - 150px);
+  min-height: 420px;
+  overflow-y: auto;
+  padding: 16px 14px 0;
   background: #eef2f3;
 }
 
@@ -279,14 +281,21 @@ html, body, #root {
 }
 
 .sale-invoice-create-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 6;
   display: flex;
-  gap: 5px;
-  margin-top: 16px;
+  gap: 8px;
+  margin: 16px -14px -14px;
+  padding: 12px 14px;
+  background: #fff;
+  border-top: 1px solid #d7e4e8;
 }
 
 .sale-invoice-create-actions .btn {
-  padding: 5px 11px;
-  font-size: 12px;
+  min-height: 34px;
+  padding: 6px 14px;
+  font-size: 13px;
 }
 
 .sale-invoice-line-modal .modal-content {
@@ -509,6 +518,10 @@ html, body, #root {
   text-align: right;
 }
 
+.iui-field-left > .form-label {
+  text-align: left;
+}
+
 .iui-field > .iui-field-control,
 .iui-field > .form-control,
 .iui-field > .form-select,
@@ -527,6 +540,28 @@ html, body, #root {
 .iui-field .form-select,
 .iui-field .input-group {
   width: 100%;
+}
+
+@media (max-width: 767px) {
+  .iui-field {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .iui-field > .form-label,
+  .iui-field-left > .form-label {
+    flex: 0 0 auto;
+    max-width: none;
+    text-align: left;
+  }
+
+  .iui-field > .iui-field-control,
+  .iui-field > .form-control,
+  .iui-field > .form-select,
+  .iui-field > .input-group {
+    flex: 1 1 auto;
+    max-width: none;
+  }
 }
 
 @media (max-width: 575px) {

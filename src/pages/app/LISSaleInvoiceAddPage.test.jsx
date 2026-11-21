@@ -26,6 +26,7 @@ const mockApi = {
 
 jest.mock("react-router-dom", () => ({
     useNavigate: () => jest.fn(),
+    useParams: () => ({}),
 }));
 jest.mock("react-redux", () => ({
     useDispatch: () => jest.fn(),
@@ -40,6 +41,8 @@ describe("sale invoice add line", () => {
         expect(screen.getByRole("button", { name: "Confirm" }).disabled).toBe(false);
 
         fireEvent.click(screen.getByRole("button", { name: /Add Line/ }));
+        expect(screen.getByRole("option", { name: /Complete Blood Count/ })).toBeTruthy();
+        expect(screen.queryByRole("option", { name: /Lipid Profile/ })).toBeNull();
         fireEvent.change(screen.getByPlaceholderText("Type to search tests"), { target: { value: "blood" } });
 
         expect(screen.getByRole("option", { name: /Complete Blood Count/ })).toBeTruthy();
@@ -50,5 +53,13 @@ describe("sale invoice add line", () => {
         fireEvent.click(screen.getByRole("button", { name: "Add to invoice" }));
 
         expect(screen.getByLabelText("Rate for Complete Blood Count").value).toBe("350");
+
+        fireEvent.change(screen.getByPlaceholderText("Search patient by name, phone, or ID"), { target: { value: "Ada — 9999999999" } });
+        fireEvent.change(screen.getByRole("textbox", { name: "Notes" }), { target: { value: "Routine visit" } });
+
+        const saveDraft = screen.getByRole("button", { name: "Save Draft" });
+        expect(saveDraft.closest(".sale-invoice-create-actions")).toBeTruthy();
+        expect(saveDraft.hidden).toBe(false);
+        expect(saveDraft.disabled).toBe(false);
     });
 });

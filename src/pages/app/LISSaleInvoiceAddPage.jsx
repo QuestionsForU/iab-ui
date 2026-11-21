@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Alert, Button, Form, Modal, Table } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { addData, getData } from "../../store/api-db";
-import { filterBillableItems, isActiveRecord, standardTestRate } from "./saleInvoiceBilling";
+import { useNavigate, useParams } from "react-router-dom";
+import { addData, editData, getData } from "../../store/api-db";
+import { calculateInvoiceAmounts, filterBillableItems, invoiceInputErrors, isActiveRecord, lineDiscountAmount, standardTestRate } from "./saleInvoiceBilling";
 
 const LOOKUP_MODULES = [
     "patient",
@@ -30,6 +30,8 @@ const currency = amount => `₹${(Number(amount) || 0).toFixed(2)}`;
 const SaleInvoiceAddPage = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const { id: invoiceId } = useParams();
+    const loadedInvoiceId = useRef("");
     const [invoiceDate, setInvoiceDate] = useState(() => toLocalDateInput(new Date()));
     const [patientSearch, setPatientSearch] = useState("");
     const [patientId, setPatientId] = useState("");
@@ -63,13 +65,19 @@ const SaleInvoiceAddPage = () => {
 
     useEffect(() => {
         LOOKUP_MODULES.forEach(module => {
-            dispatch(getData({ module, options: { recordPerPage: 0 } }));
+            dispatch(getData({
+                module,
+                options: { recordPerPage: 0, search: "", searchCondition: null, searchMode: null, searchFields: null },
+            }));
         });
     }, [dispatch]);
 
     const patients = lookupData.patient;
     const selectedPatient = patients.find(patient => String(patient.id) === patientId);
-    const invoiceNo = useMemo(() => {
+    const editingInvoice = invoiceId
+        ? lookupData.saleInvoice.find(invoice => String(invoice.id) === String(invoiceId))
+        : null;
+    const generatedInvoiceNo = useMemo(() => {
         const prefix = `INV-${invoiceDate.replace(/-/g, "")}-`;
         const maxSequence = lookupData.saleInvoice.reduce((max, invoice) => {
             const match = String(invoice.invoiceNo || "").match(/^INV-\d{8}-(\d+)$/);
@@ -79,6 +87,37 @@ const SaleInvoiceAddPage = () => {
         }, 0);
         return `${prefix}${String(maxSequence + 1).padStart(4, "0")}`;
     }, [invoiceDate, lookupData.saleInvoice]);
+    const invoiceNo = editingInvoice?.invoiceNo || generatedInvoiceNo;
+
+    useEffect(() => {
+        if (!invoiceId || !editingInvoice || loadedInvoiceId.current === invoiceId) {
+            return;
+        }
+        loadedInvoiceId.current = invoiceId;
+        setInvoiceDate(String(editingInvoice.invoiceDate || "").slice(0, 10));
+        setPatientId(editingInvoice.patientId ? String(editingInvoice.patientId) : "");
+        setPatientSearch(editingInvoice.patientName || "");
+        setCorporateId(editingInvoice.corporateId ? String(editingInvoice.corporateId) : "");
+        setReferralDoctorId(
+            editingInvoice.referralDoctorId
+                ? String(editingInvoice.referralDoctorId)
+                : editingInvoice.referralType === "Self"
+                    ? "self"
+                    : editingInvoice.referralType === "Corporate"
+                        ? "corporate"
+                        : ""
+        );
+        setPaymentType(editingInvoice.paymentType || "Cash");
+        setNotes(editingInvoice.notes || "");
+        setDiscountType(editingInvoice.discountType || "Fixed Amount");
+        setDiscountValue(String(editingInvoice.discountValue ?? "0"));
+        setTaxAmount(String(editingInvoice.taxAmount ?? "0"));
+        setPaidAmount(String(editingInvoice.paidAmount ?? "0"));
+        setLines((editingInvoice.lines || []).map((line, index) => ({
+            ...line,
+            key: line.key || `${line.testId || line.testProfileId || "line"}-${index}`,
+        })));
+    }, [editingInvoice, invoiceId]);
 
     const billableItems = useMemo(() => {
         if (modalItemType === "profile") {
@@ -101,6 +140,10 @@ const SaleInvoiceAddPage = () => {
                 const department = lookupData.department.find(item =>
                     String(item.departmentCode || item.code || item.id) === String(departmentCode)
                 );
+                const rate = standardTestRate(test.id, lookupData.testRate, invoiceDate);
+                if (!(rate > 0)) {
+                    return null;
+                }
                 return {
                     key: `test:${test.id}`,
                     id: test.id,
@@ -109,29 +152,15 @@ const SaleInvoiceAddPage = () => {
                     type: "test",
                     departmentCode,
                     departmentName: getName(department) || departmentCode || "—",
-                    rate: standardTestRate(test.id, lookupData.testRate, invoiceDate) || Number(test.rate) || 0,
+                    rate,
                 };
-            });
+            }).filter(Boolean);
     }, [invoiceDate, lookupData.department, lookupData.hisTest, lookupData.testProfile, lookupData.testRate, modalItemType]);
 
     const visibleBillableItems = filterBillableItems(billableItems, modalSearch);
     const selectedBillable = billableItems.find(item => item.key === selectedBillableKey);
-    const grossAmount = lines.reduce((total, line) => total + Number(line.rate || 0) * Number(line.quantity || 0), 0);
-    const lineDiscount = line => {
-        const amount = Number(line.rate || 0) * Number(line.quantity || 0);
-        const value = Math.max(0, Number(line.discountValue) || 0);
-        return line.discountType === "Percentage" ? amount * Math.min(100, value) / 100 : Math.min(amount, value);
-    };
-    const calculatedDiscount = discountType === "Percentage"
-        ? grossAmount * Math.min(100, Math.max(0, Number(discountValue) || 0)) / 100
-        : Number(discountValue) > 0
-            ? Math.min(grossAmount, Number(discountValue))
-            : lines.reduce((total, line) => total + lineDiscount(line), 0);
-    const tax = Math.max(0, Number(taxAmount) || 0);
-    const netAmount = Math.max(0, grossAmount - calculatedDiscount + tax);
-    const paid = Math.max(0, Number(paidAmount) || 0);
-    const dueAmount = Math.max(0, netAmount - paid);
-    const paymentStatus = paid <= 0 ? 0 : paid >= netAmount && netAmount > 0 ? 2 : 1;
+    const totals = calculateInvoiceAmounts({ discountType, discountValue, taxAmount, paidAmount, lines });
+    const { grossAmount, netAmount, dueAmount, paymentStatus } = totals;
     const paymentStatusLabel = ["Unpaid", "Partially Paid", "Paid"][paymentStatus];
 
     const openAddLineModal = () => {
@@ -180,47 +209,61 @@ const SaleInvoiceAddPage = () => {
             setError("Add at least one test or profile line.");
             return;
         }
-        if (paid > netAmount) {
-            setError("Paid amount cannot exceed the net amount.");
+        const problems = invoiceInputErrors({
+            patientId,
+            invoiceDate,
+            discountType,
+            discountValue,
+            taxAmount,
+            paidAmount,
+            lines,
+        });
+        if (problems.length > 0) {
+            setError(problems[0]);
+            return;
+        }
+        const unrated = lines.find(line => line.itemType !== "profile" && !(Number(line.rate) > 0));
+        if (unrated) {
+            setError(`No applicable test rate for ${unrated.testName || "the selected test"} on ${invoiceDate}.`);
+            return;
+        }
+        if (invoiceId && !editingInvoice) {
+            setError("The invoice could not be loaded for editing.");
             return;
         }
 
         setSaving(true);
         try {
+            const amounts = calculateInvoiceAmounts({ discountType, discountValue, taxAmount, paidAmount, lines });
             const invoice = {
                 invoiceNo,
                 name: invoiceNo,
                 invoiceDate,
                 patientId,
-                patientName: getName(selectedPatient),
-                patientNo: selectedPatient?.patientNo || "",
-                patientPhone: selectedPatient?.phoneNumber || selectedPatient?.phone || "",
+                patientName: getName(selectedPatient) || editingInvoice?.patientName || "",
+                patientNo: selectedPatient?.patientNo || editingInvoice?.patientNo || "",
+                patientPhone: selectedPatient?.phoneNumber || selectedPatient?.phone || editingInvoice?.patientPhone || "",
                 corporateId: corporateId || null,
                 referralDoctorId: referralDoctorId === "self" || referralDoctorId === "corporate" ? null : (referralDoctorId || null),
                 referralType: referralDoctorId === "self" ? "Self" : referralDoctorId === "corporate" ? "Corporate" : (lookupData.referralDoctor.find(item => String(item.id) === referralDoctorId)?.type || ""),
                 paymentType,
                 notes,
                 invoiceStatus: confirm ? 1 : 0,
-                paymentStatus,
-                grossAmount,
+                grossAmount: amounts.grossAmount,
                 discountType,
                 discountValue: Number(discountValue) || 0,
-                discountAmount: calculatedDiscount,
-                taxAmount: tax,
-                netAmount,
-                paidAmount: paid,
-                dueAmount,
-                lines: lines.map(({ key, ...line }) => ({
-                    ...line,
-                    rate: Number(line.rate) || 0,
-                    quantity: Number(line.quantity) || 0,
-                    amount: (Number(line.rate) || 0) * (Number(line.quantity) || 0),
-                    discountValue: Number(line.discountValue) || 0,
-                    discountAmount: lineDiscount(line),
-                    netAmount: Math.max(0, (Number(line.rate) || 0) * (Number(line.quantity) || 0) - lineDiscount(line)),
-                })),
+                discountAmount: amounts.discountAmount,
+                taxAmount: amounts.taxAmount,
+                netAmount: amounts.netAmount,
+                totalAmount: amounts.netAmount,
+                paidAmount: amounts.paidAmount,
+                dueAmount: amounts.dueAmount,
+                paymentStatus: amounts.paymentStatus,
+                lines: amounts.lines.map(({ key, ...line }) => line),
             };
-            const result = await dispatch(addData({ module: "saleInvoice", data: invoice })).unwrap();
+            const result = invoiceId
+                ? await dispatch(editData({ module: "saleInvoice", data: { ...editingInvoice, ...invoice, id: invoiceId } })).unwrap()
+                : await dispatch(addData({ module: "saleInvoice", data: invoice })).unwrap();
             if (!result?.data) {
                 throw new Error("The invoice could not be saved.");
             }
@@ -350,7 +393,7 @@ const SaleInvoiceAddPage = () => {
                                                 <option>Fixed Amount</option><option>Percentage</option>
                                             </Form.Select></td>
                                             <td><Form.Control type="number" min="0" step="0.01" value={line.discountValue} onChange={event => updateLine(line.key, "discountValue", event.target.value)} aria-label={`Discount for ${line.testName}`} /></td>
-                                            <td>{currency(Math.max(0, Number(line.rate || 0) * Number(line.quantity || 0) - lineDiscount(line)))}</td>
+                                            <td>{currency(Math.max(0, Number(line.rate || 0) * Number(line.quantity || 0) - lineDiscountAmount(line)))}</td>
                                             <td><Button variant="outline-danger" size="sm" onClick={() => setLines(current => current.filter(item => item.key !== line.key))} aria-label={`Remove ${line.testName}`}>×</Button></td>
                                         </tr>
                                     ))}
@@ -393,8 +436,8 @@ const SaleInvoiceAddPage = () => {
                     </div>
 
                     <div className="sale-invoice-create-actions">
-                        <Button type="button" onClick={() => saveInvoice(false)} disabled={saving || !invoiceDataReady}>Save Draft</Button>
-                        <Button type="button" variant="success" onClick={() => saveInvoice(true)} disabled={saving || !invoiceDataReady}>Confirm</Button>
+                        <Button type="button" onClick={() => saveInvoice(false)} disabled={saving || !invoiceDataReady || (Boolean(invoiceId) && !editingInvoice)}>Save Draft</Button>
+                        <Button type="button" variant="success" onClick={() => saveInvoice(true)} disabled={saving || !invoiceDataReady || (Boolean(invoiceId) && !editingInvoice)}>Confirm</Button>
                         <Button type="button" variant="outline-secondary" onClick={() => navigate("/sale-invoices")}>Back</Button>
                     </div>
                 </Form>

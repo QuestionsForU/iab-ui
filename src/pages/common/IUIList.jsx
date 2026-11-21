@@ -10,6 +10,25 @@ import { useNavigate } from "react-router-dom";
 import IUIModuleMessage from './shared/IUIModuleMessage';
 import IUILookUp from '../common/shared/IUILookUp'
 
+const searchFieldsFor = (schema) => (schema?.fields || [])
+    .filter(field => field.searching)
+    .map(field => ({
+        name: field.field,
+        lookup: field.type === "lookup" && field.schema?.module ? {
+            module: field.schema.module,
+            displayField: field.schema.displayField,
+            displayFields: field.schema.displayFields,
+            valueField: field.schema.valueField || "id",
+        } : undefined,
+    }));
+
+const displayValue = (value) => {
+    if (value === undefined || value === null || value === "") {
+        return "—";
+    }
+    return value;
+};
+
 const IUIList = (props) => {
     const schema = props.schema;
     const module = schema.module;
@@ -65,9 +84,11 @@ const IUIList = (props) => {
 
     const sortData = async (e, field) => {
         e.preventDefault();
+        const currentDirection = dataSet?.options?.sortDirection;
+        const isDescending = currentDirection === "desc" || currentDirection === false;
         const sortOptions = {
             sortColumnName: field,
-            sortDirection: !dataSet?.options?.sortDirection
+            sortDirection: isDescending,
         }
 
         dispatch(getData({ module: module, options: sortOptions }));
@@ -79,6 +100,19 @@ const IUIList = (props) => {
 
     const handleSearch = async (e) => {
         e.preventDefault();
+        if (schema.searchMode === "contains") {
+            dispatch(getData({
+                module: module,
+                options: {
+                    currentPage: 1,
+                    search: search || "",
+                    searchMode: "contains",
+                    searchFields: searchFieldsFor(schema),
+                    searchCondition: null,
+                },
+            }));
+            return;
+        }
         if (search) {
             const searchFields = schema.fields
                 .filter(fld => fld.searching)
@@ -221,6 +255,7 @@ const IUIList = (props) => {
                                                                                 </Link>
                                                                             }
                                                                             {(!fld.type || fld.type === 'text') && item[fld.field]}
+                                                                            {fld.type === 'number' && displayValue(item[fld.field])}
                                                                             {fld.type === 'date' && item[fld.field]?.substring(0, 10)}
                                                                             {fld.type === 'datetime' && item[fld.field]?.substring(0, 16)?.replace('T', ' ')}
                                                                             {(fld.type === 'lookup') &&

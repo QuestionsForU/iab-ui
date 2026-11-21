@@ -9,11 +9,11 @@ export const ListModules = () => {
         module: 'modules',
         title: 'Modules Management',
         paging: true,
-        searching: false,
+        searching: true,
         editing: true,
         adding: true,
         fields: [
-            { text: 'Name', field: 'name', type: 'link' },
+            { text: 'Name', field: 'name', type: 'link', searching: true },
             { text: 'List', field: 'list', type: 'text'},
             { text: 'Details', field: 'details', type: 'text'},
             { text: 'Create', field: 'create', type: 'text'},

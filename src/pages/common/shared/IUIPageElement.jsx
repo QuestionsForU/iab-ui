@@ -14,12 +14,12 @@ import IUISignatureUpload from './IUISignatureUpload';
 import ProfileTestsField from './ProfileTestsField';
 import { isFieldVisible } from '../formValidation';
 
-const FieldRow = ({ inline, alignTop, wide, htmlFor, text, required, children }) => {
+const FieldRow = ({ inline, alignTop, wide, labelAlign, htmlFor, text, required, children }) => {
     if (inline) {
         return <Form.Group className="position-relative mb-3">{children}</Form.Group>;
     }
 
-    const className = ["iui-field", alignTop ? "iui-field-top" : "", wide ? "iui-field-wide" : ""].filter(Boolean).join(" ");
+    const className = ["iui-field", alignTop ? "iui-field-top" : "", wide ? "iui-field-wide" : "", labelAlign === "left" ? "iui-field-left" : ""].filter(Boolean).join(" ");
     return (
         <Form.Group className={className}>
             <Form.Label htmlFor={htmlFor} className="fw-bold">
@@ -120,7 +120,7 @@ const IUIPageElement = (props) => {
                 {schema?.map((fld, f) => isFieldVisible(fld, data) && (
                     <Col md={fld.width || 12} key={f}>
                         {fld.type === 'link' &&
-                            <FieldRow htmlFor={fld.field} text={fld.text}>
+                            <FieldRow labelAlign={fld.labelAlign} htmlFor={fld.field} text={fld.text}>
                                 <span><Link className="stretched-link" to={`${fld.to}${data[fld.field]}`}> {data[fld.field]} </Link></span>
                             </FieldRow>
                         }
@@ -135,12 +135,12 @@ const IUIPageElement = (props) => {
                             </span>
                         }
                         {fld.type === 'label' &&
-                            <FieldRow htmlFor={fld.field} text={`${fld.text} :`}>
+                            <FieldRow labelAlign={fld.labelAlign} htmlFor={fld.field} text={`${fld.text} :`}>
                                 <span> {data[fld.field]} </span>
                             </FieldRow>
                         }
                         {(!fld.type || fld.type === 'text' || fld.type === 'number') &&
-                            <FieldRow inline={props?.inline} htmlFor={fld.field} text={fld.text} required={fld.required}>
+                            <FieldRow inline={props?.inline} labelAlign={fld.labelAlign} htmlFor={fld.field} text={fld.text} required={fld.required}>
                                 {fld.fieldIcon && !props?.inline ? (
                                     <InputGroup>
                                         <InputGroup.Text id={`${fld.field}_input_icon`}>
@@ -172,7 +172,7 @@ const IUIPageElement = (props) => {
                             </FieldRow>
                         }
                         {(fld.type === 'textarea') &&
-                            <FieldRow alignTop htmlFor={fld.field} text={fld.text} required={fld.required}>
+                            <FieldRow alignTop labelAlign={fld.labelAlign} htmlFor={fld.field} text={fld.text} required={fld.required}>
                                 <Form.Control as="textarea" rows={3}
                                     name={fld.field}
                                     id={fld.field}
@@ -184,7 +184,7 @@ const IUIPageElement = (props) => {
                             </FieldRow>
                         }
                         {(fld.type === 'email') &&
-                            <FieldRow htmlFor={fld.field} text={fld.text} required={fld.required}>
+                            <FieldRow labelAlign={fld.labelAlign} htmlFor={fld.field} text={fld.text} required={fld.required}>
                                 <Form.Control type="text"
                                     name={fld.field}
                                     id={fld.field}
@@ -196,7 +196,7 @@ const IUIPageElement = (props) => {
                             </FieldRow>
                         }
                         {(fld.type === 'phone') &&
-                            <FieldRow htmlFor={fld.field} text={fld.text} required={fld.required}>
+                            <FieldRow labelAlign={fld.labelAlign} htmlFor={fld.field} text={fld.text} required={fld.required}>
                                 <Form.Control
                                     type="tel"
                                     inputMode="numeric"
@@ -211,7 +211,7 @@ const IUIPageElement = (props) => {
                             </FieldRow>
                         }
                         {fld.type === 'checkbox' &&
-                            <FieldRow htmlFor={fld.field} text={fld.text} required={fld.required}>
+                            <FieldRow labelAlign={fld.labelAlign} htmlFor={fld.field} text={fld.text} required={fld.required}>
                                 <Form.Check
                                     type="checkbox"
                                     id={fld.field}
@@ -229,7 +229,7 @@ const IUIPageElement = (props) => {
                             </FieldRow>
                         }
                         {fld.type === 'richtext' &&
-                            <FieldRow alignTop wide htmlFor={fld.field} text={fld.text} required={fld.required}>
+                            <FieldRow alignTop wide labelAlign={fld.labelAlign} htmlFor={fld.field} text={fld.text} required={fld.required}>
                                 <IUIRichText
                                     id={fld.field}
                                     value={data[fld.field] || ""}
@@ -239,7 +239,7 @@ const IUIPageElement = (props) => {
                             </FieldRow>
                         }
                         {fld.type === 'signature' &&
-                            <FieldRow alignTop htmlFor={fld.field} text={fld.text} required={fld.required}>
+                            <FieldRow alignTop labelAlign={fld.labelAlign} htmlFor={fld.field} text={fld.text} required={fld.required}>
                                 <IUISignatureUpload
                                     id={fld.field}
                                     value={data[fld.field] || ""}
@@ -257,7 +257,7 @@ const IUIPageElement = (props) => {
                         }
                         {fld.type === 'check' &&
                             <>
-                                <FieldRow htmlFor={fld.field} text={`${fld.text} :`} required={fld.required}>
+                                <FieldRow labelAlign={fld.labelAlign} htmlFor={fld.field} text={`${fld.text} :`} required={fld.required}>
                                     <Form.Check className='text-capitalize'
                                         type="switch"
                                         id={fld.field}
@@ -310,7 +310,7 @@ const IUIPageElement = (props) => {
                             </>
                         }
                         {fld.type === 'lookup' &&
-                            <FieldRow inline={props?.inline} htmlFor={fld.field} text={fld.text} required={fld.required}>
+                            <FieldRow inline={props?.inline} labelAlign={fld.labelAlign} htmlFor={fld.field} text={fld.text} required={fld.required}>
                                 <IUILookUp
                                     value={data[fld.field]}
                                     className={dirty ? (errors[fld.field] ? "is-invalid" : "is-valid") : ""}
@@ -323,7 +323,7 @@ const IUIPageElement = (props) => {
                             </FieldRow>
                         }
                         {(fld.type === 'date' || fld.type === 'datetime') &&
-                            <FieldRow htmlFor={fld.field} text={fld.text} required={fld.required}>
+                            <FieldRow labelAlign={fld.labelAlign} htmlFor={fld.field} text={fld.text} required={fld.required}>
                                 <Form.Control type={fld.type === 'datetime' ? 'datetime-local' : 'date'}
                                     name={fld.field}
                                     id={fld.field}

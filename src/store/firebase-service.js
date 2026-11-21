@@ -1,6 +1,9 @@
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
 import { db, auth } from "./firebase";
-import { collection, addDoc, updateDoc, doc, getDoc, getDocs, query, where, limit, orderBy, and, or, getCountFromServer } from "firebase/firestore";
+import { collection, addDoc, updateDoc, doc, getDoc, getDocs, query, where, limit, orderBy, and, or, getCountFromServer, runTransaction, setDoc } from "firebase/firestore";
+import { findDuplicate, normalizeName, validateTestRate } from "../pages/app/masterValidation";
+import { isCancelledInvoice, missingCollectionSamples, prepareSaleInvoice, sampleDocumentId } from "../pages/app/saleInvoiceBilling";
+import { filterBySearch, sortRecords } from "../pages/common/listSearch";
 
 const application = 'DUMMY';
 const api = {};
@@ -82,13 +85,190 @@ api.deleteData = async (action) => {
     return await api.delete(url);
 }
 
+const NAME_RULES = {
+    hisTest: ["hisTestCodeDescription", "A test with this name already exists."],
+    hisParameter: ["hisParamDescription", "A parameter with this name already exists."],
+    specimen: ["specimenName", "A specimen with this name already exists."],
+};
+
+const indexId = (module, field, normalized) => `${module}__${field}__${encodeURIComponent(normalized)}`;
+
+const readModuleRecords = async (module) => {
+    const snapshot = await getDocs(query(collection(db, module), where("application", "==", application)));
+    return snapshot.docs.map(item => ({ ...item.data(), id: item.id }));
+};
+
+const assertNamedRecord = async (module, data, recordId, recordRef = null) => {
+    const rule = NAME_RULES[module];
+    if (!rule) {
+        return false;
+    }
+    const [field, message] = rule;
+    const normalized = normalizeName(data[field]);
+    if (!normalized) {
+        throw new Error("Required field.");
+    }
+
+    const records = await readModuleRecords(module);
+    if (findDuplicate(records, field, data[field], recordId)) {
+        throw new Error(message);
+    }
+
+    const key = indexId(module, field, normalized);
+    data.nameKey = key;
+    data.normalizedName = normalized;
+    const indexRef = doc(db, "uniqueIndex", key);
+    const targetRef = recordRef || doc(db, module, recordId);
+    const previous = records.find(item => item.id === recordId);
+    const previousNormalized = normalizeName(previous?.[field]);
+    const previousKey = previousNormalized ? indexId(module, field, previousNormalized) : "";
+    const oldRef = previousKey && previousKey !== key ? doc(db, "uniqueIndex", previousKey) : null;
+
+    await runTransaction(db, async (transaction) => {
+        const current = await transaction.get(indexRef);
+        if (current.exists() && current.data().recordId !== recordId) {
+            throw new Error(message);
+        }
+        const oldIndex = oldRef ? await transaction.get(oldRef) : null;
+        transaction.set(indexRef, { module, field, normalized, recordId, application, nameKey: key });
+        if (recordRef) {
+            transaction.set(targetRef, data);
+        } else {
+            transaction.update(targetRef, data);
+        }
+        if (oldIndex?.exists() && oldIndex.data().recordId === recordId) {
+            transaction.delete(oldRef);
+        }
+    });
+    return true;
+};
+
+const assertTestRateRecord = async (data, recordId, recordRef = null) => {
+    const records = await readModuleRecords("testRate");
+    const message = validateTestRate(data, records, recordId);
+    if (message) {
+        throw new Error(message);
+    }
+
+    const rateType = data.rateType || "Standard";
+    const lockKey = `testRate__${data.testId}__${rateType}`;
+    data.rateLockKey = lockKey;
+    const lockRef = doc(db, "uniqueIndex", lockKey);
+    const targetRef = recordRef || doc(db, "testRate", recordId);
+    await runTransaction(db, async (transaction) => {
+        const lock = await transaction.get(lockRef);
+        const ids = new Set([
+            ...(lock.data()?.recordIds || []),
+            ...records
+                .filter(item => String(item.testId) === String(data.testId) && (item.rateType || "Standard") === rateType)
+                .map(item => item.id),
+        ]);
+        const fresh = [];
+        for (const id of ids) {
+            const snapshot = await transaction.get(doc(db, "testRate", id));
+            if (snapshot.exists()) {
+                fresh.push({ id: snapshot.id, ...snapshot.data() });
+            }
+        }
+        const freshMessage = validateTestRate(data, fresh, recordId);
+        if (freshMessage) {
+            throw new Error(freshMessage);
+        }
+        const nextIds = fresh.map(item => item.id);
+        if (recordId && !nextIds.includes(recordId)) {
+            nextIds.push(recordId);
+        }
+        transaction.set(lockRef, { module: "testRate", recordIds: nextIds, application, nameKey: lockKey });
+        if (recordRef) {
+            transaction.set(targetRef, data);
+        } else {
+            transaction.update(targetRef, data);
+        }
+    });
+    return true;
+};
+
+const normalizeSaleInvoice = async (data, { repriceTests }) => {
+    const [tests, rates, profiles] = await Promise.all([
+        readModuleRecords("hisTest"),
+        readModuleRecords("testRate"),
+        readModuleRecords("testProfile"),
+    ]);
+    const prepared = prepareSaleInvoice(data, { tests, rates, profiles }, { repriceTests });
+    if (!prepared.ok) {
+        throw new Error(prepared.errors.join(" "));
+    }
+    return prepared.invoice;
+};
+
+const existingSampleForLine = async (sample) => {
+    if (!sample?.saleInvoiceId || !sample?.lineKey) {
+        return null;
+    }
+    const snapshot = await getDocs(query(collection(db, "sample"), where("saleInvoiceId", "==", sample.saleInvoiceId)));
+    return snapshot.docs
+        .map(item => ({ ...item.data(), id: item.id }))
+        .find(item => String(item.lineKey || item.testId || item.testProfileId || item.testName) === String(sample.lineKey)) || null;
+};
+
+const createSampleOnce = async (sample) => {
+    const lineKey = String(sample?.lineKey || "").replace(/\//g, "_");
+    const saleInvoiceId = String(sample?.saleInvoiceId || "").replace(/\//g, "_");
+    const payload = { ...sample, lineKey, saleInvoiceId };
+    const legacy = await existingSampleForLine(payload);
+    if (legacy) {
+        return legacy.id;
+    }
+    const id = sampleDocumentId(payload);
+    const ref = doc(db, "sample", id);
+    const utcNow = new Date();
+    await runTransaction(db, async (transaction) => {
+        const current = await transaction.get(ref);
+        if (current.exists()) {
+            return;
+        }
+        transaction.set(ref, {
+            ...payload,
+            id,
+            status: payload.status || "Pending",
+            schema: "sample",
+            user: "admin@zorya.co.in",
+            dateCreated: utcNow.toUTCString(),
+            application,
+            access: "private",
+        });
+    });
+    return id;
+};
+
+const createCollectionSamples = async (invoice) => {
+    if (isCancelledInvoice(invoice)) {
+        return;
+    }
+    const existing = invoice?.id
+        ? (await getDocs(query(collection(db, "sample"), where("saleInvoiceId", "==", invoice.id)))).docs.map(item => ({ ...item.data(), id: item.id }))
+        : [];
+    const missing = missingCollectionSamples([invoice], existing);
+    for (const sample of missing) {
+        await createSampleOnce(sample);
+    }
+};
+
 api.editData = async (action) => {
     const docRef = doc(db, action.module, action.data.id);
+    let data = action.data;
+    if (action.module === "saleInvoice" && Array.isArray(data.lines)) {
+        data = { ...data, ...(await normalizeSaleInvoice(data, { repriceTests: false })) };
+    }
+    const wroteNamedRecord = await assertNamedRecord(action.module, data, data.id);
+    const wroteRateRecord = action.module === "testRate"
+        ? await assertTestRateRecord(data, data.id)
+        : false;
+    if (!wroteNamedRecord && !wroteRateRecord) {
+        await updateDoc(docRef, data);
+    }
 
-    // Update the timestamp field with the value from the server
-    await updateDoc(docRef, action.data);
-
-    return { data: action.data.id };
+    return { data: data.id };
 
 }
 
@@ -104,19 +284,41 @@ api.addData = async (action) => {
     // dateCreated  - utc now
     // application - global
 
+    let payload = action.data;
+    if (action.module === "saleInvoice") {
+        payload = await normalizeSaleInvoice(payload, { repriceTests: true });
+    }
+    if (action.module === "sample" && payload?.saleInvoiceId && payload?.lineKey) {
+        const sampleId = await createSampleOnce({
+            ...payload,
+            status: payload.status || "Pending",
+        });
+        return { data: sampleId };
+    }
+
     const moduleData = {
-        ...action.data
-        , status: 'new'
+        ...payload
+        , status: payload.status || 'new'
         , schema: action.module
         , user: 'admin@zorya.co.in'
         , dateCreated: utcNow.toUTCString()
         , application: application
         , access: 'private'
     }
-    const response = await addDoc(collection(db, action.module), moduleData);
+    const recordRef = doc(collection(db, action.module));
+    moduleData.id = recordRef.id;
+    const wroteNamedRecord = await assertNamedRecord(action.module, moduleData, recordRef.id, recordRef);
+    const wroteRateRecord = action.module === "testRate"
+        ? await assertTestRateRecord(moduleData, recordRef.id, recordRef)
+        : false;
+    if (!wroteNamedRecord && !wroteRateRecord) {
+        await setDoc(recordRef, moduleData);
+    }
+    if (action.module === "saleInvoice") {
+        await createCollectionSamples(moduleData);
+    }
 
-    moduleData.id = response.id;
-    return { data: response.id };
+    return { data: recordRef.id };
 }
 
 api.getFilters = ({ or, ...rest }) => {
@@ -158,6 +360,25 @@ api.getData = async (action) => {
         option.sortDirection = 'desc'
     }
 
+
+    if (option.searchMode === "contains") {
+        const baseQuery = query(dataRef, where("application", "==", application));
+        const querySnapshot = await getDocs(baseQuery);
+        let records = querySnapshot.docs.map((item) => ({ ...item.data(), id: item.id }));
+        const term = String(option.search || "").trim();
+        if (term) {
+            const relatedByModule = {};
+            const relatedModules = [...new Set((option.searchFields || []).map(field => field.lookup?.module).filter(Boolean))];
+            for (const relatedModule of relatedModules) {
+                relatedByModule[relatedModule] = await readModuleRecords(relatedModule);
+            }
+            records = filterBySearch(records, term, option.searchFields || [], relatedByModule);
+        }
+        records = sortRecords(records, option.sortColumnName, option.sortDirection);
+        const totalRecords = records.length;
+        const pageSize = option.recordPerPage === 0 ? totalRecords : Number(option.recordPerPage) || totalRecords;
+        return { data: { items: records.slice(0, pageSize), totalRecords }, option };
+    }
 
     let filters = {}
 
